@@ -70,7 +70,7 @@ Feel free to fork, open issues, or contribute via pull requests.
 
 ### Credits
 - **[Xtra Kernel Manager](https://github.com/Gustyx-Power/Xtra-Kernel-Manager)** as a base for this app.
-- **[Danda](https://github.com/Danda420)** big help 
+- **[Danda](https://github.com/Danda420),** helping develop and understanding how Androids works. 
 ---
 
 ## 📣 Disclaimer
