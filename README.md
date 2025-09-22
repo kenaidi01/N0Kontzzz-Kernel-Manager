@@ -8,7 +8,7 @@
 ![GitHub commits](https://img.shields.io/github/commit-activity/t/bimoalfarrabi/N0Kontzzz-Kernel-Manager?style=for-the-badge)
 [![Repo Size](https://img.shields.io/github/repo-size/bimoalfarrabi/N0Kontzzz-Kernel-Manager?style=for-the-badge&logo=github)](https://github.com/bimoalfarrabi/N0Kontzzz-Kernel-Manager)
 
-**N0Kontzzz Kernel Manager** is a Modern apps, Rooted Android application based on Xtra Kernel Manager. Built with Kotlin and Jetpack Compose, this app designed for real-time monitoring and tuning of CPU performance, thermal behavior, and many more configurations on Poco F4 (munch) running N0Kontzzz custom kernels.
+**N0Kontzzz Kernel Manager** is a modern, rooted Android application based on Xtra Kernel Manager. Built with Kotlin and Jetpack Compose, the app provides real-time monitoring and tuning of CPU performance, thermal behavior, and more for Poco F4 (munch), optimized for [N0Kontzzz](https://github.com/bimoalfarrabi/kernel_xiaomi_sm8250_n0kontzz) custom kernel.
 
 
 ## ✨ Features
@@ -19,11 +19,11 @@
 - 🌡️ **Thermal Zone Status**  
   Retrieve and display system thermal zone data for advanced thermal debugging.
 
-- ⚙️ **CPU Tuning** *(Root Required)*  
-  Apply governor changes (e.g. `performance`, `powersave`) on-the-fly with native shell execution via [libsu](https://github.com/topjohnwu/libsu).
+- ⚙️ **CPU Tuning**
+  Apply governor changes on-the-fly with native shell execution via [libsu](https://github.com/topjohnwu/libsu).
 
 - 💡 **Material 3 UI**  
-  Elegant light-themed interface using the latest Jetpack Compose and Material Design 3 components.
+  Elegant interface using the latest Jetpack Compose and Material Design 3 components.
 
 - 🚀 **Fast & Minimal**  
   Lightweight architecture using MVVM pattern, ensuring smooth performance on rooted devices.
@@ -32,16 +32,15 @@
 
 ## 📱 Requirements
 
-- ✅ Root access (Magisk / KernelSU supported)  
-- ✅ Android 10 (API 29) or above  
-- ✅ Custom kernel with tunable CPU governors  
+- ✅ Root access (Magisk / KernelSU supported).
+- ✅ Poco F4 (munch) running N0Kontzzz kernel.
 
 ---
 
 ## 🔐 Permissions
 
-- `root` access via libsu (automatic permission request)
-- No internet access or telemetry. 100% offline and private.
+- `root` access via libsu (automatic permission request).
+- No internet access or telemetry. Operates 100% offline and private.
 
 ---
 
@@ -69,13 +68,13 @@ Feel free to fork, open issues, or contribute via pull requests.
 ---
 
 ### Credits
-- **[Xtra Kernel Manager](https://github.com/Gustyx-Power/Xtra-Kernel-Manager)** as a base for this app.
-- **[Danda](https://github.com/Danda420)**, helping develop and understanding how Androids works. 
+- **[Xtra Kernel Manager](https://github.com/Gustyx-Power/Xtra-Kernel-Manager)** — used as the foundation for this app; this project was originally forked from Xtra Kernel Manager.
+- **[Danda](https://github.com/Danda420)** — for contributions to app development and guidance in understanding Android internals.
 ---
 
 ## 📣 Disclaimer
 
-> ⚠️ This app performs privileged operations that may affect system stability.  
-> Use at your own risk. The developer is not responsible for any damage caused by improper configuration.
+> ⚠️ This app performs advanced functions that may affect system stability.  
+> Use at your own risk — no responsibility for any damage resulting from misconfiguration.
 
 ---
