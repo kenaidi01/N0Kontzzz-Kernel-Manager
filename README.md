@@ -1,14 +1,14 @@
-<h1 align="center" style="font-size: 48px;">Xtra Kernel Manager</h1>
+<h1 align="center" style="font-size: 48px;">N0Kontzzz Kernel Manager</h1>
 
 ![Platform](https://img.shields.io/badge/platform-Android-green?style=for-the-badge&logo=android)
 ![Language](https://img.shields.io/badge/language-Kotlin-purple?style=for-the-badge&logo=kotlin)
 ![UI](https://img.shields.io/badge/Jetpack-Compose-blue?style=for-the-badge&logo=jetpackcompose)
-![License](https://img.shields.io/github/license/Gustyx-Power/Xtra-Kernel-Manager?style=for-the-badge)
+![License](https://img.shields.io/github/license/bimoalfarrabi/N0Kontzzz-Kernel-Manager?style=for-the-badge)
 ![Root Required](https://img.shields.io/badge/Root-Required-critical?style=for-the-badge&logo=android)
-![GitHub commits](https://img.shields.io/github/commit-activity/t/Gustyx-Power/Xtra-Kernel-Manager?style=for-the-badge)
-[![Repo Size](https://img.shields.io/github/repo-size/Gustyx-Power/Xtra-Kernel-Manager?style=for-the-badge&logo=github)](https://github.com/Gustyx-Power/Xtra-Kernel-Manager)
+![GitHub commits](https://img.shields.io/github/commit-activity/t/bimoalfarrabi/N0Kontzzz-Kernel-Manager?style=for-the-badge)
+[![Repo Size](https://img.shields.io/github/repo-size/bimoalfarrabi/N0Kontzzz-Kernel-Manager?style=for-the-badge&logo=github)](https://github.com/bimoalfarrabi/N0Kontzzz-Kernel-Manager)
 
-**Xtra Kernel Manager** is a Modern apps, Rooted Android application built with Kotlin and Jetpack Compose, designed for real-time monitoring and tuning of CPU performance, thermal behavior, and power-saving configurations on devices running custom kernels.
+**N0Kontzzz Kernel Manager** is a Modern apps, Rooted Android application based on Xtra Kernel Manager. Built with Kotlin and Jetpack Compose, this app designed for real-time monitoring and tuning of CPU performance, thermal behavior, and many more configurations on Poco F4 (munch) running N0Kontzzz custom kernels.
 
 
 ## ✨ Features
@@ -57,24 +57,20 @@
 
 ## 📂 Repository
 
-This is the official repository for **Xtra Kernel Manager**, maintained by the **Xtra Manager Software** team.  
 Feel free to fork, open issues, or contribute via pull requests.
 
 ---
 > [!TIP]
 >
 > - **Performance Mode**: For demanding tasks like gaming, switch to `performance` governor for maximum CPU speed.
-> - **Battery Saving**: Use `powersave` governor when battery life is a priority.
-> - **Balanced Profile**: Most custom kernels offer a `schedutil` or `schedhorizon` governor for a balance between performance and power saving.
-> - **Thermal Monitoring**: Use `Dynamic` for Performance & Use `Thermal 20` For Balance & Use `Incalls` For Battery life. 
+> - **Balanced Profile**: Most custom kernels offer a `schedutil` governor for a balance between performance and power saving.
 
 
 ---
 
-### Developer
-- **[Gustyx-Power](https://github.com/Gustyx-Power)** Founder XKM 
-- **[Pavellc](https://github.com/pavelc4)** Ui XKM Supports 
-- **[Ziyu4](https://github.com/Ziyu4)**  Implementation Tuning Help
+### Credits
+- **[Xtra Kernel Manager](https://github.com/Gustyx-Power/Xtra-Kernel-Manager)** as a base for this app.
+- **[Danda](https://github.com/Danda420)** big help 
 ---
 
 ## 📣 Disclaimer
@@ -83,5 +79,3 @@ Feel free to fork, open issues, or contribute via pull requests.
 > Use at your own risk. The developer is not responsible for any damage caused by improper configuration.
 
 ---
-
-© 2025 Xtra Manager Software. All rights reserved.
