@@ -55,36 +55,37 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.16.0")
-    implementation("androidx.activity:activity-compose:1.10.1")
-    implementation("androidx.work:work-runtime-ktx:2.10.3")
+    implementation("androidx.core:core-ktx:1.17.0")
+    implementation("androidx.activity:activity-compose:1.11.0")
+    implementation("androidx.work:work-runtime-ktx:2.10.4")
 
     implementation(platform("androidx.compose:compose-bom:2025.07.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material3:material3:1.5.0-alpha04")
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
 
     // Versi yang aman untuk Kotlin 1.9.24
-    implementation("androidx.navigation:navigation-compose:2.9.3")
+    implementation("androidx.navigation:navigation-compose:2.9.4")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.2")
 
-    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.appcompat:appcompat:1.7.1")
 
     implementation("androidx.datastore:datastore-preferences:1.1.7")
 
     // Hilt
-    implementation("com.google.dagger:hilt-android:2.57")
+    implementation("com.google.dagger:hilt-android:2.57.1")
     implementation(libs.androidx.material3.android)
     implementation(libs.androidx.compilercommon)
-    kapt("com.google.dagger:hilt-compiler:2.57")
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
-    implementation("androidx.hilt:hilt-work:1.2.0")
-    testImplementation("com.google.dagger:hilt-android-testing:2.57")
-    kaptTest("com.google.dagger:hilt-compiler:2.57")
+    implementation(libs.material)
+    kapt("com.google.dagger:hilt-compiler:2.57.1")
+    implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
+    implementation("androidx.hilt:hilt-work:1.3.0")
+    testImplementation("com.google.dagger:hilt-android-testing:2.57.1")
+    kaptTest("com.google.dagger:hilt-compiler:2.57.1")
 
-    implementation("com.google.accompanist:accompanist-systemuicontroller:0.31.0-alpha")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.36.0")
 
     // LibSu & Coil
     implementation("com.github.topjohnwu.libsu:core:6.0.0")
@@ -92,16 +93,16 @@ dependencies {
 
     // Testing
     testImplementation("junit:junit:4.13.2")
-    testImplementation("androidx.test:core:1.5.0")
-    testImplementation("org.mockito:mockito-core:3.12.4")
-    testImplementation("org.robolectric:robolectric:4.10.3")
+    testImplementation("androidx.test:core:1.7.0")
+    testImplementation("org.mockito:mockito-core:5.20.0")
+    testImplementation("org.robolectric:robolectric:4.16")
 
     // Serialization yang cocok dengan Kotlin 1.9.24
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     debugImplementation("androidx.compose.ui:ui-tooling")
 
     // WorkManager
-    implementation("androidx.work:work-runtime-ktx:2.10.3")
+    implementation("androidx.work:work-runtime-ktx:2.10.4")
 
     // Guava
     implementation("com.google.guava:guava:32.1.3-jre") {
