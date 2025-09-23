@@ -62,7 +62,7 @@ Feel free to fork, open issues, or contribute via pull requests.
 > [!TIP]
 >
 > - **Performance Mode**: For demanding tasks like gaming, switch to `performance` governor for maximum CPU speed.
-> - **Balanced Profile**: Most custom kernels offer a `schedutil` governor for a balance between performance and power saving.
+> - **Balanced Profile**: `schedutil` governor for a balance between performance and power saving.
 
 
 ---
