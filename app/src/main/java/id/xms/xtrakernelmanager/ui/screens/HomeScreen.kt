@@ -30,9 +30,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.google.android.material.loadingindicator.LoadingIndicator
 import id.xms.xtrakernelmanager.R
 import id.xms.xtrakernelmanager.data.model.SystemInfo
 import id.xms.xtrakernelmanager.ui.components.*
+import id.xms.xtrakernelmanager.ui.components.ExpressiveLoadingIndicator
 import id.xms.xtrakernelmanager.viewmodel.GraphDataViewModel
 import id.xms.xtrakernelmanager.viewmodel.HomeViewModel
 import java.io.BufferedReader
@@ -231,7 +233,7 @@ fun HomeScreen(navController: NavController) {
                 modifier = Modifier.fillMaxSize().padding(paddingValues),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator()
+                IndeterminateExpressiveLoadingIndicator()
             }
         } else {
             Column(
@@ -280,7 +282,7 @@ fun HomeScreen(navController: NavController) {
                 } else {
                     FadeInEffect { modifier ->
                         Box(modifier.fillMaxWidth().height(200.dp).background(Color.LightGray.copy(alpha = 0.5f))) {
-                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                            IndeterminateExpressiveLoadingIndicator(modifier = Modifier.align(Alignment.Center))
                         }
                     }
                 }

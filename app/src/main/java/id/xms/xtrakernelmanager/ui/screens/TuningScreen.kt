@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import id.xms.xtrakernelmanager.ui.components.ExpressiveLoadingIndicator
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -137,7 +138,7 @@ fun TuningScreen(viewModel: TuningViewModel = hiltViewModel()) {
         if (isTuningDataLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    CircularProgressIndicator()
+                    IndeterminateExpressiveLoadingIndicator()
                     Spacer(modifier = Modifier.height(16.dp))
                     Text("Loading tuning data...")
                 }
