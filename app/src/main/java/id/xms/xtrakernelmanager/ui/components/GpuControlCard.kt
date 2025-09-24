@@ -91,6 +91,8 @@ fun GpuControlCard(
     var isExpanded by remember { mutableStateOf(false) }
     var showGovernorDialog by remember { mutableStateOf(false) }
     var showRendererDialog by remember { mutableStateOf(false) }
+    var showMinFreqDialog by remember { mutableStateOf(false) }
+    var showMaxFreqDialog by remember { mutableStateOf(false) }
 
     // Collect GPU states from ViewModel
     val gpuGovernor by tuningViewModel.currentGpuGovernor.collectAsState()
@@ -103,19 +105,7 @@ fun GpuControlCard(
     val currentRenderer by tuningViewModel.currentGpuRenderer.collectAsState()
     val availableRenderers = tuningViewModel.availableGpuRenderers
 
-    // Calculate frequency ranges for sliders
-    val minFreqRange = availableGpuFrequencies.minOrNull()?.toFloat() ?: 0f
-    val maxFreqRange = availableGpuFrequencies.maxOrNull()?.toFloat() ?: 1000f
-
-    // Local state for slider values
-    var sliderMinFreq by remember { mutableStateOf(gpuMinFreq.toFloat()) }
-    var sliderMaxFreq by remember { mutableStateOf(gpuMaxFreq.toFloat()) }
-
-    // Update slider values when GPU frequencies change
-    LaunchedEffect(gpuMinFreq, gpuMaxFreq) {
-        sliderMinFreq = gpuMinFreq.toFloat()
-        sliderMaxFreq = gpuMaxFreq.toFloat()
-    }
+    // No frequency ranges needed since we're using dialogs instead of sliders
 
     // Load GPU data when component is first composed
     LaunchedEffect(Unit) {
@@ -266,71 +256,89 @@ fun GpuControlCard(
                         description = "Minimum and maximum GPU frequencies",
                         icon = Icons.Default.Speed
                     ) {
-                        // Sliders for GPU frequency control
+                        // Cards for GPU frequency control with dialogs
                         Column(
                             modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            // Min Frequency Slider
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            // Min Frequency Card
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { showMinFreqDialog = true },
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surface
+                                )
                             ) {
-                                Text(
-                                    text = "Min Frequency: ${sliderMinFreq.toInt()} MHz",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Slider(
-                                    value = sliderMinFreq,
-                                    onValueChange = { newValue ->
-                                        sliderMinFreq = newValue
-                                        // Update ViewModel with new min frequency
-                                        coroutineScope.launch {
-                                            tuningViewModel.setGpuMinFrequency(newValue.toInt())
-                                        }
-                                    },
-                                    valueRange = minFreqRange..maxFreqRange,
-                                    steps = ((maxFreqRange - minFreqRange) / 10).toInt(),
-                                    colors = SliderDefaults.colors(
-                                        thumbColor = MaterialTheme.colorScheme.primary,
-                                        activeTrackColor = MaterialTheme.colorScheme.primary,
-                                        inactiveTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                                    ),
-                                    modifier = Modifier.fillMaxWidth()
-                                )
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = "Minimum Frequency",
+                                            fontSize = 12.sp,
+                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                                        )
+                                        Text(
+                                            text = "${gpuMinFreq} MHz",
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                        contentDescription = "Change Min Frequency",
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
                             }
 
-                            // Max Frequency Slider
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            // Max Frequency Card
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { showMaxFreqDialog = true },
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surface
+                                )
                             ) {
-                                Text(
-                                    text = "Max Frequency: ${sliderMaxFreq.toInt()} MHz",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Slider(
-                                    value = sliderMaxFreq,
-                                    onValueChange = { newValue ->
-                                        sliderMaxFreq = newValue
-                                        // Update ViewModel with new max frequency
-                                        coroutineScope.launch {
-                                            tuningViewModel.setGpuMaxFrequency(newValue.toInt())
-                                        }
-                                    },
-                                    valueRange = minFreqRange..maxFreqRange,
-                                    steps = ((maxFreqRange - minFreqRange) / 10).toInt(),
-                                    colors = SliderDefaults.colors(
-                                        thumbColor = MaterialTheme.colorScheme.secondary,
-                                        activeTrackColor = MaterialTheme.colorScheme.secondary,
-                                        inactiveTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                                    ),
-                                    modifier = Modifier.fillMaxWidth()
-                                )
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = "Maximum Frequency",
+                                            fontSize = 12.sp,
+                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                                        )
+                                        Text(
+                                            text = "${gpuMaxFreq} MHz",
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                        contentDescription = "Change Max Frequency",
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
                             }
                         }
                     }
@@ -390,7 +398,7 @@ fun GpuControlCard(
     // Governor Selection Dialog
     if (showGovernorDialog) {
         AlertDialog(
-            onDismissRequest = { showGovernorDialog = false },
+            onDismissRequest = { showGovernorDialog = true },
             title = {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -457,7 +465,7 @@ fun GpuControlCard(
     // Renderer Selection Dialog
     if (showRendererDialog) {
         AlertDialog(
-            onDismissRequest = { showRendererDialog = false },
+            onDismissRequest = { showRendererDialog = true },
             title = {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -529,6 +537,140 @@ fun GpuControlCard(
             },
             confirmButton = {
                 TextButton(onClick = { showRendererDialog = false }) {
+                    Text("Close")
+                }
+            }
+        )
+    }
+
+    // Min Frequency Selection Dialog
+    if (showMinFreqDialog) {
+        AlertDialog(
+            onDismissRequest = { showMinFreqDialog = true },
+            title = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text("Select Minimum GPU Frequency")
+                }
+            },
+            text = {
+                if (availableGpuFrequencies.isEmpty()) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(32.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Loading frequencies...")
+                    }
+                } else {
+                    LazyColumn {
+                        items(availableGpuFrequencies.sorted()) { frequency ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .selectable(
+                                        selected = frequency == gpuMinFreq,
+                                        onClick = {
+                                            coroutineScope.launch {
+                                                tuningViewModel.setGpuMinFrequency(frequency)
+                                            }
+                                            showMinFreqDialog = false
+                                        }
+                                    )
+                                    .padding(vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(
+                                    selected = frequency == gpuMinFreq,
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            tuningViewModel.setGpuMinFrequency(frequency)
+                                        }
+                                        showMinFreqDialog = false
+                                    }
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "${frequency} MHz",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showMinFreqDialog = false }) {
+                    Text("Close")
+                }
+            }
+        )
+    }
+
+    // Max Frequency Selection Dialog
+    if (showMaxFreqDialog) {
+        AlertDialog(
+            onDismissRequest = { showMaxFreqDialog = false },
+            title = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text("Select Maximum GPU Frequency")
+                }
+            },
+            text = {
+                if (availableGpuFrequencies.isEmpty()) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(32.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Loading frequencies...")
+                    }
+                } else {
+                    LazyColumn {
+                        items(availableGpuFrequencies.sorted()) { frequency ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .selectable(
+                                        selected = frequency == gpuMaxFreq,
+                                        onClick = {
+                                            coroutineScope.launch {
+                                                tuningViewModel.setGpuMaxFrequency(frequency)
+                                            }
+                                            showMaxFreqDialog = false
+                                        }
+                                    )
+                                    .padding(vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(
+                                    selected = frequency == gpuMaxFreq,
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            tuningViewModel.setGpuMaxFrequency(frequency)
+                                        }
+                                        showMaxFreqDialog = false
+                                    }
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "${frequency} MHz",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showMaxFreqDialog = false }) {
                     Text("Close")
                 }
             }

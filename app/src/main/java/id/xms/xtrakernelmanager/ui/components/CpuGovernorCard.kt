@@ -25,6 +25,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Edit
@@ -53,6 +56,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
@@ -62,6 +66,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -74,6 +79,7 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import id.xms.xtrakernelmanager.viewmodel.TuningViewModel
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -87,7 +93,8 @@ fun CpuGovernorCard(
     val coreStates by vm.coreStates.collectAsState()
 
     var showGovernorDialogForCluster by remember { mutableStateOf<String?>(null) }
-    var showFreqDialogForCluster by remember { mutableStateOf<String?>(null) }
+    var showMinFreqDialogForCluster by remember { mutableStateOf<String?>(null) }
+    var showMaxFreqDialogForCluster by remember { mutableStateOf<String?>(null) }
     var showCoreDialogForCluster by remember { mutableStateOf<String?>(null) }
 
     var isExpanded by remember { mutableStateOf(false) }
@@ -192,7 +199,8 @@ fun CpuGovernorCard(
                                 clusterName = clusterName,
                                 vm = vm,
                                 onGovernorClick = { showGovernorDialogForCluster = clusterName },
-                                onFrequencyClick = { showFreqDialogForCluster = clusterName },
+                                onMinFrequencyClick = { showMinFreqDialogForCluster = clusterName },
+                                onMaxFrequencyClick = { showMaxFreqDialogForCluster = clusterName },
                                 onCoreClick = { showCoreDialogForCluster = clusterName }
                             )
                         }
@@ -215,73 +223,42 @@ fun CpuGovernorCard(
         )
     }
 
-    if (showFreqDialogForCluster != null) {
-        val clusterName = showFreqDialogForCluster!!
-        val availableFrequenciesForCluster by vm.getAvailableCpuFrequencies(clusterName).collectAsState()
-        val currentFreqPair by vm.getCpuFreq(clusterName).collectAsState()
+    if (showMinFreqDialogForCluster != null) {
+        val currentFreqPair by vm.getCpuFreq(showMinFreqDialogForCluster!!).collectAsState()
+        val availableFrequencies by vm.getAvailableCpuFrequencies(showMinFreqDialogForCluster!!).collectAsState()
 
-        // Show dialog even if data is not perfect - let user see what's happening
-        if (availableFrequenciesForCluster.isNotEmpty()) {
-            val systemMinFreq = availableFrequenciesForCluster.minOrNull() ?: currentFreqPair.first
-            val systemMaxFreq = availableFrequenciesForCluster.maxOrNull() ?: currentFreqPair.second
+        MinFrequencySelectionDialog(
+            clusterName = showMinFreqDialogForCluster!!,
+            currentMinFreq = currentFreqPair.first,
+            minSystemFreq = availableFrequencies.minOrNull() ?: 0,
+            maxSystemFreq = availableFrequencies.maxOrNull() ?: 0,
+            allAvailableFrequencies = availableFrequencies,
+            onMinFrequencySelected = { minFreq ->
+                val currentMaxFreq = currentFreqPair.second
+                vm.setCpuFreq(showMinFreqDialogForCluster!!, minFreq, currentMaxFreq)
+                showMinFreqDialogForCluster = null
+            },
+            onDismiss = { showMinFreqDialogForCluster = null }
+        )
+    }
 
-            // More lenient condition - allow dialog to show even with imperfect data
-            if (systemMinFreq > 0 && systemMaxFreq > 0 && systemMinFreq <= systemMaxFreq) {
-                FrequencySelectionDialog(
-                    clusterName = clusterName,
-                    currentMinFreq = currentFreqPair.first.coerceAtLeast(systemMinFreq),
-                    currentMaxFreq = currentFreqPair.second.coerceAtMost(systemMaxFreq),
-                    minSystemFreq = systemMinFreq,
-                    maxSystemFreq = systemMaxFreq,
-                    allAvailableFrequencies = availableFrequenciesForCluster.sorted(),
-                    onFrequencySelected = { newMin, newMax ->
-                        vm.setCpuFreq(clusterName, newMin, newMax)
-                        showFreqDialogForCluster = null
-                    },
-                    onDismiss = { showFreqDialogForCluster = null }
-                )
-            } else {
-                // Show an error dialog instead of silently dismissing
-                AlertDialog(
-                    onDismissRequest = { showFreqDialogForCluster = null },
-                    title = { Text("Frequency Error") },
-                    text = {
-                        Text("Cannot adjust frequency for $clusterName.\nInvalid frequency range: $systemMinFreq - $systemMaxFreq MHz")
-                    },
-                    confirmButton = {
-                        TextButton(onClick = { showFreqDialogForCluster = null }) {
-                            Text("OK")
-                        }
-                    }
-                )
-            }
-        } else {
-            // Show loading or error dialog instead of silently dismissing
-            AlertDialog(
-                onDismissRequest = { showFreqDialogForCluster = null },
-                title = { Text("Loading Frequencies") },
-                text = {
-                    Column {
-                        if (currentFreqPair.first == 0 && currentFreqPair.second == 0) {
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                CircularProgressIndicator(modifier = Modifier.size(20.dp))
-                                Text("Loading frequency data for $clusterName...")
-                            }
-                        } else {
-                            Text("No available frequencies found for $clusterName.\nCurrent: ${currentFreqPair.first/1000} - ${currentFreqPair.second/1000} MHz")
-                        }
-                    }
-                },
-                confirmButton = {
-                    TextButton(onClick = { showFreqDialogForCluster = null }) {
-                        Text("OK")
-                    }
-                }
-            )
-        }
+    if (showMaxFreqDialogForCluster != null) {
+        val currentFreqPair by vm.getCpuFreq(showMaxFreqDialogForCluster!!).collectAsState()
+        val availableFrequencies by vm.getAvailableCpuFrequencies(showMaxFreqDialogForCluster!!).collectAsState()
+
+        MaxFrequencySelectionDialog(
+            clusterName = showMaxFreqDialogForCluster!!,
+            currentMaxFreq = currentFreqPair.second,
+            minSystemFreq = availableFrequencies.minOrNull() ?: 0,
+            maxSystemFreq = availableFrequencies.maxOrNull() ?: 0,
+            allAvailableFrequencies = availableFrequencies,
+            onMaxFrequencySelected = { maxFreq ->
+                val currentMinFreq = currentFreqPair.first
+                vm.setCpuFreq(showMaxFreqDialogForCluster!!, currentMinFreq, maxFreq)
+                showMaxFreqDialogForCluster = null
+            },
+            onDismiss = { showMaxFreqDialogForCluster = null }
+        )
     }
 
     if (showCoreDialogForCluster != null) {
@@ -307,7 +284,7 @@ private fun GovernorSelectionDialog(
     AlertDialog(
         shape = RoundedCornerShape(24.dp),
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-        onDismissRequest = onDismiss,
+        onDismissRequest = { /* Tidak melakukan apa-apa agar hanya bisa ditutup dengan tombol */ },
         title = {
             Text(
                 "Select Governor for ${clusterName.replaceFirstChar { it.titlecase() }}",
@@ -356,7 +333,7 @@ private fun GovernorSelectionDialog(
                     contentColor = MaterialTheme.colorScheme.primary
                 )
             ) {
-                Text("Cancel", fontWeight = FontWeight.SemiBold)
+                Text("Close", fontWeight = FontWeight.SemiBold)
             }
         },
         dismissButton = null // Tidak perlu dismiss button eksplisit, onDismissRequest sudah cukup
@@ -364,171 +341,193 @@ private fun GovernorSelectionDialog(
 }
 
 @Composable
-private fun FrequencySelectionDialog(
+private fun MinFrequencySelectionDialog(
     clusterName: String,
     currentMinFreq: Int,
-    currentMaxFreq: Int,
     minSystemFreq: Int,
     maxSystemFreq: Int,
     allAvailableFrequencies: List<Int>,
-    onFrequencySelected: (min: Int, max: Int) -> Unit,
+    onMinFrequencySelected: (min: Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    if (allAvailableFrequencies.isEmpty() || minSystemFreq >= maxSystemFreq) {
-        LaunchedEffect(Unit) { onDismiss() }
-        return
+    var selectedMinFreq by remember(currentMinFreq, allAvailableFrequencies) {
+        if (allAvailableFrequencies.isEmpty()) {
+            mutableIntStateOf(currentMinFreq)
+        } else {
+            mutableIntStateOf(findClosestFrequency(currentMinFreq.coerceIn(minSystemFreq, maxSystemFreq), allAvailableFrequencies))
+        }
     }
 
-    var sliderMinValue by remember(currentMinFreq, minSystemFreq, maxSystemFreq, allAvailableFrequencies) {
-        mutableFloatStateOf(
-            findClosestFrequency(
-                currentMinFreq.coerceIn(minSystemFreq, maxSystemFreq),
-                allAvailableFrequencies
-            ).toFloat()
-        )
+    // Update selected frequency when values change
+    LaunchedEffect(currentMinFreq, allAvailableFrequencies) {
+        if (allAvailableFrequencies.isNotEmpty()) {
+            selectedMinFreq = findClosestFrequency(currentMinFreq.coerceIn(minSystemFreq, maxSystemFreq), allAvailableFrequencies)
+        }
     }
-    var sliderMaxValue by remember(currentMaxFreq, minSystemFreq, maxSystemFreq, allAvailableFrequencies) {
-        mutableFloatStateOf(
-            findClosestFrequency(
-                currentMaxFreq.coerceIn(minSystemFreq, maxSystemFreq),
-                allAvailableFrequencies
-            ).toFloat()
-        )
-    }
-
-    LaunchedEffect(currentMinFreq, currentMaxFreq, minSystemFreq, maxSystemFreq, allAvailableFrequencies) {
-        val newInitialMin = findClosestFrequency(currentMinFreq.coerceIn(minSystemFreq, maxSystemFreq), allAvailableFrequencies).toFloat()
-        val newInitialMax = findClosestFrequency(currentMaxFreq.coerceIn(minSystemFreq, maxSystemFreq), allAvailableFrequencies).toFloat()
-        sliderMinValue = newInitialMin.coerceAtMost(newInitialMax)
-        sliderMaxValue = newInitialMax.coerceAtLeast(newInitialMin)
-    }
-
-    val sliderColors = SliderDefaults.colors(
-        thumbColor = MaterialTheme.colorScheme.primary,
-        activeTrackColor = MaterialTheme.colorScheme.primary,
-        inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant,
-        activeTickColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f),
-        inactiveTickColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-    )
 
     AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Set Frequency", style = MaterialTheme.typography.headlineSmall) },
+        onDismissRequest = { /* Tidak melakukan apa-apa agar hanya bisa ditutup dengan tombol */ },
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text("Select Minimum CPU Frequency")
+            }
+        },
+        shape = RoundedCornerShape(24.dp),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         text = {
             Column {
                 Text(
                     clusterName.replaceFirstChar { it.titlecase() },
                     style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 16.dp, top = 4.dp)
                 )
 
-                // Min Frequency
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("Min Frequency", style = MaterialTheme.typography.labelLarge)
-                    Text(
-                        "${sliderMinValue.roundToInt() / 1000} MHz",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    )
+                if (allAvailableFrequencies.isEmpty()) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(32.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Loading frequencies...")
+                    }
+                } else {
+                    LazyColumn {
+                        items(allAvailableFrequencies.sorted()) { frequency ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .selectable(
+                                        selected = frequency == selectedMinFreq,
+                                        onClick = { selectedMinFreq = frequency }
+                                    )
+                                    .padding(vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(
+                                    selected = frequency == selectedMinFreq,
+                                    onClick = { selectedMinFreq = frequency }
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "${frequency / 1000} MHz",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+                    }
                 }
-                Slider(
-                    value = sliderMinValue,
-                    onValueChange = { newValue ->
-                        sliderMinValue = newValue.coerceIn(minSystemFreq.toFloat(), sliderMaxValue)
-                    },
-                    valueRange = minSystemFreq.toFloat()..maxSystemFreq.toFloat(),
-                    steps = if (allAvailableFrequencies.size > 1) (allAvailableFrequencies.size - 2).coerceAtLeast(0) else 0,
-                    onValueChangeFinished = {
-                        sliderMinValue = findClosestFrequency(sliderMinValue.roundToInt(), allAvailableFrequencies).toFloat()
-                        if (sliderMinValue > sliderMaxValue) sliderMinValue = sliderMaxValue
-                    },
-                    colors = sliderColors
-                )
-                Spacer(Modifier.height(24.dp))
-
-                // Max Frequency
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("Max Frequency", style = MaterialTheme.typography.labelLarge)
-                    Text(
-                        "${sliderMaxValue.roundToInt() / 1000} MHz",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                Slider(
-                    value = sliderMaxValue,
-                    onValueChange = { newValue ->
-                        sliderMaxValue = newValue.coerceIn(sliderMinValue, maxSystemFreq.toFloat())
-                    },
-                    valueRange = minSystemFreq.toFloat()..maxSystemFreq.toFloat(),
-                    steps = if (allAvailableFrequencies.size > 1) (allAvailableFrequencies.size - 2).coerceAtLeast(0) else 0,
-                    onValueChangeFinished = {
-                        sliderMaxValue = findClosestFrequency(sliderMaxValue.roundToInt(), allAvailableFrequencies).toFloat()
-                        if (sliderMaxValue < sliderMinValue) sliderMaxValue = sliderMinValue
-                    },
-                    colors = sliderColors
-                )
-                Spacer(Modifier.height(16.dp))
             }
         },
         confirmButton = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            // Only show dismiss button when loading
+            TextButton(
+                onClick = onDismiss,
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.primary)
             ) {
-                OutlinedButton(
-                    onClick = onDismiss,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.onSurface
-                    ),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Cancel",
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Cancel", fontWeight = FontWeight.Medium)
-                }
+                Text("Close", fontWeight = FontWeight.Medium)
+            }
+        },
+        dismissButton = {
+            // Kosong karena sudah diimplementasikan di confirmButton
+        }
+    )
+}
 
-                FilledTonalButton(
-                    onClick = {
-                        val finalMin = findClosestFrequency(sliderMinValue.roundToInt(), allAvailableFrequencies)
-                        val finalMax = findClosestFrequency(sliderMaxValue.roundToInt(), allAvailableFrequencies)
-                        if (finalMin <= finalMax) {
-                            onFrequencySelected(finalMin, finalMax)
-                        } else {
-                            onFrequencySelected(finalMin, finalMin)
+@Composable
+private fun MaxFrequencySelectionDialog(
+    clusterName: String,
+    currentMaxFreq: Int,
+    minSystemFreq: Int,
+    maxSystemFreq: Int,
+    allAvailableFrequencies: List<Int>,
+    onMaxFrequencySelected: (max: Int) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    var selectedMaxFreq by remember(currentMaxFreq, allAvailableFrequencies) {
+        if (allAvailableFrequencies.isEmpty()) {
+            mutableIntStateOf(currentMaxFreq)
+        } else {
+            mutableIntStateOf(findClosestFrequency(currentMaxFreq.coerceIn(minSystemFreq, maxSystemFreq), allAvailableFrequencies))
+        }
+    }
+
+    // Update selected frequency when values change
+    LaunchedEffect(currentMaxFreq, allAvailableFrequencies) {
+        if (allAvailableFrequencies.isNotEmpty()) {
+            selectedMaxFreq = findClosestFrequency(currentMaxFreq.coerceIn(minSystemFreq, maxSystemFreq), allAvailableFrequencies)
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = { /* Tidak melakukan apa-apa agar hanya bisa ditutup dengan tombol */ },
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text("Select Maximum CPU Frequency")
+            }
+        },
+        shape = RoundedCornerShape(24.dp),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+        text = {
+            Column {
+                Text(
+                    clusterName.replaceFirstChar { it.titlecase() },
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 16.dp, top = 4.dp)
+                )
+
+                if (allAvailableFrequencies.isEmpty()) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(32.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Loading frequencies...")
+                    }
+                } else {
+                    LazyColumn {
+                        items(allAvailableFrequencies.sorted()) { frequency ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .selectable(
+                                        selected = frequency == selectedMaxFreq,
+                                        onClick = { selectedMaxFreq = frequency }
+                                    )
+                                    .padding(vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(
+                                    selected = frequency == selectedMaxFreq,
+                                    onClick = { selectedMaxFreq = frequency }
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "${frequency / 1000} MHz",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
                         }
-                    },
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    ),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = "Apply",
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Apply", fontWeight = FontWeight.Bold)
+                    }
                 }
+            }
+        },
+        confirmButton = {
+            // Only show dismiss button when loading
+            TextButton(
+                onClick = onDismiss,
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.primary)
+            ) {
+                Text("Close", fontWeight = FontWeight.Medium)
             }
         },
         dismissButton = {
@@ -548,7 +547,7 @@ private fun CoreStatusDialog(
     val RedOffline = MaterialTheme.colorScheme.error
 
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { /* Tidak melakukan apa-apa agar hanya bisa ditutup dengan tombol */ },
         title = { Text("Core Status", style = MaterialTheme.typography.headlineSmall) },
         text = {
             Column {
@@ -622,7 +621,8 @@ fun CpuClusterCard(
     clusterName: String,
     vm: TuningViewModel,
     onGovernorClick: () -> Unit,
-    onFrequencyClick: () -> Unit,
+    onMinFrequencyClick: () -> Unit,
+    onMaxFrequencyClick: () -> Unit,
     onCoreClick: () -> Unit
 ) {
     val currentGovernor by vm.getCpuGov(clusterName).collectAsState()
@@ -730,22 +730,40 @@ fun CpuClusterCard(
                     enabled = currentGovernor != "..." && currentGovernor != "Error"
                 )
 
-                // Frequency Section
-                val freqText = when {
+                // Min Frequency Section
+                val minFreqText = when {
                     currentGovernor == "..." || currentGovernor == "Error" -> currentGovernor
                     currentFreqPair.first == 0 && currentFreqPair.second == 0 && availableFrequenciesForCluster.isEmpty() -> "Loading..."
                     currentFreqPair.first == 0 && currentFreqPair.second == -1 -> "Error"
-                    else -> "${currentFreqPair.first / 1000} - ${currentFreqPair.second / 1000} MHz"
+                    else -> "${currentFreqPair.first / 1000} MHz"
                 }
 
                 ControlSection(
                     icon = Icons.Default.Speed,
-                    title = "Frequency",
-                    value = freqText,
-                    isLoading = freqText == "Loading..." || freqText == "Error",
+                    title = "Min Frequency",
+                    value = minFreqText,
+                    isLoading = minFreqText == "Loading..." || minFreqText == "Error",
                     themeColor = MaterialTheme.colorScheme.primary,
-                    onClick = onFrequencyClick,
-                    enabled = availableFrequenciesForCluster.isNotEmpty()
+                    onClick = onMinFrequencyClick,
+                    enabled = availableFrequenciesForCluster.isNotEmpty() || minFreqText == "Loading..." || minFreqText == "Error"
+                )
+
+                // Max Frequency Section
+                val maxFreqText = when {
+                    currentGovernor == "..." || currentGovernor == "Error" -> currentGovernor
+                    currentFreqPair.first == 0 && currentFreqPair.second == 0 && availableFrequenciesForCluster.isEmpty() -> "Loading..."
+                    currentFreqPair.first == 0 && currentFreqPair.second == -1 -> "Error"
+                    else -> "${currentFreqPair.second / 1000} MHz"
+                }
+
+                ControlSection(
+                    icon = Icons.Default.Speed,
+                    title = "Max Frequency",
+                    value = maxFreqText,
+                    isLoading = maxFreqText == "Loading..." || maxFreqText == "Error",
+                    themeColor = MaterialTheme.colorScheme.primary,
+                    onClick = onMaxFrequencyClick,
+                    enabled = availableFrequenciesForCluster.isNotEmpty() || maxFreqText == "Loading..." || maxFreqText == "Error"
                 )
 
                 // Core Status Section
