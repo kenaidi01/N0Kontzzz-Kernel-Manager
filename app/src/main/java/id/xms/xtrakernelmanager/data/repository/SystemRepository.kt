@@ -1254,6 +1254,37 @@ class SystemRepository @Inject constructor(
         return value?.toIntOrNull() == 1
     }
 
+    // TCP Congestion Control Algorithm functions
+
+    private fun getCurrentTcpCongestionAlgorithm(): String? {
+        return readFileToString("/proc/sys/net/ipv4/tcp_congestion_control", "TCP Congestion Control Algorithm")
+    }
+
+    private fun getAvailableTcpCongestionAlgorithms(): List<String> {
+        val available = readFileToString("/proc/sys/net/ipv4/tcp_available_congestion_control", "Available TCP Congestion Control Algorithms")
+        // Notice: here we use a regular space, and not double-escaped
+        return available?.split("\\s+".toRegex())?.filter { it.isNotBlank() } ?: emptyList()
+    }
+
+    fun getTcpCongestionAlgorithm(): String {
+        return getCurrentTcpCongestionAlgorithm() ?: "Unknown"
+    }
+
+    fun setTcpCongestionAlgorithm(algorithm: String): Boolean {
+        // First check if the algorithm is available
+        val availableAlgorithms = getAvailableTcpCongestionAlgorithms()
+        if (!availableAlgorithms.contains(algorithm)) {
+            Log.w(TAG, "Algorithm '$algorithm' is not available. Available: ${availableAlgorithms.joinToString(", ")}")
+            return false
+        }
+
+        return writeStringToFile("/proc/sys/net/ipv4/tcp_congestion_control", algorithm, "TCP Congestion Control Algorithm")
+    }
+
+    fun getAvailableTcpCongestionAlgorithmsList(): List<String> {
+        return getAvailableTcpCongestionAlgorithms()
+    }
+
     fun getCpuClusters(): List<CpuCluster> {
         Log.d(TAG, "Getting CPU cluster information...")
 

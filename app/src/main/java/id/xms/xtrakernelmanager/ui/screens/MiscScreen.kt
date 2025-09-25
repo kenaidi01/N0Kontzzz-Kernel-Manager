@@ -23,7 +23,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.material3.surfaceColorAtElevation
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import id.xms.xtrakernelmanager.ui.dialog.TcpCongestionDialog
 import id.xms.xtrakernelmanager.viewmodel.MiscViewModel
+import androidx.compose.runtime.collectAsState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -91,6 +93,15 @@ fun MiscScreen(
                 isKgslFeatureAvailable = isKgslFeatureAvailable,
                 onToggleKgslSkipZeroing = { enabled ->
                     viewModel.toggleKgslSkipZeroing(enabled)
+                }
+            )
+            
+            // TCP Congestion Control Algorithm feature
+            TcpCongestionControlCard(
+                tcpCongestionAlgorithm = viewModel.tcpCongestionAlgorithm.collectAsState().value,
+                availableAlgorithms = viewModel.availableTcpCongestionAlgorithms.collectAsState().value,
+                onAlgorithmChange = { algorithm ->
+                    viewModel.updateTcpCongestionAlgorithm(algorithm)
                 }
             )
         }
@@ -324,5 +335,69 @@ fun KgslSkipZeroingCard(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun TcpCongestionControlCard(
+    tcpCongestionAlgorithm: String,
+    availableAlgorithms: List<String>,
+    onAlgorithmChange: (String) -> Unit
+) {
+    var showDialog by remember { mutableStateOf(false) }
+    
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        ),
+        onClick = { 
+            if (availableAlgorithms.isNotEmpty()) {
+                showDialog = true 
+            }
+        }
+    ) {
+        Column(
+            modifier = Modifier.padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "TCP Congestion Control",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = if (tcpCongestionAlgorithm.isNotEmpty()) tcpCongestionAlgorithm else "Unknown",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowRight,
+                    contentDescription = "Change algorithm",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+    
+    if (showDialog) {
+        TcpCongestionDialog(
+            currentAlgorithm = tcpCongestionAlgorithm,
+            availableAlgorithms = availableAlgorithms,
+            onAlgorithmSelected = { algorithm ->
+                onAlgorithmChange(algorithm)
+                // Close the dialog after selection
+            },
+            onDismiss = { showDialog = false }
+        )
     }
 }

@@ -25,12 +25,21 @@ class MiscViewModel @Inject constructor(
     private val _isKgslFeatureAvailable = MutableStateFlow(false)
     val isKgslFeatureAvailable: StateFlow<Boolean> = _isKgslFeatureAvailable.asStateFlow()
 
+    private val _tcpCongestionAlgorithm = MutableStateFlow("")
+    val tcpCongestionAlgorithm: StateFlow<String> = _tcpCongestionAlgorithm.asStateFlow()
+
+    private val _availableTcpCongestionAlgorithms = MutableStateFlow<List<String>>(emptyList())
+    val availableTcpCongestionAlgorithms: StateFlow<List<String>> = _availableTcpCongestionAlgorithms.asStateFlow()
+
     init {
         // Load saved preferences on init
         _kgslSkipZeroingEnabled.value = preferenceManager.getKgslSkipZeroing()
         
         // Check if KGSL feature is available
         _isKgslFeatureAvailable.value = systemRepository.isKgslFeatureAvailable()
+        
+        // Load TCP congestion algorithm
+        loadTcpCongestionAlgorithm()
     }
 
     fun toggleKgslSkipZeroing(enabled: Boolean) {
@@ -46,6 +55,26 @@ class MiscViewModel @Inject constructor(
                 // If failed, revert the state to the actual value
                 _kgslSkipZeroingEnabled.value = systemRepository.getKgslSkipZeroing()
                 preferenceManager.setKgslSkipZeroing(_kgslSkipZeroingEnabled.value)
+            }
+        }
+    }
+
+    private fun loadTcpCongestionAlgorithm() {
+        viewModelScope.launch {
+            _tcpCongestionAlgorithm.value = systemRepository.getTcpCongestionAlgorithm()
+            _availableTcpCongestionAlgorithms.value = systemRepository.getAvailableTcpCongestionAlgorithmsList()
+        }
+    }
+
+    fun updateTcpCongestionAlgorithm(algorithm: String) {
+        viewModelScope.launch {
+            val success = systemRepository.setTcpCongestionAlgorithm(algorithm)
+            if (success) {
+                // Update the current algorithm in state
+                _tcpCongestionAlgorithm.value = algorithm
+            } else {
+                // If failed, reload the actual current value
+                _tcpCongestionAlgorithm.value = systemRepository.getTcpCongestionAlgorithm()
             }
         }
     }
