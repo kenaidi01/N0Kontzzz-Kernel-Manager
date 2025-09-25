@@ -100,10 +100,20 @@ fun GpuControlCard(
     val gpuMinFreq by tuningViewModel.currentGpuMinFreq.collectAsState()
     val gpuMaxFreq by tuningViewModel.currentGpuMaxFreq.collectAsState()
     val availableGpuFrequencies by tuningViewModel.availableGpuFrequencies.collectAsState()
+    val gpuPowerLevelRange by tuningViewModel.gpuPowerLevelRange.collectAsState()
+    val currentGpuPowerLevel by tuningViewModel.currentGpuPowerLevel.collectAsState()
     val openGlesDriver by tuningViewModel.currentOpenGlesDriver.collectAsState()
     val vulkanVersion by tuningViewModel.vulkanApiVersion.collectAsState()
     val currentRenderer by tuningViewModel.currentGpuRenderer.collectAsState()
     val availableRenderers = tuningViewModel.availableGpuRenderers
+    
+    // State for power level that updates during dragging but only applies when released
+    var tempPowerLevel by remember { mutableStateOf(currentGpuPowerLevel) }
+    
+    // Update tempPowerLevel when currentGpuPowerLevel changes externally
+    LaunchedEffect(currentGpuPowerLevel) {
+        tempPowerLevel = currentGpuPowerLevel
+    }
 
     // No frequency ranges needed since we're using dialogs instead of sliders
 
@@ -387,6 +397,89 @@ fun GpuControlCard(
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(20.dp)
                                 )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // GPU Power Level Control
+                    GPUControlSection(
+                        title = "GPU Power Level",
+                        description = "Adjust GPU power level for performance",
+                        icon = Icons.Default.VideogameAsset
+                    ) {
+                        // Determine min and max values properly to ensure correct display
+                        val minPowerLevel = minOf(gpuPowerLevelRange.first, gpuPowerLevelRange.second)
+                        val maxPowerLevel = maxOf(gpuPowerLevelRange.first, gpuPowerLevelRange.second)
+                        
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surface
+                            )
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 8.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "Power Level",
+                                        fontSize = 12.sp,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                                    )
+                                    Text(
+                                        text = tempPowerLevel.toInt().toString(),
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                                Slider(
+                                    value = tempPowerLevel,
+                                    onValueChange = { newValue ->
+                                        // Update the temporary value during dragging for smooth UI
+                                        tempPowerLevel = newValue
+                                    },
+                                    onValueChangeFinished = {
+                                        // Only apply the change when user stops dragging
+                                        tuningViewModel.setGpuPowerLevel(tempPowerLevel)
+                                    },
+                                    valueRange = minPowerLevel..maxPowerLevel,
+                                    colors = SliderDefaults.colors(
+                                        thumbColor = MaterialTheme.colorScheme.primary,
+                                        activeTrackColor = MaterialTheme.colorScheme.primary,
+                                        inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
+                                    ),
+                                    steps = if (kotlin.math.abs(maxPowerLevel - minPowerLevel) > 1f) {
+                                        kotlin.math.abs(maxPowerLevel - minPowerLevel).toInt() - 1
+                                    } else {
+                                        0 // No steps if the range is too small
+                                    }
+                                )
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = minPowerLevel.toInt().toString(),
+                                        fontSize = 12.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Text(
+                                        text = maxPowerLevel.toInt().toString(),
+                                        fontSize = 12.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                             }
                         }
                     }
