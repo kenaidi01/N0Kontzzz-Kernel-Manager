@@ -71,14 +71,18 @@ class MainActivity : ComponentActivity() {
         // Initialize batteryOptChecker regardless of root status for consistency
         batteryOptChecker = BatteryOptimizationChecker(this)
         
-        // Check root first, then kernel
-        if (!rootRepo.isRooted()) {
+        // Check root status and update UI accordingly
+        // This check will be re-evaluated in onResume when user grants root access
+        if (!rootRepo.checkRootFresh()) {
             showRootRequiredDialog = true
-        } else if (!isKernelSupported()) {
-            showKernelVerificationDialog = true
         } else {
-            // Only check permissions if device is rooted and kernel is supported
-            checkAndHandlePermissions()
+            showRootRequiredDialog = false // Hide root dialog if root is available
+            if (!isKernelSupported()) {
+                showKernelVerificationDialog = true
+            } else {
+                // Only check permissions if device is rooted and kernel is supported
+                checkAndHandlePermissions()
+            }
         }
 
         enableEdgeToEdge() // Enable edge-to-edge display for Android 16-like experience
@@ -102,10 +106,12 @@ class MainActivity : ComponentActivity() {
                         KernelVerificationDialog(onDismiss = { finish() })
                     }
                     if (showRootRequiredDialog) {
-                        RootRequiredDialog(onDismiss = { finish() })
+                        RootRequiredDialog(onDismiss = { 
+                            finishAndRemoveTask()
+                        })
                     }
                     // Only show permission dialog if device is rooted
-                    if (showBatteryOptDialog && rootRepo.isRooted()) {
+                    if (showBatteryOptDialog && rootRepo.checkRootFresh()) {
                         BatteryOptDialog(
                             onDismiss = {
                                 // Only allow dismiss if we haven't exceeded retry limit
@@ -148,9 +154,9 @@ class MainActivity : ComponentActivity() {
 
     private fun checkAndHandlePermissions() {
         // Only check permissions if device is rooted
-        if (rootRepo.isRooted() && !batteryOptChecker.hasRequiredPermissions()) {
+        if (rootRepo.checkRootFresh() && !batteryOptChecker.hasRequiredPermissions()) {
             showBatteryOptDialog = true
-        } else if (rootRepo.isRooted()) {
+        } else if (rootRepo.checkRootFresh()) {
             // Only start service for Dynamic mode (10) which requires continuous monitoring
             // For other thermal modes, persistent scripts handle settings
         }
@@ -199,13 +205,19 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         
-        // Don't check permissions if kernel verification dialog is shown
-        if (showKernelVerificationDialog) {
-            return
-        }
-        
-        // Only check permissions if device is rooted
-        if (rootRepo.isRooted()) {
+        // Check root status again in case user granted root access
+        // This handles the scenario where user granted root access after the app started
+        if (!rootRepo.checkRootFresh()) {
+            showRootRequiredDialog = true
+        } else {
+            // If root access is now granted, hide the root required dialog
+            showRootRequiredDialog = false
+            
+            // Don't check permissions if kernel verification dialog is shown
+            if (showKernelVerificationDialog) {
+                return
+            }
+            
             // Check if permissions were denied
             if (!batteryOptChecker.hasRequiredPermissions()) {
                 permissionDenialCount++

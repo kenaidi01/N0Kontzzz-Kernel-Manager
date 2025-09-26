@@ -13,11 +13,15 @@ fun RootRequiredDialog(
     onDismiss: () -> Unit
 ) {
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { /* Prevent dismissal by tapping outside */ },
         title = { Text(text = stringResource(id = R.string.root_required)) },
         text = { Text(text = stringResource(id = R.string.root_required_desc)) },
         confirmButton = {
-            TextButton(onClick = onDismiss) {
+            TextButton(onClick = {
+                onDismiss()
+                // Force close the entire app process to ensure fresh start
+                android.os.Process.killProcess(android.os.Process.myPid())
+            }) {
                 Text(text = stringResource(id = R.string.exit_app))
             }
         }
