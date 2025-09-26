@@ -28,6 +28,7 @@ import id.xms.xtrakernelmanager.ui.components.BottomNavBar
 
 import id.xms.xtrakernelmanager.ui.components.KernelVerificationDialog
 import id.xms.xtrakernelmanager.ui.components.RootRequiredDialog
+import id.xms.xtrakernelmanager.ui.components.CustomSystemBarStyle
 import id.xms.xtrakernelmanager.ui.dialog.BatteryOptDialog
 import id.xms.xtrakernelmanager.ui.screens.*
 import id.xms.xtrakernelmanager.ui.theme.XtraTheme
@@ -85,8 +86,6 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        enableEdgeToEdge() // Enable edge-to-edge display for Android 16-like experience
-
         // Observe language changes
         lifecycleScope.launch {
             languageManager.currentLanguage.collect()
@@ -94,6 +93,9 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             XtraTheme {
+                // Apply custom system bar styling
+                CustomSystemBarStyle(darkMode = true)
+                
                 val navController = rememberNavController()
                 val items = listOf("Home", "Tuning", "Misc")
 
