@@ -25,7 +25,7 @@ import id.xms.xtrakernelmanager.data.repository.RootRepository
 import id.xms.xtrakernelmanager.data.repository.ThermalRepository
 import id.xms.xtrakernelmanager.service.ThermalService
 import id.xms.xtrakernelmanager.ui.components.BottomNavBar
-import id.xms.xtrakernelmanager.ui.components.ExpressiveBackground
+
 import id.xms.xtrakernelmanager.ui.components.KernelVerificationDialog
 import id.xms.xtrakernelmanager.ui.components.RootRequiredDialog
 import id.xms.xtrakernelmanager.ui.dialog.BatteryOptDialog
@@ -133,8 +133,11 @@ class MainActivity : ComponentActivity() {
                         bottomBar = { BottomNavBar(navController, items) },
                         modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars)
                     ) { innerPadding ->
-                        // Add ExpressiveBackground here to wrap the navigation content
-                        ExpressiveBackground {
+                        // Use standard Material Surface as background
+                        Surface(
+                            modifier = Modifier.fillMaxSize(),
+                            color = MaterialTheme.colorScheme.background
+                        ) {
                             NavHost(
                                 navController = navController,
                                 startDestination = "home",
