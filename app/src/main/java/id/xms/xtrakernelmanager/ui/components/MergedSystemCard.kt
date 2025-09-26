@@ -703,7 +703,7 @@ private fun BatteryStatsSection(
                 )
             }
 
-            // Battery Stats Row 5 - Deep Sleep and Current (if available)
+            // Battery Stats Row 5 - Deep Sleep and Screen On Time
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -721,18 +721,36 @@ private fun BatteryStatsSection(
                     modifier = Modifier.weight(1f)
                 )
 
-                // Current (if available)
-                if (batteryInfo.current != 0f) {
-                    val currentMa = batteryInfo.current / 1000
-                    val displayCurrent = currentMa
+                // Screen On Time
+                SystemStatItem(
+                    icon = Icons.Default.ScreenLockRotation,
+                    label = "Screen On",
+                    value = deepSleepInfo?.let { 
+                        if (it.uptime > 0) {
+                            val awakeTime = it.uptime - it.deepSleep  // Time the device has been awake
+                            val awakeDurationFormatted = formatTimeWithSeconds(awakeTime)
+                            awakeDurationFormatted
+                        } else "N/A"
+                    } ?: "N/A",
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            // Battery Stats Row 6 - Current (if available)
+            if (batteryInfo.current != 0f) {
+                val currentMa = batteryInfo.current / 1000
+                val displayCurrent = currentMa
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
                     SystemStatItem(
                         icon = if (batteryInfo.isCharging) Icons.Default.BatteryChargingFull else Icons.Default.BatteryAlert,
                         label = "Current",
                         value = "${String.format(Locale.getDefault(), "%.0f", displayCurrent)}mA",
                         modifier = Modifier.weight(1f)
                     )
-                } else {
-                    // Empty placeholder to maintain layout
+                    // Empty placeholder to maintain layout balance
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }
