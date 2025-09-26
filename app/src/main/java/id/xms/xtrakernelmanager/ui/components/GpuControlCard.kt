@@ -39,6 +39,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowRight
@@ -62,6 +64,8 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
@@ -403,81 +407,140 @@ fun GpuControlCard(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // GPU Power Level Control
+                    // GPU Power Level and Throttling Control
                     GPUControlSection(
-                        title = "GPU Power Level",
-                        description = "Adjust GPU power level for performance",
+                        title = "GPU Controls",
+                        description = "Adjust GPU power and throttling settings",
                         icon = Icons.Default.VideogameAsset
                     ) {
-                        // Determine min and max values properly to ensure correct display
+                        // Determine min and max values for GPU power level at this scope
                         val minPowerLevel = minOf(gpuPowerLevelRange.first, gpuPowerLevelRange.second)
                         val maxPowerLevel = maxOf(gpuPowerLevelRange.first, gpuPowerLevelRange.second)
                         
-                        Card(
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surface
-                            )
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
+                            // GPU Power Level Card
+                            Card(
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surface
+                                )
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(bottom = 8.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = "Power Level",
+                                            fontSize = 12.sp,
+                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                                        )
+                                        Text(
+                                            text = tempPowerLevel.toInt().toString(),
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                    Slider(
+                                        value = tempPowerLevel,
+                                        onValueChange = { newValue ->
+                                            // Update the temporary value during dragging for smooth UI
+                                            tempPowerLevel = newValue
+                                        },
+                                        onValueChangeFinished = {
+                                            // Only apply the change when user stops dragging
+                                            tuningViewModel.setGpuPowerLevel(tempPowerLevel)
+                                        },
+                                        valueRange = minPowerLevel..maxPowerLevel,
+                                        colors = SliderDefaults.colors(
+                                            thumbColor = MaterialTheme.colorScheme.primary,
+                                            activeTrackColor = MaterialTheme.colorScheme.primary,
+                                            inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
+                                        ),
+                                        steps = if (kotlin.math.abs(maxPowerLevel - minPowerLevel) > 1f) {
+                                            kotlin.math.abs(maxPowerLevel - minPowerLevel).toInt() - 1
+                                        } else {
+                                            0 // No steps if the range is too small
+                                        }
+                                    )
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = minPowerLevel.toInt().toString(),
+                                            fontSize = 12.sp,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        Text(
+                                            text = maxPowerLevel.toInt().toString(),
+                                            fontSize = 12.sp,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                            }
+
+                            // GPU Throttling Switch Card
+                            Card(
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surface
+                                )
                             ) {
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(bottom = 8.dp),
+                                        .padding(16.dp),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(
-                                        text = "Power Level",
-                                        fontSize = 12.sp,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                                    )
-                                    Text(
-                                        text = tempPowerLevel.toInt().toString(),
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                                Slider(
-                                    value = tempPowerLevel,
-                                    onValueChange = { newValue ->
-                                        // Update the temporary value during dragging for smooth UI
-                                        tempPowerLevel = newValue
-                                    },
-                                    onValueChangeFinished = {
-                                        // Only apply the change when user stops dragging
-                                        tuningViewModel.setGpuPowerLevel(tempPowerLevel)
-                                    },
-                                    valueRange = minPowerLevel..maxPowerLevel,
-                                    colors = SliderDefaults.colors(
-                                        thumbColor = MaterialTheme.colorScheme.primary,
-                                        activeTrackColor = MaterialTheme.colorScheme.primary,
-                                        inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
-                                    ),
-                                    steps = if (kotlin.math.abs(maxPowerLevel - minPowerLevel) > 1f) {
-                                        kotlin.math.abs(maxPowerLevel - minPowerLevel).toInt() - 1
-                                    } else {
-                                        0 // No steps if the range is too small
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = "GPU Throttling",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Medium,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Text(
+                                            text = "Reduce performance to save power",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
                                     }
-                                )
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Text(
-                                        text = minPowerLevel.toInt().toString(),
-                                        fontSize = 12.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    Text(
-                                        text = maxPowerLevel.toInt().toString(),
-                                        fontSize = 12.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    Switch(
+                                        checked = tuningViewModel.gpuThrottlingEnabled.collectAsState().value,
+                                        onCheckedChange = { checked ->
+                                            tuningViewModel.toggleGpuThrottling(checked)
+                                        },
+                                        thumbContent = if (tuningViewModel.gpuThrottlingEnabled.collectAsState().value) {
+                                            {
+                                                Icon(
+                                                    imageVector = Icons.Default.Check,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.primary,
+                                                    modifier = Modifier.size(SwitchDefaults.IconSize),
+                                                )
+                                            }
+                                        } else {
+                                            {
+                                                Icon(
+                                                    imageVector = Icons.Default.Close,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.inverseOnSurface,
+                                                    modifier = Modifier.size(SwitchDefaults.IconSize),
+                                                )
+                                            }
+                                        }
                                     )
                                 }
                             }

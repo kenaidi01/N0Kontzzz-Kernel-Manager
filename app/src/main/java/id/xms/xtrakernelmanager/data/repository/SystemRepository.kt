@@ -641,6 +641,13 @@ class SystemRepository @Inject constructor(
         Log.w(TAG, "Panggilan getDeepSleepInfo() sinkron. Disarankan menggunakan Flow untuk update realtime.")
         return DeepSleepInfo(getUptimeMillisInternal(), getDeepSleepMillisInternal())
     }
+    
+    // Helper function to get awake time (approximation of screen on time)
+    fun getAwakeTime(): Long {
+        // uptimeMillis returns the time since boot that the CPU has been awake (not in deep sleep)
+        // This includes screen on time and other awake periods
+        return android.os.SystemClock.uptimeMillis()
+    }
 
     private suspend fun getSystemInfoInternal(): SystemInfo {
         Log.d(TAG, "Mengambil SystemInfo (API based)...")
@@ -1228,6 +1235,25 @@ class SystemRepository @Inject constructor(
 
     fun getAvailableTcpCongestionAlgorithmsList(): List<String> {
         return getAvailableTcpCongestionAlgorithms()
+    }
+
+    // GPU Throttling functions
+    private fun getGpuThrottlingStatus(): Boolean? {
+        val result = readFileToString("/sys/class/kgsl/kgsl-3d0/throttling", "GPU Throttling Status")
+        return when (result?.trim()) {
+            "1", "Y", "yes", "on", "enabled" -> true
+            "0", "N", "no", "off", "disabled" -> false
+            else -> null
+        }
+    }
+
+    fun isGpuThrottlingEnabled(): Boolean {
+        return getGpuThrottlingStatus() ?: false
+    }
+
+    fun setGpuThrottling(enabled: Boolean): Boolean {
+        val value = if (enabled) "1" else "0"
+        return writeStringToFile("/sys/class/kgsl/kgsl-3d0/throttling", value, "GPU Throttling")
     }
 
     // I/O Scheduler functions

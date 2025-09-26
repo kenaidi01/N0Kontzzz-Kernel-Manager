@@ -102,6 +102,9 @@ class TuningViewModel @Inject constructor(
     private val _currentGpuPowerLevel = MutableStateFlow(0f)
     val currentGpuPowerLevel: StateFlow<Float> = _currentGpuPowerLevel.asStateFlow()
 
+    private val _gpuThrottlingEnabled = MutableStateFlow(false)
+    val gpuThrottlingEnabled: StateFlow<Boolean> = _gpuThrottlingEnabled.asStateFlow()
+
     /* ---------------- OpenGL / Vulkan / Renderer ---------------- */
     private val _currentOpenGlesDriver = MutableStateFlow("Loading...")
     val currentOpenGlesDriver: StateFlow<String> = _currentOpenGlesDriver.asStateFlow()
@@ -304,6 +307,8 @@ class TuningViewModel @Inject constructor(
             Log.d("ViewModelGPU", "StateFlows updated: _currentGpuMinFreq=${_currentGpuMinFreq.value}, _currentGpuMaxFreq=${_currentGpuMaxFreq.value}")
             _gpuPowerLevelRange.value = repo.getGpuPowerLevelRange().first()
             _currentGpuPowerLevel.value = repo.getCurrentGpuPowerLevel().first()
+            // Fetch GPU throttling status
+            _gpuThrottlingEnabled.value = systemRepo.isGpuThrottlingEnabled()
         } catch (e: Exception) {
             Log.e("ViewModelGPU", "Error fetching GPU data", e)
         }
@@ -336,6 +341,16 @@ class TuningViewModel @Inject constructor(
     fun setGpuPowerLevel(level: Float) = viewModelScope.launch(Dispatchers.IO) {
         if (repo.setGpuPowerLevel(level)) {
             repo.getCurrentGpuPowerLevel().take(1).collect { _currentGpuPowerLevel.value = it }
+        }
+    }
+
+    fun toggleGpuThrottling(enabled: Boolean) = viewModelScope.launch(Dispatchers.IO) {
+        val success = systemRepo.setGpuThrottling(enabled)
+        if (success) {
+            _gpuThrottlingEnabled.value = enabled
+        } else {
+            // If failed, refresh the actual value from system
+            _gpuThrottlingEnabled.value = systemRepo.isGpuThrottlingEnabled()
         }
     }
 
