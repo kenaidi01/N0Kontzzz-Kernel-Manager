@@ -1230,6 +1230,91 @@ class SystemRepository @Inject constructor(
         return getAvailableTcpCongestionAlgorithms()
     }
 
+    // I/O Scheduler functions
+    private fun getCurrentIoScheduler(): String? {
+        // Try multiple possible paths for different devices
+        val paths = listOf(
+            "/sys/block/sda/queue/scheduler",  // Common path
+            "/sys/block/mmcblk0/queue/scheduler",  // Alternative for some devices
+            "/sys/block/sdb/queue/scheduler",  // USB storage
+            "/sys/block/nvme0n1/queue/scheduler"  // NVMe storage
+        )
+        
+        for (path in paths) {
+            val result = readFileToString(path, "I/O Scheduler from $path")
+            if (result != null) {
+                // Find the active scheduler (the one in brackets [scheduler])
+                val activeMatch = Regex("""\[(\w+)\]""").find(result)
+                return activeMatch?.groupValues?.get(1) ?: "N/A"
+            }
+        }
+        return "N/A"
+    }
+
+    private fun getAvailableIoSchedulers(): List<String> {
+        // Try multiple possible paths for different devices
+        val paths = listOf(
+            "/sys/block/sda/queue/scheduler",
+            "/sys/block/mmcblk0/queue/scheduler",
+            "/sys/block/sdb/queue/scheduler",
+            "/sys/block/nvme0n1/queue/scheduler"
+        )
+        
+        for (path in paths) {
+            val result = readFileToString(path, "Available I/O Schedulers from $path")
+            if (result != null) {
+                // Extract all schedulers, removing brackets from the active one
+                val schedulers = Regex("""\[(\w+)\]|(\w+)""")
+                    .findAll(result)
+                    .map { matchResult ->
+                        val active = matchResult.groupValues[1]
+                        val inactive = matchResult.groupValues[2]
+                        active.ifEmpty { inactive }
+                    }
+                    .filter { it.isNotEmpty() }
+                    .toList()
+                return schedulers
+            }
+        }
+        return emptyList()
+    }
+
+    fun getIoScheduler(): String {
+        return getCurrentIoScheduler() ?: "N/A"
+    }
+
+    fun setIoScheduler(scheduler: String): Boolean {
+        // First, verify that the scheduler is available
+        val availableSchedulers = getAvailableIoSchedulers()
+        if (!availableSchedulers.contains(scheduler)) {
+            Log.w(TAG, "Scheduler '$scheduler' is not available. Available: ${availableSchedulers.joinToString(", ")}")
+            return false
+        }
+        
+        // Try multiple possible paths for different devices
+        val paths = listOf(
+            "/sys/block/sda/queue/scheduler",
+            "/sys/block/mmcblk0/queue/scheduler", 
+            "/sys/block/sdb/queue/scheduler",
+            "/sys/block/nvme0n1/queue/scheduler"
+        )
+        
+        for (path in paths) {
+            // Verify the path exists and is writable
+            val testResult = readFileToString(path, "Testing I/O Scheduler Path $path")
+            if (testResult != null) {
+                return writeStringToFile(path, scheduler, "I/O Scheduler Setting")
+            }
+        }
+        
+        Log.e(TAG, "No valid I/O scheduler path found to write scheduler: $scheduler")
+        return false
+    }
+
+    fun getAvailableIoSchedulersList(): List<String> {
+        return getAvailableIoSchedulers()
+    }
+
     fun getCpuClusters(): List<CpuCluster> {
         Log.d(TAG, "Getting CPU cluster information...")
 

@@ -31,6 +31,12 @@ class MiscViewModel @Inject constructor(
     private val _availableTcpCongestionAlgorithms = MutableStateFlow<List<String>>(emptyList())
     val availableTcpCongestionAlgorithms: StateFlow<List<String>> = _availableTcpCongestionAlgorithms.asStateFlow()
 
+    private val _ioScheduler = MutableStateFlow("")
+    val ioScheduler: StateFlow<String> = _ioScheduler.asStateFlow()
+
+    private val _availableIoSchedulers = MutableStateFlow<List<String>>(emptyList())
+    val availableIoSchedulers: StateFlow<List<String>> = _availableIoSchedulers.asStateFlow()
+
     init {
         // Load saved preferences on init
         _kgslSkipZeroingEnabled.value = preferenceManager.getKgslSkipZeroing()
@@ -40,6 +46,9 @@ class MiscViewModel @Inject constructor(
         
         // Load TCP congestion algorithm
         loadTcpCongestionAlgorithm()
+        
+        // Load I/O scheduler
+        loadIoScheduler()
     }
 
     fun toggleKgslSkipZeroing(enabled: Boolean) {
@@ -66,6 +75,13 @@ class MiscViewModel @Inject constructor(
         }
     }
 
+    private fun loadIoScheduler() {
+        viewModelScope.launch {
+            _ioScheduler.value = systemRepository.getIoScheduler()
+            _availableIoSchedulers.value = systemRepository.getAvailableIoSchedulersList()
+        }
+    }
+
     fun updateTcpCongestionAlgorithm(algorithm: String) {
         viewModelScope.launch {
             val success = systemRepository.setTcpCongestionAlgorithm(algorithm)
@@ -75,6 +91,19 @@ class MiscViewModel @Inject constructor(
             } else {
                 // If failed, reload the actual current value
                 _tcpCongestionAlgorithm.value = systemRepository.getTcpCongestionAlgorithm()
+            }
+        }
+    }
+
+    fun updateIoScheduler(scheduler: String) {
+        viewModelScope.launch {
+            val success = systemRepository.setIoScheduler(scheduler)
+            if (success) {
+                // Update the current scheduler in state
+                _ioScheduler.value = scheduler
+            } else {
+                // If failed, reload the actual current value
+                _ioScheduler.value = systemRepository.getIoScheduler()
             }
         }
     }

@@ -26,6 +26,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import id.xms.xtrakernelmanager.ui.dialog.TcpCongestionDialog
 import id.xms.xtrakernelmanager.viewmodel.MiscViewModel
 import androidx.compose.runtime.collectAsState
+import id.xms.xtrakernelmanager.ui.dialog.IoSchedulerDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,6 +103,15 @@ fun MiscScreen(
                 availableAlgorithms = viewModel.availableTcpCongestionAlgorithms.collectAsState().value,
                 onAlgorithmChange = { algorithm ->
                     viewModel.updateTcpCongestionAlgorithm(algorithm)
+                }
+            )
+            
+            // I/O Scheduler feature
+            IoSchedulerCard(
+                ioScheduler = viewModel.ioScheduler.collectAsState().value,
+                availableSchedulers = viewModel.availableIoSchedulers.collectAsState().value,
+                onSchedulerChange = { scheduler ->
+                    viewModel.updateIoScheduler(scheduler)
                 }
             )
         }
@@ -396,6 +406,69 @@ fun TcpCongestionControlCard(
             onAlgorithmSelected = { algorithm ->
                 onAlgorithmChange(algorithm)
                 // Close the dialog after selection
+            },
+            onDismiss = { showDialog = false }
+        )
+    }
+}
+
+@Composable
+fun IoSchedulerCard(
+    ioScheduler: String,
+    availableSchedulers: List<String>,
+    onSchedulerChange: (String) -> Unit
+) {
+    var showDialog by remember { mutableStateOf(false) }
+    
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        ),
+        onClick = { 
+            if (availableSchedulers.isNotEmpty()) {
+                showDialog = true 
+            }
+        }
+    ) {
+        Column(
+            modifier = Modifier.padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "I/O Scheduler",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = if (ioScheduler.isNotEmpty()) ioScheduler else "Unknown",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowRight,
+                    contentDescription = "Change scheduler",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+    
+    if (showDialog) {
+        IoSchedulerDialog(
+            currentScheduler = ioScheduler,
+            availableSchedulers = availableSchedulers,
+            onSchedulerSelected = { scheduler ->
+                onSchedulerChange(scheduler)
             },
             onDismiss = { showDialog = false }
         )
