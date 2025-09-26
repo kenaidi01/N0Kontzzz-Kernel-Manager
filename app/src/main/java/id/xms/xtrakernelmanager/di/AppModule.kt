@@ -14,6 +14,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.preferencesDataStoreFile
+import id.xms.xtrakernelmanager.data.repository.ThermalRepository
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -29,12 +30,17 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideSystemRepository(@ApplicationContext context: Context, tuningRepository: TuningRepository): SystemRepository =
-        SystemRepository(context, tuningRepository)
+    fun provideThermalRepository(@ApplicationContext context: Context, rootRepository: RootRepository): ThermalRepository =
+        ThermalRepository(context, rootRepository)
 
     @Provides
     @Singleton
     fun provideRootRepository(): RootRepository = RootRepository()
+
+    @Provides
+    @Singleton
+    fun provideSystemRepository(@ApplicationContext context: Context, tuningRepository: TuningRepository, rootRepository: RootRepository): SystemRepository =
+        SystemRepository(context, tuningRepository, rootRepository)
 
     @Provides
     @Singleton

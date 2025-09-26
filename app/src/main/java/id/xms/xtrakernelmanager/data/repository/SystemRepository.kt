@@ -51,6 +51,7 @@ import kotlin.io.path.inputStream
 class SystemRepository @Inject constructor(
     private val context: Context,
     private val tuningRepository: TuningRepository,
+    private val rootRepository: RootRepository,
 ) {
 
     companion object {
@@ -97,50 +98,17 @@ class SystemRepository @Inject constructor(
         }
 
         if (attemptSu) {
-            var process: Process? = null
             try {
-                process = Runtime.getRuntime().exec(arrayOf("su", "-c", "cat \"$filePath\""))
-                // Membaca output dan error stream dalam coroutine terpisah untuk menghindari deadlock
-                // Namun, untuk kesederhanaan di sini, kita jaga seperti sebelumnya,
-                // asumsikan output tidak terlalu besar.
-                val reader = BufferedReader(InputStreamReader(process.inputStream))
-                val errorReader = BufferedReader(InputStreamReader(process.errorStream))
-                val output = StringBuilder()
-                var line: String?
-
-                while (reader.readLine().also { line = it } != null) {
-                    output.append(line).append("\n")
-                }
-                val exitCode = process.waitFor()
-                val errorOutput = StringBuilder()
-                while (errorReader.readLine().also { line = it } != null) {
-                    errorOutput.append(line).append("\n")
-                }
-
-                if (errorOutput.isNotBlank()) {
-                    Log.w(TAG, "'$fileDescription': Error stream dari 'su cat \"$filePath\"' (exit: $exitCode):\n${errorOutput.toString().trim()}")
-                }
-
-                if (exitCode == 0) {
-                    val contentSu = output.toString().trim()
-                    if (contentSu.isNotBlank()) {
-                        return contentSu
-                    } else {
-                        Log.w(TAG, "'$fileDescription': File kosong (via SU). Path: $filePath")
-                        return null
-                    }
+                // Use the root repository for more reliable command execution
+                val result = rootRepository.run("cat \"$filePath\"")
+                if (result.isNotBlank()) {
+                    return result.trim()
                 } else {
-                    Log.e(TAG, "'$fileDescription': Perintah 'su cat \"$filePath\"' gagal dengan exit code $exitCode.")
+                    Log.w(TAG, "'$fileDescription': File kosong (via SU). Path: $filePath")
+                    return null
                 }
-            } catch (e: IOException) {
-                Log.e(TAG, "'$fileDescription': IOException saat menjalankan 'su cat \"$filePath\"'", e)
-            } catch (e: InterruptedException) {
-                Log.e(TAG, "'$fileDescription': InterruptedException saat 'su cat \"$filePath\"'", e)
-                Thread.currentThread().interrupt()
             } catch (e: Exception) {
-                Log.e(TAG, "'$fileDescription': Error tidak diketahui saat 'su cat \"$filePath\"'", e)
-            } finally {
-                process?.destroy()
+                Log.e(TAG, "'$fileDescription': Error saat membaca file via SU: $filePath", e)
             }
         }
         return null
@@ -169,37 +137,14 @@ class SystemRepository @Inject constructor(
         }
 
         if (attemptSu) {
-            var process: Process? = null
             try {
-                process = Runtime.getRuntime().exec(arrayOf("su", "-c", "echo \"$content\" > \"$filePath\""))
-                val errorReader = BufferedReader(InputStreamReader(process.errorStream))
-                val exitCode = process.waitFor()
-                val errorOutput = StringBuilder()
-                var line: String?
-
-                while (errorReader.readLine().also { line = it } != null) {
-                    errorOutput.append(line).append("\n")
-                }
-
-                if (errorOutput.isNotBlank()) {
-                    Log.w(TAG, "'$fileDescription': Error stream dari 'su echo \"$content\" > \"$filePath\"' (exit: $exitCode):\n${errorOutput.toString().trim()}")
-                }
-
-                if (exitCode == 0) {
-                    Log.d(TAG, "'$fileDescription': Berhasil menulis ke file (via SU). Path: $filePath")
-                    return true
-                } else {
-                    Log.e(TAG, "'$fileDescription': Perintah 'su echo \"$content\" > \"$filePath\"' gagal dengan exit code $exitCode.")
-                }
-            } catch (e: IOException) {
-                Log.e(TAG, "'$fileDescription': IOException saat menjalankan 'su echo \"$content\" > \"$filePath\"'", e)
-            } catch (e: InterruptedException) {
-                Log.e(TAG, "'$fileDescription': InterruptedException saat 'su echo \"$content\" > \"$filePath\"'", e)
-                Thread.currentThread().interrupt()
+                // Use the root repository for more reliable command execution
+                rootRepository.run("echo \"$content\" > \"$filePath\"")
+                Log.d(TAG, "'$fileDescription': Berhasil menulis ke file (via SU). Path: $filePath")
+                return true
             } catch (e: Exception) {
-                Log.e(TAG, "'$fileDescription': Error tidak diketahui saat 'su echo \"$content\" > \"$filePath\"'", e)
-            } finally {
-                process?.destroy()
+                Log.e(TAG, "'$fileDescription': Error saat menulis file via SU: $filePath", e)
+                return false
             }
         }
         return false

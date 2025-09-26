@@ -15,7 +15,8 @@ private val Context.thermalDataStore: DataStore<Preferences> by preferencesDataS
 
 @Singleton
 class ThermalRepository @Inject constructor(
-    private val context: Context
+    private val context: Context,
+    private val rootRepository: RootRepository
 ) {
     private val TAG = "ThermalRepository"
     private val thermalSysfsNode = "/sys/class/thermal/thermal_message/sconfig"
@@ -49,17 +50,16 @@ class ThermalRepository @Inject constructor(
 
     private fun executeRootCommand(cmd: String, logTag: String = TAG): Shell.Result {
         Log.d(logTag, "Executing Root Command: '$cmd'")
-        if (Shell.isAppGrantedRoot() != true || Shell.getShell().isRoot != true) {
+        if (!rootRepository.isRootStillAvailable()) {
             Log.e(logTag, "Root access not available for command: $cmd")
             return Shell.cmd("false").exec()
         }
         return try {
-            // Ensure we run with proper context
-            val result = Shell.cmd("su 0 sh -c '$cmd'").exec()
+            val result = Shell.cmd(cmd).exec()
             if (result.isSuccess) {
-                Log.i(logTag, "Root Command Success (code ${result.code}): '$cmd'")
+                Log.i(logTag, "Root Command Success: '$cmd'")
             } else {
-                Log.e(logTag, "Root Command Failed (code ${result.code}): '$cmd'. Err: ${result.err.joinToString("\\n")}")
+                Log.e(logTag, "Root Command Failed: '$cmd'. Err: ${result.err.joinToString("\n")}")
             }
             result
         } catch (e: Exception) {
@@ -70,19 +70,18 @@ class ThermalRepository @Inject constructor(
 
     private fun readRootCommand(cmd: String, logTag: String = TAG): String? {
         Log.d(logTag, "Reading Root Command: '$cmd'")
-        if (Shell.isAppGrantedRoot() != true || Shell.getShell().isRoot != true) {
+        if (!rootRepository.isRootStillAvailable()) {
             Log.e(logTag, "Root access not available for command: $cmd")
             return null
         }
         return try {
-            // Use cat with root context
-            val result = Shell.cmd("su 0 sh -c '$cmd'").exec()
+            val result = Shell.cmd(cmd).exec()
             if (result.isSuccess) {
-                val output = result.out.joinToString("\\n").trim()
-                Log.i(logTag, "Read Root Command Success (code ${result.code}): '$cmd'. Output: $output")
+                val output = result.out.joinToString("\n").trim()
+                Log.i(logTag, "Read Root Command Success: '$cmd'. Output: $output")
                 output
             } else {
-                Log.e(logTag, "Read Root Command Failed (code ${result.code}): '$cmd'. Err: ${result.err.joinToString("\\n")}")
+                Log.e(logTag, "Read Root Command Failed: '$cmd'. Err: ${result.err.joinToString("\n")}")
                 null
             }
         } catch (e: Exception) {
@@ -94,36 +93,33 @@ class ThermalRepository @Inject constructor(
     private suspend fun createPersistentScript(modeIndex: Int): Boolean = withContext(Dispatchers.IO) {
         val scriptContent = """
             #!/system/bin/sh
-            
+
             # Wait for system to fully boot
             until [ -d /sys/class/thermal ]; do
                 sleep 1
             done
-            
+
             # Set SELinux context for thermal access
             chcon u:object_r:sysfs_thermal:s0 $thermalSysfsNode
-            
+
             # Apply thermal mode
             echo "$modeIndex" > $thermalSysfsNode
-            
+
             # Restore proper context
             restorecon $thermalSysfsNode
-            
+
             exit 0
         """.trimIndent()
 
-        // Create post-fs-data.d directory if it doesn't exist
         executeRootCommand("mkdir -p /data/adb/post-fs-data.d")
         executeRootCommand("chmod 755 /data/adb/post-fs-data.d")
 
-        // Write the script
-        val writeResult = executeRootCommand("cat > '$persistentScriptPath' << 'EOF'\\n$scriptContent\\nEOF")
+        val writeResult = executeRootCommand("cat > '$persistentScriptPath' << 'EOF'\n$scriptContent\nEOF")
         if (!writeResult.isSuccess) {
             Log.e(TAG, "Failed to write persistent script")
             return@withContext false
         }
 
-        // Set proper permissions
         executeRootCommand("chmod 755 '$persistentScriptPath'")
         executeRootCommand("chown root:root '$persistentScriptPath'")
 
@@ -135,41 +131,36 @@ class ThermalRepository @Inject constructor(
             Log.w(TAG, "updateThermalScript: Invalid modeIndex $modeIndex for creating a script. Aborting.")
             return@withContext false
         }
-
-        // Create both service.d and persistent scripts
         val serviceResult = createServiceScript(modeIndex)
         val persistentResult = createPersistentScript(modeIndex)
-
         return@withContext serviceResult && persistentResult
     }
 
     private suspend fun createServiceScript(modeIndex: Int): Boolean = withContext(Dispatchers.IO) {
         val scriptContent = """
             #!/system/bin/sh
-            
+
             # Wait for thermal system
             until [ -d /sys/class/thermal ]; do
                 sleep 1
             done
-            
+
             # Set SELinux context temporarily
             chcon u:object_r:sysfs_thermal:s0 $thermalSysfsNode
-            
+
             # Apply thermal mode
             echo "$modeIndex" > $thermalSysfsNode
-            
+
             # Restore context
             restorecon $thermalSysfsNode
-            
+
             exit 0
         """.trimIndent()
 
-        // Create service.d directory
         executeRootCommand("mkdir -p '$serviceDir'")
         executeRootCommand("chmod 755 '$serviceDir'")
 
-        // Write the script
-        val writeResult = executeRootCommand("cat > '$thermalScriptPath' << 'EOF'\\n$scriptContent\\nEOF")
+        val writeResult = executeRootCommand("cat > '$thermalScriptPath' << 'EOF'\n$scriptContent\nEOF")
         if (!writeResult.isSuccess) {
             return@withContext false
         }
@@ -181,7 +172,7 @@ class ThermalRepository @Inject constructor(
     }
 
     private suspend fun removeThermalScript(): Boolean = withContext(Dispatchers.IO) {
-        if (Shell.isAppGrantedRoot() != true || Shell.getShell().isRoot != true) {
+        if (!rootRepository.isRootStillAvailable()) {
             Log.e(TAG, "removeThermalScript: Root access is not available.")
             return@withContext false
         }
@@ -239,7 +230,7 @@ class ThermalRepository @Inject constructor(
             return@flow
         }
 
-        if (Shell.isAppGrantedRoot() != true) {
+        if (!rootRepository.isRootStillAvailable()) {
             Log.e(TAG, "setThermalModeIndex: Root access is not available.")
             emit(false)
             return@flow
@@ -247,7 +238,6 @@ class ThermalRepository @Inject constructor(
 
         Log.d(TAG, "setThermalModeIndex: Attempting to set thermal mode to index $modeIndex")
 
-        // Stop existing monitoring if any
         monitoringJob?.cancel()
         monitoringJob = null
 
@@ -258,29 +248,43 @@ class ThermalRepository @Inject constructor(
             return@flow
         }
 
-        // If mode is Dynamic (10), start CPU settings monitoring
         if (modeIndex == 10) {
             monitoringJob = CoroutineScope(Dispatchers.IO).launch {
                 while (isActive) {
-                    // Read current settings
-                    val currentFreq = Shell.cmd("cat /sys/devices/system/cpu/cpu7/cpufreq/scaling_max_freq").exec()
-                        .out.joinToString("").trim().toIntOrNull() ?: 0
-                    val currentGov = Shell.cmd("cat /sys/devices/system/cpu/cpu7/cpufreq/scaling_governor").exec()
-                        .out.joinToString("").trim()
+                    val currentFreqStr = try {
+                        rootRepository.run("cat /sys/devices/system/cpu/cpu7/cpufreq/scaling_max_freq").trim()
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to read CPU max frequency", e)
+                        ""
+                    }
+                    val currentFreq = currentFreqStr.toIntOrNull() ?: 0
 
-                    // If we have user settings and they don't match current, restore them
+                    val currentGov = try {
+                        rootRepository.run("cat /sys/devices/system/cpu/cpu7/cpufreq/scaling_governor").trim()
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to read CPU governor", e)
+                        ""
+                    }
+
                     if (userSetMaxFreq > 0 && currentFreq != userSetMaxFreq) {
-                        Shell.cmd("echo $userSetMaxFreq > /sys/devices/system/cpu/cpu7/cpufreq/scaling_max_freq").exec()
+                        try {
+                            rootRepository.run("echo $userSetMaxFreq > /sys/devices/system/cpu/cpu7/cpufreq/scaling_max_freq")
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Failed to restore CPU max frequency", e)
+                        }
                     }
                     if (!userSetGovernor.isNullOrEmpty() && currentGov != userSetGovernor) {
-                        Shell.cmd("echo $userSetGovernor > /sys/devices/system/cpu/cpu7/cpufreq/scaling_governor").exec()
+                        try {
+                            rootRepository.run("echo $userSetGovernor > /sys/devices/system/cpu/cpu7/cpufreq/scaling_governor")
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Failed to restore CPU governor", e)
+                        }
                     }
-                    delay(1000) // Check every second
+                    delay(1000)
                 }
             }
         }
 
-        // Save to persistent storage
         context.thermalDataStore.edit { preferences ->
             preferences[LAST_THERMAL_MODE] = modeIndex
         }
@@ -326,16 +330,14 @@ class ThermalRepository @Inject constructor(
         userSetGovernor = prefs[USER_GOVERNOR]
 
         if (userSetMaxFreq > 0 || !userSetGovernor.isNullOrEmpty()) {
-            // Only start monitoring if we're in Dynamic mode
             val currentMode = readRootCommand("cat '$thermalSysfsNode'")?.toIntOrNull() ?: 0
             if (currentMode == 10) {
-                setThermalModeIndex(10).collect() // This will start the monitoring
+                setThermalModeIndex(10).collect()
             }
         }
     }
 
     init {
-        // Restore user settings when repository is created
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
             restoreUserSettings()
         }
