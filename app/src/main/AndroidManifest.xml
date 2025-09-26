@@ -50,16 +50,6 @@
         android:requestLegacyExternalStorage="true"
         android:forceDarkAllowed="false">
 
-        <!-- Force dark theme configuration -->
-        <meta-data
-            android:name="android.app.ui_mode"
-            android:value="night" />
-
-        <!-- Disable light mode support -->
-        <meta-data
-            android:name="android.support.ui_options"
-            android:value="forceDark" />
-
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"

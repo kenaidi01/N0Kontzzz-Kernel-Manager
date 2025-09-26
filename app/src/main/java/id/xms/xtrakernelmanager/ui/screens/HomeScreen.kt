@@ -85,10 +85,6 @@ fun FadeInEffect(
     }
 }
 
-
-
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController) {
@@ -118,7 +114,7 @@ fun HomeScreen(navController: NavController) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val systemUiController = rememberSystemUiController()
     val surfaceColor = MaterialTheme.colorScheme.surface
-    val surfaceColorAtElevation = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
+    val surfaceColorAtElevation = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
     val topBarContainerColor by remember {
         derivedStateOf {
             lerp(
@@ -130,13 +126,18 @@ fun HomeScreen(navController: NavController) {
     }
     val darkTheme = isSystemInDarkTheme()
 
-    LaunchedEffect(topBarContainerColor, darkTheme) {
-        systemUiController.setStatusBarColor(
-            color = topBarContainerColor,
-            darkIcons = !darkTheme
-        )
+    LaunchedEffect(darkTheme, scrollBehavior) {
+        snapshotFlow { scrollBehavior.state.overlappedFraction }
+            .collect { fraction ->
+                Log.d("StatusBar", "Scroll fraction: $fraction")
+                val color = lerp(surfaceColor, surfaceColorAtElevation, fraction)
+                systemUiController.setStatusBarColor(
+                    color = color,
+                    darkIcons = !darkTheme
+                )
+            }
     }
-    
+
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         containerColor = Color.Transparent,

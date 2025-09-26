@@ -46,7 +46,7 @@ private val DarkColorScheme = darkColorScheme(
 @Composable
 fun XtraTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
+    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -62,12 +62,13 @@ fun XtraTheme(
             val window = (view.context as Activity).window
             // Set navigation bar color to match the bottom navigation bar
             window.navigationBarColor = colorScheme.surface.toArgb()
-            // Ensure content draws behind system bars
-            WindowCompat.setDecorFitsSystemWindows(window, false)
-
-            // For navigation bar, we need to check the luminance of the surface color
+            // Determine icon brightness by luminance for contrast
+            val isStatusBarLight = colorScheme.surface.luminance() > 0.5f
             val isNavigationBarLight = colorScheme.surface.luminance() > 0.5f
-            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = isNavigationBarLight
+
+            val controller = WindowCompat.getInsetsController(window, view)
+            controller.isAppearanceLightStatusBars = isStatusBarLight
+            controller.isAppearanceLightNavigationBars = isNavigationBarLight
         }
     }
 

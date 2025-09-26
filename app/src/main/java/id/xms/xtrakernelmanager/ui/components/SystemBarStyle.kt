@@ -25,18 +25,13 @@ fun CustomSystemBarStyle(
     val activity = context as? ComponentActivity ?: return
 
     SideEffect {
-        activity.window.statusBarColor = Color.TRANSPARENT
-        activity.window.navigationBarColor = Color.TRANSPARENT
-        
         WindowCompat.setDecorFitsSystemWindows(activity.window, false)
-        
+
         activity.window.statusBarColor = statusBarScrim.toArgb()
         activity.window.navigationBarColor = navigationBarScrim.toArgb()
-        
-        // Apply light/dark status bar icons based on darkMode
-        WindowCompat.getInsetsController(activity.window, activity.window.decorView).apply {
-            isAppearanceLightStatusBars = !darkMode
-            isAppearanceLightNavigationBars = !darkMode
-        }
+
+        val controller = WindowCompat.getInsetsController(activity.window, activity.window.decorView)
+        controller.isAppearanceLightStatusBars = !darkMode
+        controller.isAppearanceLightNavigationBars = !darkMode
     }
 }

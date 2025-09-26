@@ -10,6 +10,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -66,9 +67,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Force dark mode always - ignore system theme setting
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-
         // Initialize batteryOptChecker regardless of root status for consistency
         batteryOptChecker = BatteryOptimizationChecker(this)
         
@@ -93,8 +91,9 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             XtraTheme {
-                // Apply custom system bar styling
-                CustomSystemBarStyle(darkMode = true)
+//                // Apply custom system bar styling
+//                val isDarkTheme = isSystemInDarkTheme()
+//                CustomSystemBarStyle(darkMode = true)
                 
                 val navController = rememberNavController()
                 val items = listOf("Home", "Tuning", "Misc")
