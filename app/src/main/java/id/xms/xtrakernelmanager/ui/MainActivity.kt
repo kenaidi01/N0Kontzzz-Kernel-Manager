@@ -130,7 +130,6 @@ class MainActivity : ComponentActivity() {
                     }
 
                     Scaffold(
-                        containerColor = Color.Transparent,
                         bottomBar = { BottomNavBar(navController, items) },
                         modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars)
                     ) { innerPadding ->

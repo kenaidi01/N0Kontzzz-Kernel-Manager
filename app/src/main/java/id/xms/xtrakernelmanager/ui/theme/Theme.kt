@@ -60,8 +60,6 @@ fun XtraTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            // Set navigation bar color to match the bottom navigation bar
-            window.navigationBarColor = colorScheme.surface.toArgb()
             // Determine icon brightness by luminance for contrast
             val isStatusBarLight = colorScheme.surface.luminance() > 0.5f
             val isNavigationBarLight = colorScheme.surface.luminance() > 0.5f

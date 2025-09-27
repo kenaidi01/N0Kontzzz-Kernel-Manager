@@ -112,31 +112,7 @@ fun HomeScreen(navController: NavController) {
     val displayedTitle = fullTitle
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-    val systemUiController = rememberSystemUiController()
-    val surfaceColor = MaterialTheme.colorScheme.surface
-    val surfaceColorAtElevation = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-    val topBarContainerColor by remember {
-        derivedStateOf {
-            lerp(
-                surfaceColor,
-                surfaceColorAtElevation,
-                scrollBehavior.state.overlappedFraction
-            )
-        }
-    }
     val darkTheme = isSystemInDarkTheme()
-
-    LaunchedEffect(darkTheme, scrollBehavior) {
-        snapshotFlow { scrollBehavior.state.overlappedFraction }
-            .collect { fraction ->
-                Log.d("StatusBar", "Scroll fraction: $fraction")
-                val color = lerp(surfaceColor, surfaceColorAtElevation, fraction)
-                systemUiController.setStatusBarColor(
-                    color = color,
-                    darkIcons = !darkTheme
-                )
-            }
-    }
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -214,9 +190,6 @@ fun HomeScreen(navController: NavController) {
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = topBarContainerColor
-                ),
                 actions = {
                     IconButton(onClick = { navController.navigate("settings") }) {
                         Icon(
