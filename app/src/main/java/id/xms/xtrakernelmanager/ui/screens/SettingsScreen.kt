@@ -24,6 +24,7 @@ import id.xms.xtrakernelmanager.R
 import id.xms.xtrakernelmanager.ui.viewmodel.SettingsViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import id.xms.xtrakernelmanager.util.Language
+import id.xms.xtrakernelmanager.ui.theme.ThemeMode
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.material3.surfaceColorAtElevation
 
@@ -35,50 +36,63 @@ fun SettingsScreen(
 ) {
     val currentLanguage by viewModel.currentLanguage.collectAsState()
     var showLanguageDialog by remember { mutableStateOf(false) }
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-    val systemUiController = rememberSystemUiController()
-    val surfaceColor = MaterialTheme.colorScheme.surface
-    val surfaceColorAtElevation = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
-    val topBarContainerColor by remember {
-        derivedStateOf {
-            lerp(
-                surfaceColor,
-                surfaceColorAtElevation,
-                scrollBehavior.state.overlappedFraction
-            )
-        }
+    var showThemeDialog by remember { mutableStateOf(false) }
+    val currentThemeMode by viewModel.currentThemeMode.collectAsState()
+    
+    // Tambahkan state untuk memicu rekomposisi saat tema berubah
+    var themeRefreshKey by remember { mutableIntStateOf(0) }
+    
+    // Perbarui key saat currentThemeMode berubah untuk memicu rekomposisi
+    LaunchedEffect(currentThemeMode) {
+        themeRefreshKey++ // Ini akan memicu rekomposisi komponen
     }
-    val darkTheme = isSystemInDarkTheme()
+    
+    val systemUiController = rememberSystemUiController()
+    
+    // Gunakan warna langsung dari color scheme untuk responsivitas lebih cepat
+    val colorScheme = MaterialTheme.colorScheme
+    val topBarContainerColor = colorScheme.surface
+    
+    // Tentukan tema gelap atau terang berdasarkan tema aplikasi, bukan sistem
+    val isDarkTheme = when (currentThemeMode) {
+        ThemeMode.LIGHT -> false
+        ThemeMode.DARK -> true
+        ThemeMode.SYSTEM_DEFAULT -> isSystemInDarkTheme()
+    }
 
-    LaunchedEffect(topBarContainerColor, darkTheme) {
+    // Atur ikon status bar sesuai dengan tema aplikasi
+    LaunchedEffect(isDarkTheme, colorScheme, themeRefreshKey) {
         systemUiController.setStatusBarColor(
             color = topBarContainerColor,
-            darkIcons = !darkTheme
+            darkIcons = !isDarkTheme  // Ikon gelap jika bukan tema gelap (untuk visibilitas)
         )
     }
 
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 title = {
                     Text(
                         text = stringResource(R.string.settings),
-                        style = MaterialTheme.typography.headlineSmall
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onSurface // Gunakan warna yang sesuai dengan tema
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
+                            contentDescription = stringResource(R.string.back),
+                            tint = MaterialTheme.colorScheme.onSurface // Gunakan warna ikon yang sesuai dengan tema
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = topBarContainerColor
-                ),
-                scrollBehavior = scrollBehavior
+                    containerColor = topBarContainerColor,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface, // Warna judul
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface // Warna ikon navigasi
+                )
+                // Tidak ada scrollBehavior karena TopAppBar sekarang statis
             )
         }
     ) { innerPadding ->
@@ -140,7 +154,11 @@ fun SettingsScreen(
                     },
                     supportingContent = { 
                         Text(
-                            text = stringResource(R.string.theme_system),
+                            text = when (currentThemeMode) {
+                                ThemeMode.SYSTEM_DEFAULT -> stringResource(R.string.theme_system)
+                                ThemeMode.LIGHT -> stringResource(R.string.theme_light)
+                                ThemeMode.DARK -> stringResource(R.string.theme_dark)
+                            },
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -153,7 +171,7 @@ fun SettingsScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { /* TODO: Implement theme selection */ }
+                        .clickable { showThemeDialog = true }
                 )
             }
         }
@@ -199,6 +217,59 @@ fun SettingsScreen(
                                 onClick = {
                                     viewModel.setLanguage(language)
                                     showLanguageDialog = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        )
+    }
+
+    if (showThemeDialog) {
+        AlertDialog(
+            onDismissRequest = { showThemeDialog = false },
+            title = { 
+                Text(
+                    text = stringResource(R.string.select_theme),
+                    style = MaterialTheme.typography.headlineSmall
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { showThemeDialog = false }) {
+                    Text(stringResource(R.string.close))
+                }
+            },
+            text = {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ThemeMode.values().forEach { themeMode ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    viewModel.setThemeMode(themeMode)
+                                    showThemeDialog = false
+                                }
+                                .padding(vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = when (themeMode) {
+                                    ThemeMode.SYSTEM_DEFAULT -> stringResource(R.string.theme_system)
+                                    ThemeMode.LIGHT -> stringResource(R.string.theme_light)
+                                    ThemeMode.DARK -> stringResource(R.string.theme_dark)
+                                },
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.weight(1f)
+                            )
+                            RadioButton(
+                                selected = currentThemeMode == themeMode,
+                                onClick = {
+                                    viewModel.setThemeMode(themeMode)
+                                    showThemeDialog = false
                                 }
                             )
                         }

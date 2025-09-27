@@ -22,9 +22,8 @@ class XtraApp : Application(), Configuration.Provider {
                 .setTimeout(10)
         )
 
-        // Force dark mode globally for the entire application
-        // This ensures dark mode is applied before any activities are created
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        // Initialize theme mode - this will be managed by ThemeManager
+        // The actual theme will be applied in the MainActivity based on user preference
 
         // Inisialisasi WorkManager secara manual
         WorkManager.initialize(

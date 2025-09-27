@@ -9,6 +9,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import id.xms.xtrakernelmanager.util.LanguageManager
+import id.xms.xtrakernelmanager.util.ThemeManager
 import javax.inject.Singleton
 
 @Module
@@ -22,5 +23,14 @@ object LanguageModule {
         dataStore: DataStore<Preferences>
     ): LanguageManager {
         return LanguageManager(context, dataStore)
+    }
+
+    @Provides
+    @Singleton
+    fun provideThemeManager(
+        @ApplicationContext context: Context,
+        dataStore: DataStore<Preferences>
+    ): ThemeManager {
+        return ThemeManager(context, dataStore)
     }
 }

@@ -32,7 +32,8 @@ import id.xms.xtrakernelmanager.ui.components.RootRequiredDialog
 import id.xms.xtrakernelmanager.ui.components.CustomSystemBarStyle
 import id.xms.xtrakernelmanager.ui.dialog.BatteryOptDialog
 import id.xms.xtrakernelmanager.ui.screens.*
-import id.xms.xtrakernelmanager.ui.theme.XtraTheme
+import id.xms.xtrakernelmanager.ui.theme.RvKernelManagerTheme
+import id.xms.xtrakernelmanager.util.ThemeManager
 import id.xms.xtrakernelmanager.util.BatteryOptimizationChecker
 import id.xms.xtrakernelmanager.util.LanguageManager
 import kotlinx.coroutines.flow.collect
@@ -55,6 +56,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var languageManager: LanguageManager
+
+    @Inject
+    lateinit var themeManager: ThemeManager
 
     private lateinit var batteryOptChecker: BatteryOptimizationChecker
     private var showBatteryOptDialog by mutableStateOf(false)
@@ -90,7 +94,7 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            XtraTheme {
+            RvKernelManagerTheme(themeManager = themeManager) {
 //                // Apply custom system bar styling
 //                val isDarkTheme = isSystemInDarkTheme()
 //                CustomSystemBarStyle(darkMode = true)
