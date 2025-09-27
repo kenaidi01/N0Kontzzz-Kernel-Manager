@@ -2,7 +2,6 @@ package id.xms.xtrakernelmanager.ui.screens
 
 import android.content.Intent
 import android.provider.Settings
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,13 +15,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-
-import androidx.compose.ui.graphics.lerp
-import androidx.compose.material3.surfaceColorAtElevation
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import androidx.navigation.NavController
+import id.xms.xtrakernelmanager.R
+import id.xms.xtrakernelmanager.ui.components.UnifiedTopAppBar
 import id.xms.xtrakernelmanager.ui.dialog.TcpCongestionDialog
 import id.xms.xtrakernelmanager.viewmodel.MiscViewModel
 import androidx.compose.runtime.collectAsState
@@ -31,29 +30,11 @@ import id.xms.xtrakernelmanager.ui.dialog.IoSchedulerDialog
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MiscScreen(
+    navController: NavController? = null,
     viewModel: MiscViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-    val systemUiController = rememberSystemUiController()
-    val surfaceColor = MaterialTheme.colorScheme.surface
-    val surfaceColorAtElevation = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
-    val topBarContainerColor by remember {
-        derivedStateOf {
-            lerp(
-                surfaceColor,
-                surfaceColorAtElevation,
-                scrollBehavior.state.overlappedFraction
-            )
-        }
-    }
-    val darkTheme = isSystemInDarkTheme()
-    LaunchedEffect(topBarContainerColor, darkTheme) {
-        systemUiController.setStatusBarColor(
-            color = topBarContainerColor,
-            darkIcons = !darkTheme
-        )
-    }
 
     val kgslSkipZeroingEnabled by viewModel.kgslSkipZeroingEnabled.collectAsState()
     val isKgslFeatureAvailable by viewModel.isKgslFeatureAvailable.collectAsState()
@@ -61,17 +42,10 @@ fun MiscScreen(
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Misc Settings",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = topBarContainerColor
-                ),
+            UnifiedTopAppBar(
+                title = stringResource(id = R.string.n0kz_kernel_manager),
+                navController = navController,
+                showSettingsIcon = navController != null, // Only show settings icon if navController is provided
                 scrollBehavior = scrollBehavior
             )
         }

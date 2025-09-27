@@ -148,8 +148,8 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier.padding(innerPadding)
                             ) {
                                 composable("home") { HomeScreen(navController = navController) }
-                                composable("tuning") { TuningScreen() }
-                                composable("misc") { MiscScreen() }
+                                composable("tuning") { TuningScreen(navController = navController) }
+                                composable("misc") { MiscScreen(navController = navController) }
                                 composable("settings") { SettingsScreen(navController = navController) }
                             }
                         }

@@ -6,7 +6,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,19 +19,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import id.xms.xtrakernelmanager.R
 import id.xms.xtrakernelmanager.ui.components.ExpressiveLoadingIndicator
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import id.xms.xtrakernelmanager.ui.components.*
 import id.xms.xtrakernelmanager.viewmodel.TuningViewModel
 import kotlinx.coroutines.Dispatchers
@@ -88,29 +87,13 @@ enum class Language {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TuningScreen(viewModel: TuningViewModel = hiltViewModel()) {
+fun TuningScreen(
+    navController: androidx.navigation.NavController? = null,
+    viewModel: TuningViewModel = hiltViewModel()
+) {
     var showInfoDialog by remember { mutableStateOf(false) }
     val isTuningDataLoading by viewModel.isTuningDataLoading.collectAsState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-    val systemUiController = rememberSystemUiController()
-    val surfaceColor = MaterialTheme.colorScheme.surface
-    val surfaceColorAtElevation = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
-    val topBarContainerColor by remember {
-        derivedStateOf {
-            lerp(
-                surfaceColor,
-                surfaceColorAtElevation,
-                scrollBehavior.state.overlappedFraction
-            )
-        }
-    }
-    val darkTheme = isSystemInDarkTheme()
-    LaunchedEffect(topBarContainerColor, darkTheme) {
-        systemUiController.setStatusBarColor(
-            color = topBarContainerColor,
-            darkIcons = !darkTheme
-        )
-    }
 
     // Log when screen is composed
     LaunchedEffect(Unit) {
@@ -120,13 +103,11 @@ fun TuningScreen(viewModel: TuningViewModel = hiltViewModel()) {
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            TopAppBar(
-                title = { Text("Tuning Control",
-                    style = MaterialTheme.typography.headlineSmall) },
-                scrollBehavior = scrollBehavior,
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = topBarContainerColor
-                )
+            UnifiedTopAppBar(
+                title = stringResource(id = R.string.n0kz_kernel_manager),
+                navController = navController,
+                showSettingsIcon = navController != null,
+                scrollBehavior = scrollBehavior
             )
         }
     ) { paddingValues ->
