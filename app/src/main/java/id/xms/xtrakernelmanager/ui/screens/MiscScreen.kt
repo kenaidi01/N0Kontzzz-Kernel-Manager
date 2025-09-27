@@ -34,60 +34,46 @@ fun MiscScreen(
     viewModel: MiscViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
     val kgslSkipZeroingEnabled by viewModel.kgslSkipZeroingEnabled.collectAsState()
     val isKgslFeatureAvailable by viewModel.isKgslFeatureAvailable.collectAsState()
 
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            UnifiedTopAppBar(
-                title = stringResource(id = R.string.n0kz_kernel_manager),
-                navController = navController,
-                showSettingsIcon = navController != null, // Only show settings icon if navController is provided
-                scrollBehavior = scrollBehavior
-            )
-        }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
 
-            
+        
 
-            // KGSL Skip Pool Zeroing feature
-            KgslSkipZeroingCard(
-                kgslSkipZeroingEnabled = kgslSkipZeroingEnabled,
-                isKgslFeatureAvailable = isKgslFeatureAvailable,
-                onToggleKgslSkipZeroing = { enabled ->
-                    viewModel.toggleKgslSkipZeroing(enabled)
-                }
-            )
-            
-            // TCP Congestion Control Algorithm feature
-            TcpCongestionControlCard(
-                tcpCongestionAlgorithm = viewModel.tcpCongestionAlgorithm.collectAsState().value,
-                availableAlgorithms = viewModel.availableTcpCongestionAlgorithms.collectAsState().value,
-                onAlgorithmChange = { algorithm ->
-                    viewModel.updateTcpCongestionAlgorithm(algorithm)
-                }
-            )
-            
-            // I/O Scheduler feature
-            IoSchedulerCard(
-                ioScheduler = viewModel.ioScheduler.collectAsState().value,
-                availableSchedulers = viewModel.availableIoSchedulers.collectAsState().value,
-                onSchedulerChange = { scheduler ->
-                    viewModel.updateIoScheduler(scheduler)
-                }
-            )
-        }
+        // KGSL Skip Pool Zeroing feature
+        KgslSkipZeroingCard(
+            kgslSkipZeroingEnabled = kgslSkipZeroingEnabled,
+            isKgslFeatureAvailable = isKgslFeatureAvailable,
+            onToggleKgslSkipZeroing = { enabled ->
+                viewModel.toggleKgslSkipZeroing(enabled)
+            }
+        )
+        
+        // TCP Congestion Control Algorithm feature
+        TcpCongestionControlCard(
+            tcpCongestionAlgorithm = viewModel.tcpCongestionAlgorithm.collectAsState().value,
+            availableAlgorithms = viewModel.availableTcpCongestionAlgorithms.collectAsState().value,
+            onAlgorithmChange = { algorithm ->
+                viewModel.updateTcpCongestionAlgorithm(algorithm)
+            }
+        )
+        
+        // I/O Scheduler feature
+        IoSchedulerCard(
+            ioScheduler = viewModel.ioScheduler.collectAsState().value,
+            availableSchedulers = viewModel.availableIoSchedulers.collectAsState().value,
+            onSchedulerChange = { scheduler ->
+                viewModel.updateIoScheduler(scheduler)
+            }
+        )
     }
 }
 

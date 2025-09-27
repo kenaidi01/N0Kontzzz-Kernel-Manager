@@ -93,57 +93,43 @@ fun TuningScreen(
 ) {
     var showInfoDialog by remember { mutableStateOf(false) }
     val isTuningDataLoading by viewModel.isTuningDataLoading.collectAsState()
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
     // Log when screen is composed
     LaunchedEffect(Unit) {
         android.util.Log.d("TuningScreen", "Screen composed, loading state: $isTuningDataLoading")
     }
 
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            UnifiedTopAppBar(
-                title = stringResource(id = R.string.n0kz_kernel_manager),
-                navController = navController,
-                showSettingsIcon = navController != null,
-                scrollBehavior = scrollBehavior
+    // Log loading state changes
+    LaunchedEffect(isTuningDataLoading) {
+        android.util.Log.d("TuningScreen", "Loading state changed to: $isTuningDataLoading")
+    }
+    
+    if (isTuningDataLoading) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                IndeterminateExpressiveLoadingIndicator()
+                Spacer(modifier = Modifier.height(16.dp))
+                Text("Loading tuning data...")
+            }
+        }
+    } else {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Hero Header
+            HeroHeader(
+                onClick = { showInfoDialog = true }
             )
-        }
-    ) { paddingValues ->
-        // Log loading state changes
-        LaunchedEffect(isTuningDataLoading) {
-            android.util.Log.d("TuningScreen", "Loading state changed to: $isTuningDataLoading")
-        }
-        
-        if (isTuningDataLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    IndeterminateExpressiveLoadingIndicator()
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text("Loading tuning data...")
-                }
-            }
-        } else {
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                // Hero Header
-                HeroHeader(
-                    onClick = { showInfoDialog = true }
-                )
-                
-                PerformanceModeCard(viewModel = viewModel)
-                CpuGovernorCard(vm = viewModel)
-                GpuControlCard(tuningViewModel = viewModel)
-                ThermalCard(viewModel = viewModel)
-                SwappinessCard(vm = viewModel)
-            }
+            
+            PerformanceModeCard(viewModel = viewModel)
+            CpuGovernorCard(vm = viewModel)
+            GpuControlCard(tuningViewModel = viewModel)
+            ThermalCard(viewModel = viewModel)
+            SwappinessCard(vm = viewModel)
         }
     }
 

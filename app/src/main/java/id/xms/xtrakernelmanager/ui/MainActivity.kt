@@ -10,6 +10,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -20,7 +28,9 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.compose.*
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import id.xms.xtrakernelmanager.data.repository.RootRepository
 import id.xms.xtrakernelmanager.data.repository.ThermalRepository
@@ -35,10 +45,24 @@ import id.xms.xtrakernelmanager.ui.screens.*
 import id.xms.xtrakernelmanager.ui.theme.RvKernelManagerTheme
 import id.xms.xtrakernelmanager.util.ThemeManager
 import id.xms.xtrakernelmanager.util.BatteryOptimizationChecker
+import id.xms.xtrakernelmanager.ui.components.UnifiedTopAppBar
 import id.xms.xtrakernelmanager.util.LanguageManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
+import androidx.navigation.compose.currentBackStackEntryAsState
+import id.xms.xtrakernelmanager.R
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.dp
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -67,6 +91,7 @@ class MainActivity : ComponentActivity() {
     private var permissionDenialCount by mutableIntStateOf(0)
     private val MAX_PERMISSION_RETRIES = 2
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,18 +120,103 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             RvKernelManagerTheme(themeManager = themeManager) {
-//                // Apply custom system bar styling
-//                val isDarkTheme = isSystemInDarkTheme()
-//                CustomSystemBarStyle(darkMode = true)
-                
                 val navController = rememberNavController()
                 val items = listOf("Home", "Tuning", "Misc")
+                val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentDestination = navBackStackEntry?.destination
+                var showFabMenu by remember { mutableStateOf(false) }
 
-                // Use Surface instead of ExpressiveBackground to avoid potential composition issues
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
+                val currentRoute = currentDestination?.route
+
+                val title = when (currentRoute) {
+                    "settings" -> "Settings"
+                    else -> stringResource(id = R.string.n0kz_kernel_manager) // Default title for home, tuning, misc
+                }
+
+                val showSettingsIcon = when (currentRoute) {
+                    "home", "tuning", "misc" -> true
+                    else -> false // Do not show for settings or other screens
+                }
+
+                Scaffold(
+                    modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                    topBar = {
+                        UnifiedTopAppBar(
+                            title = title,
+                            navController = navController,
+                            showSettingsIcon = showSettingsIcon,
+                            scrollBehavior = scrollBehavior
+                        )
+                    },
+                    floatingActionButton = {
+                        if (currentRoute == "home") {
+                            Column(
+                                horizontalAlignment = Alignment.End,
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                AnimatedVisibility(
+                                    visible = showFabMenu,
+                                    enter = fadeIn(animationSpec = tween(200)) + slideInVertically(
+                                        initialOffsetY = { it / 2 },
+                                        animationSpec = tween(200)
+                                    ),
+                                    exit = fadeOut(animationSpec = tween(200)) + slideOutVertically(
+                                        targetOffsetY = { it / 2 },
+                                        animationSpec = tween(200)
+                                    )
+                                ) {
+                                    Column(
+                                        horizontalAlignment = Alignment.End,
+                                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                                    ) {
+                                        ExtendedFloatingActionButton(
+                                            text = { Text(stringResource(R.string.power_off)) },
+                                            icon = { Icon(Icons.Filled.PowerSettingsNew, contentDescription = null) },
+                                            onClick = { Runtime.getRuntime().exec(arrayOf("su", "-c", "reboot -p")) },
+                                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                                            contentColor = MaterialTheme.colorScheme.onErrorContainer
+                                        )
+                                        
+                                        ExtendedFloatingActionButton(
+                                            text = { Text(stringResource(R.string.reboot_recovery)) },
+                                            icon = { Icon(Icons.Filled.SettingsBackupRestore, contentDescription = null) },
+                                            onClick = { Runtime.getRuntime().exec(arrayOf("su", "-c", "reboot recovery")) }
+                                        )
+                                        
+                                        ExtendedFloatingActionButton(
+                                            text = { Text(stringResource(R.string.reboot_bootloader)) },
+                                            icon = { Icon(Icons.Filled.Build, contentDescription = null) },
+                                            onClick = { Runtime.getRuntime().exec(arrayOf("su", "-c", "reboot bootloader")) }
+                                        )
+                                        
+                                        ExtendedFloatingActionButton(
+                                            text = { Text(stringResource(R.string.reboot_system)) },
+                                            icon = { Icon(Icons.Filled.Refresh, contentDescription = null) },
+                                            onClick = { Runtime.getRuntime().exec(arrayOf("su", "-c", "reboot")) }
+                                        )
+                                    }
+                                }
+                                
+                                FloatingActionButton(
+                                    onClick = { showFabMenu = !showFabMenu },
+                                ) {
+                                    val iconRotation by animateFloatAsState(
+                                        targetValue = if (showFabMenu) 45f else 0f,
+                                        animationSpec = tween(durationMillis = 300), label = "fabIconRotation"
+                                    )
+                                    Icon(
+                                        imageVector = Icons.Filled.PowerSettingsNew,
+                                        contentDescription = "Toggle FAB Menu",
+                                        modifier = Modifier.graphicsLayer(rotationZ = iconRotation)
+                                    )
+                                }
+                            }
+                        }
+                    },
+                    floatingActionButtonPosition = FabPosition.End,
+                    bottomBar = { BottomNavBar(navController, items) }
+                ) { innerPadding ->
                     if (showKernelVerificationDialog) {
                         KernelVerificationDialog(onDismiss = { finish() })
                     }
@@ -133,25 +243,48 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    Scaffold(
-                        bottomBar = { BottomNavBar(navController, items) },
-                        modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars)
-                    ) { innerPadding ->
-                        // Use standard Material Surface as background
-                        Surface(
-                            modifier = Modifier.fillMaxSize(),
-                            color = MaterialTheme.colorScheme.background
-                        ) {
-                            NavHost(
-                                navController = navController,
-                                startDestination = "home",
-                                modifier = Modifier.padding(innerPadding)
-                            ) {
-                                composable("home") { HomeScreen(navController = navController) }
-                                composable("tuning") { TuningScreen(navController = navController) }
-                                composable("misc") { MiscScreen(navController = navController) }
-                                composable("settings") { SettingsScreen(navController = navController) }
+                    NavHost(
+                        navController = navController,
+                        startDestination = "home",
+                        modifier = Modifier.padding(innerPadding)
+                    ) {
+                        composable(
+                            "home",
+                            enterTransition = { fadeIn(animationSpec = tween(300)) + scaleIn(initialScale = 0.92f, animationSpec = tween(300)) },
+                            exitTransition = { fadeOut(animationSpec = tween(150)) },
+                            popEnterTransition = { fadeIn(animationSpec = tween(300)) },
+                            popExitTransition = { fadeOut(animationSpec = tween(150)) + scaleOut(targetScale = 0.92f, animationSpec = tween(150)) }
+                        ) { HomeScreen(navController = navController) }
+                        composable(
+                            "tuning",
+                            enterTransition = { fadeIn(animationSpec = tween(300)) + scaleIn(initialScale = 0.92f, animationSpec = tween(300)) },
+                            exitTransition = { fadeOut(animationSpec = tween(150)) },
+                            popEnterTransition = { fadeIn(animationSpec = tween(300)) },
+                            popExitTransition = { fadeOut(animationSpec = tween(150)) + scaleOut(targetScale = 0.92f, animationSpec = tween(150)) }
+                        ) { TuningScreen(navController = navController) }
+                        composable(
+                            "misc",
+                            enterTransition = { fadeIn(animationSpec = tween(300)) + scaleIn(initialScale = 0.92f, animationSpec = tween(300)) },
+                            exitTransition = { fadeOut(animationSpec = tween(150)) },
+                            popEnterTransition = { fadeIn(animationSpec = tween(300)) },
+                            popExitTransition = { fadeOut(animationSpec = tween(150)) + scaleOut(targetScale = 0.92f, animationSpec = tween(150)) }
+                        ) { MiscScreen(navController = navController) }
+                        composable(
+                            "settings",
+                            enterTransition = {
+                                slideInHorizontally(initialOffsetX = { fullWidth -> fullWidth }, animationSpec = tween(500))
+                            },
+                            exitTransition = {
+                                slideOutHorizontally(targetOffsetX = { fullWidth -> -fullWidth }, animationSpec = tween(500))
+                            },
+                            popEnterTransition = {
+                                slideInHorizontally(initialOffsetX = { fullWidth -> -fullWidth }, animationSpec = tween(500))
+                            },
+                            popExitTransition = {
+                                slideOutHorizontally(targetOffsetX = { fullWidth -> fullWidth }, animationSpec = tween(500))
                             }
+                        ) {
+                            SettingsScreen(navController = navController)
                         }
                     }
                 }

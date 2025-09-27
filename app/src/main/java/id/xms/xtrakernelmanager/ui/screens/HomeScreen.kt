@@ -41,53 +41,11 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import kotlin.text.isNotBlank
 
-
-@Composable
-fun FadeInEffect(
-    shimmerEnabled: Boolean = false,
-    content: @Composable (Modifier) -> Unit
-) {
-    val visibleState = remember { MutableTransitionState(false) }
-    LaunchedEffect(Unit) {
-        visibleState.targetState = true
-    }
-
-    val transition = rememberTransition(visibleState, label = "FadeInTransition")
-    val alpha by transition.animateFloat(
-        transitionSpec = { tween(durationMillis = 500) },
-        label = "alpha"
-    ) { if (it) 1f else 0f }
-
-    val shimmerBrush = if (shimmerEnabled) {
-        val shimmerColors = listOf(
-            Color.LightGray.copy(alpha = 0.6f),
-            Color.LightGray.copy(alpha = 0.2f),
-            Color.LightGray.copy(alpha = 0.6f),
-        )
-        val translateAnim = rememberInfiniteTransition(label = "shimmerTransitionFadeIn").animateFloat(
-            initialValue = 0f,
-            targetValue = 1000f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Restart
-            ), label = "shimmerTranslateFadeIn"
-        )
-        Brush.linearGradient(
-            colors = if (shimmerColors.size >= 2) shimmerColors else listOf(Color.LightGray.copy(alpha = 0.6f), Color.LightGray.copy(alpha = 0.2f)),
-            start = androidx.compose.ui.geometry.Offset.Zero,
-            end = androidx.compose.ui.geometry.Offset(x = translateAnim.value, y = translateAnim.value)
-        )
-    } else null
-
-    Box(modifier = Modifier.alpha(alpha)) {
-        content(if (shimmerBrush != null) Modifier.graphicsLayer(alpha = 0.99f)
-        else Modifier)
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(
+    navController: NavController
+) {
     val vm: HomeViewModel = hiltViewModel()
     val storageViewModel: id.xms.xtrakernelmanager.ui.viewmodel.StorageInfoViewModel = hiltViewModel()
     val graphDataViewModel: id.xms.xtrakernelmanager.viewmodel.GraphDataViewModel = viewModel()
@@ -108,174 +66,66 @@ fun HomeScreen(navController: NavController) {
 
     var showFabMenu by remember { mutableStateOf(false) }
 
-    val fullTitle = stringResource(R.string.n0kz_kernel_manager)
-    val displayedTitle = fullTitle
-
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-    val darkTheme = isSystemInDarkTheme()
-
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        containerColor = Color.Transparent,
-        floatingActionButton = {
-            Column(
-                horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                AnimatedVisibility(
-                    visible = showFabMenu,
-                    enter = fadeIn(animationSpec = tween(200)) + slideInVertically(
-                        initialOffsetY = { it / 2 },
-                        animationSpec = tween(200)
-                    ),
-                    exit = fadeOut(animationSpec = tween(200)) + slideOutVertically(
-                        targetOffsetY = { it / 2 },
-                        animationSpec = tween(200)
-                    )
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.End,
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        ExtendedFloatingActionButton(
-                            text = { Text(stringResource(R.string.power_off)) },
-                            icon = { Icon(Icons.Filled.PowerSettingsNew, contentDescription = null) },
-                            onClick = { Runtime.getRuntime().exec(arrayOf("su", "-c", "reboot -p")) },
-                            containerColor = MaterialTheme.colorScheme.errorContainer,
-                            contentColor = MaterialTheme.colorScheme.onErrorContainer
-                        )
-                        
-                        ExtendedFloatingActionButton(
-                            text = { Text(stringResource(R.string.reboot_recovery)) },
-                            icon = { Icon(Icons.Filled.SettingsBackupRestore, contentDescription = null) },
-                            onClick = { Runtime.getRuntime().exec(arrayOf("su", "-c", "reboot recovery")) }
-                        )
-                        
-                        ExtendedFloatingActionButton(
-                            text = { Text(stringResource(R.string.reboot_bootloader)) },
-                            icon = { Icon(Icons.Filled.Build, contentDescription = null) },
-                            onClick = { Runtime.getRuntime().exec(arrayOf("su", "-c", "reboot bootloader")) }
-                        )
-                        
-                        ExtendedFloatingActionButton(
-                            text = { Text(stringResource(R.string.reboot_system)) },
-                            icon = { Icon(Icons.Filled.Refresh, contentDescription = null) },
-                            onClick = { Runtime.getRuntime().exec(arrayOf("su", "-c", "reboot")) }
-                        )
-                    }
-                }
-                
-                FloatingActionButton(
-                    onClick = { showFabMenu = !showFabMenu },
-                ) {
-                    val iconRotation by animateFloatAsState(
-                        targetValue = if (showFabMenu) 45f else 0f,
-                        animationSpec = tween(durationMillis = 300), label = "fabIconRotation"
-                    )
-                    Icon(
-                        imageVector = Icons.Filled.PowerSettingsNew,
-                        contentDescription = "Toggle FAB Menu",
-                        modifier = Modifier.graphicsLayer(rotationZ = iconRotation)
-                    )
-                }
-            }
-        },
-        floatingActionButtonPosition = FabPosition.End,
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = displayedTitle,
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                },
-                actions = {
-                    IconButton(onClick = { navController.navigate("settings") }) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings"
-                        )
-                    }
-                },
-                scrollBehavior = scrollBehavior
-            )
+    if (isLoading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            IndeterminateExpressiveLoadingIndicator()
         }
-    ) { paddingValues ->
-        if (isLoading) {
-            Box(
-                modifier = Modifier.fillMaxSize().padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                IndeterminateExpressiveLoadingIndicator()
-            }
-        } else {
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 20.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
+    } else {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
 
-                /* 1. CPU */
-                FadeInEffect { modifier ->
-                    val currentSystemInfo = systemInfoState
-                    val socNameToDisplay = currentSystemInfo?.soc?.takeIf { it.isNotBlank() && it != "Unknown" } ?: cpuInfo.soc.takeIf { it.isNotBlank() && it != "Unknown SoC" && it != "N/A" } ?: "CPU"
-                    CpuCard(socNameToDisplay, cpuInfo, cpuClusters, false, modifier, graphDataViewModel)
-                }
+            /* 1. CPU */
+            val currentSystemInfo = systemInfoState
+            val socNameToDisplay = currentSystemInfo?.soc?.takeIf { it.isNotBlank() && it != "Unknown" } ?: cpuInfo.soc.takeIf { it.isNotBlank() && it != "Unknown SoC" && it != "N/A" } ?: "CPU"
+            CpuCard(socNameToDisplay, cpuInfo, cpuClusters, false, Modifier, graphDataViewModel)
 
-                /* 2. GPU */
-                FadeInEffect { modifier ->
-                    GpuCard(gpuInfo, modifier, graphDataViewModel)
-                }
+            /* 2. GPU */
+            GpuCard(gpuInfo, Modifier, graphDataViewModel)
 
-                /* 3. Merged card */
-                val currentBattery = batteryInfo
-                val currentMemory = memoryInfo
-                val currentDeepSleep = deepSleepInfo
-                val currentRoot = rootStatus
-                val currentVersion = appVersion
-                val currentSystem = systemInfoState
+            /* 3. Merged card */
+            val currentBattery = batteryInfo
+            val currentMemory = memoryInfo
+            val currentDeepSleep = deepSleepInfo
+            val currentRoot = rootStatus
+            val currentVersion = appVersion
+            val currentSystem = systemInfoState
 
-                if (currentBattery != null && currentMemory != null && currentDeepSleep != null &&
-                    currentRoot != null && currentVersion != null && currentSystem != null) {
-                    FadeInEffect { modifier ->
-                        MergedSystemCard(
-                            b = currentBattery,
-                            d = currentDeepSleep,
-                            rooted = currentRoot,
-                            version = currentVersion,
-                            mem = currentMemory,
-                            systemInfo = currentSystem,
-                            storageInfo = storageInfo,
-                            modifier = modifier
-                        )
-                    }
-                } else {
-                    FadeInEffect { modifier ->
-                        Box(modifier.fillMaxWidth().height(200.dp).background(Color.LightGray.copy(alpha = 0.5f))) {
-                            IndeterminateExpressiveLoadingIndicator(modifier = Modifier.align(Alignment.Center))
-                        }
-                    }
-                }
-
-                /* 4. Kernel */
-                val currentKernel = kernelInfo
-                if (currentKernel != null) {
-                    FadeInEffect { modifier ->
-                        KernelCard(currentKernel, modifier)
-                    }
-                } else {
-                    // Opsional: Placeholder untuk KernelCard
-                }
-
-                /* 5. About */
-                FadeInEffect { modifier ->
-                    AboutCard(false, modifier)
+            if (currentBattery != null && currentMemory != null && currentDeepSleep != null &&
+                currentRoot != null && currentVersion != null && currentSystem != null) {
+                MergedSystemCard(
+                    b = currentBattery,
+                    d = currentDeepSleep,
+                    rooted = currentRoot,
+                    version = currentVersion,
+                    mem = currentMemory,
+                    systemInfo = currentSystem,
+                    storageInfo = storageInfo,
+                    modifier = Modifier
+                )
+            } else {
+                Box(Modifier.fillMaxWidth().height(200.dp).background(Color.LightGray.copy(alpha = 0.5f))) {
+                    IndeterminateExpressiveLoadingIndicator(modifier = Modifier.align(Alignment.Center))
                 }
             }
+
+            /* 4. Kernel */
+            val currentKernel = kernelInfo
+            if (currentKernel != null) {
+                KernelCard(currentKernel, Modifier)
+            } else {
+                // Opsional: Placeholder untuk KernelCard
+            }
+
+            /* 5. About */
+            AboutCard(false, Modifier)
         }
     }
 }

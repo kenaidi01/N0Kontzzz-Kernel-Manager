@@ -345,6 +345,7 @@ private fun StorageHeaderSection(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun BatteryProgressSection(
     batteryInfo: BatteryInfo
@@ -384,30 +385,21 @@ private fun BatteryProgressSection(
             )
         }
 
-        // Battery Progress Bar
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(10.dp)
-                .clip(RoundedCornerShape(5.dp))
-                .background(MaterialTheme.colorScheme.surface)
-        ) {
-            val progressColor = when {
-                batteryInfo.level > 70 -> MaterialTheme.colorScheme.primary
-                batteryInfo.level > 30 -> MaterialTheme.colorScheme.tertiary
-                else -> MaterialTheme.colorScheme.error
-            }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(batteryInfo.level / 100f)
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(5.dp))
-                    .background(progressColor)
-            )
+        val progressColor = when {
+            batteryInfo.level > 70 -> MaterialTheme.colorScheme.primary
+            batteryInfo.level > 30 -> MaterialTheme.colorScheme.tertiary
+            else -> MaterialTheme.colorScheme.error
         }
+        LinearWavyProgressIndicator(
+            progress = { batteryInfo.level / 100f },
+            modifier = Modifier.fillMaxWidth().height(10.dp),
+            color = progressColor,
+            trackColor = MaterialTheme.colorScheme.surface
+        )
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun MemoryProgressSection(
     memoryInfo: MemoryInfo,
@@ -452,26 +444,17 @@ private fun MemoryProgressSection(
                 )
             }
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(10.dp)
-                    .clip(RoundedCornerShape(5.dp))
-                    .background(MaterialTheme.colorScheme.surface)
-            ) {
-                val progressColor = when {
-                    usedPercentage < 60 -> MaterialTheme.colorScheme.primary
-                    usedPercentage < 80 -> MaterialTheme.colorScheme.tertiary
-                    else -> MaterialTheme.colorScheme.error
-                }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(usedPercentage / 100f)
-                        .fillMaxHeight()
-                        .clip(RoundedCornerShape(5.dp))
-                        .background(progressColor)
-                )
+            val progressColor = when {
+                usedPercentage < 60 -> MaterialTheme.colorScheme.primary
+                usedPercentage < 80 -> MaterialTheme.colorScheme.tertiary
+                else -> MaterialTheme.colorScheme.error
             }
+            LinearWavyProgressIndicator(
+                progress = { usedPercentage / 100f },
+                modifier = Modifier.fillMaxWidth().height(10.dp),
+                color = progressColor,
+                trackColor = MaterialTheme.colorScheme.surface
+            )
         }
 
         // ZRAM Usage Progress Bar (only show if zram is available)
@@ -513,21 +496,12 @@ private fun MemoryProgressSection(
                     )
                 }
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(10.dp)
-                        .clip(RoundedCornerShape(5.dp))
-                        .background(MaterialTheme.colorScheme.surface)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(zramUsedPercentage / 100f)
-                            .fillMaxHeight()
-                            .clip(RoundedCornerShape(5.dp))
-                            .background(MaterialTheme.colorScheme.secondary)
-                    )
-                }
+                LinearWavyProgressIndicator(
+                    progress = { zramUsedPercentage / 100f },
+                    modifier = Modifier.fillMaxWidth().height(10.dp),
+                    color = MaterialTheme.colorScheme.secondary,
+                    trackColor = MaterialTheme.colorScheme.surface
+                )
             }
         }
 
@@ -570,21 +544,12 @@ private fun MemoryProgressSection(
                     )
                 }
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(10.dp)
-                        .clip(RoundedCornerShape(5.dp))
-                        .background(MaterialTheme.colorScheme.surface)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(swapUsedPercentage / 100f)
-                            .fillMaxHeight()
-                            .clip(RoundedCornerShape(5.dp))
-                            .background(MaterialTheme.colorScheme.tertiary)
-                    )
-                }
+                LinearWavyProgressIndicator(
+                    progress = { swapUsedPercentage / 100f },
+                    modifier = Modifier.fillMaxWidth().height(10.dp),
+                    color = MaterialTheme.colorScheme.tertiary,
+                    trackColor = MaterialTheme.colorScheme.surface
+                )
             }
         }
     }
@@ -1124,6 +1089,7 @@ private fun DeviceInfoCard(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun StorageProgressSection(
     storageInfo: StorageInfo
@@ -1167,27 +1133,17 @@ private fun StorageProgressSection(
             )
         }
 
-        // Storage Progress Bar
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(10.dp)
-                .clip(RoundedCornerShape(5.dp))
-                .background(MaterialTheme.colorScheme.surface)
-        ) {
-            val progressColor = when {
-                usedPercentage < 70 -> MaterialTheme.colorScheme.primary
-                usedPercentage < 85 -> MaterialTheme.colorScheme.tertiary
-                else -> MaterialTheme.colorScheme.error
-            }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(usedPercentage / 100f)
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(5.dp))
-                    .background(progressColor)
-            )
+        val progressColor = when {
+            usedPercentage < 70 -> MaterialTheme.colorScheme.primary
+            usedPercentage < 85 -> MaterialTheme.colorScheme.tertiary
+            else -> MaterialTheme.colorScheme.error
         }
+        LinearWavyProgressIndicator(
+            progress = { usedPercentage / 100f },
+            modifier = Modifier.fillMaxWidth().height(10.dp),
+            color = progressColor,
+            trackColor = MaterialTheme.colorScheme.surface
+        )
 
         // Storage Details
         Row(

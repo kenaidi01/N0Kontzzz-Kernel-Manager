@@ -22,7 +22,7 @@ fun BottomNavBar(navController: NavHostController, items: List<String>) {
 
     NavigationBar(
         modifier = Modifier.fillMaxWidth(),
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) {
         items.forEach { screen ->
             val selected = currentRoute == screen.lowercase()

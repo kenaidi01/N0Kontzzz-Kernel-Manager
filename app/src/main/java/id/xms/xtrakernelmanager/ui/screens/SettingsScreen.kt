@@ -68,112 +68,82 @@ fun SettingsScreen(
         )
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.settings),
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onSurface // Gunakan warna yang sesuai dengan tema
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back),
-                            tint = MaterialTheme.colorScheme.onSurface // Gunakan warna ikon yang sesuai dengan tema
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = topBarContainerColor,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface, // Warna judul
-                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface // Warna ikon navigasi
-                )
-                // Tidak ada scrollBehavior karena TopAppBar sekarang statis
-            )
-        }
-    ) { innerPadding ->
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
+        // Settings section
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Settings section
-            Column(
+            Text(
+                text = stringResource(R.string.preferences),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            
+            ListItem(
+                headlineContent = { 
+                    Text(
+                        text = stringResource(R.string.language),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                },
+                supportingContent = { 
+                    Text(
+                        text = currentLanguage.displayName,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Default.Language,
+                        contentDescription = null
+                    )
+                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.preferences),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                
-                ListItem(
-                    headlineContent = { 
-                        Text(
-                            text = stringResource(R.string.language),
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    },
-                    supportingContent = { 
-                        Text(
-                            text = currentLanguage.displayName,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    },
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Default.Language,
-                            contentDescription = null
-                        )
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { showLanguageDialog = true }
-                )
-                
-                Divider(
-                    color = MaterialTheme.colorScheme.outlineVariant,
-                    thickness = 1.dp
-                )
-                
-                ListItem(
-                    headlineContent = { 
-                        Text(
-                            text = stringResource(R.string.theme),
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    },
-                    supportingContent = { 
-                        Text(
-                            text = when (currentThemeMode) {
-                                ThemeMode.SYSTEM_DEFAULT -> stringResource(R.string.theme_system)
-                                ThemeMode.LIGHT -> stringResource(R.string.theme_light)
-                                ThemeMode.DARK -> stringResource(R.string.theme_dark)
-                            },
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    },
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Default.Contrast,
-                            contentDescription = null
-                        )
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { showThemeDialog = true }
-                )
-            }
+                    .clickable { showLanguageDialog = true }
+            )
+            
+            Divider(
+                color = MaterialTheme.colorScheme.outlineVariant,
+                thickness = 1.dp
+            )
+            
+            ListItem(
+                headlineContent = { 
+                    Text(
+                        text = stringResource(R.string.theme),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                },
+                supportingContent = { 
+                    Text(
+                        text = when (currentThemeMode) {
+                            ThemeMode.SYSTEM_DEFAULT -> stringResource(R.string.theme_system)
+                            ThemeMode.LIGHT -> stringResource(R.string.theme_light)
+                            ThemeMode.DARK -> stringResource(R.string.theme_dark)
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Default.Contrast,
+                        contentDescription = null
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showThemeDialog = true }
+            )
         }
     }
 
@@ -186,7 +156,7 @@ fun SettingsScreen(
                     style = MaterialTheme.typography.headlineSmall
                 )
             },
-            confirmButton = {
+            confirmButton = { 
                 TextButton(onClick = { showLanguageDialog = false }) {
                     Text(stringResource(R.string.close))
                 }
@@ -235,7 +205,7 @@ fun SettingsScreen(
                     style = MaterialTheme.typography.headlineSmall
                 )
             },
-            confirmButton = {
+            confirmButton = { 
                 TextButton(onClick = { showThemeDialog = false }) {
                     Text(stringResource(R.string.close))
                 }
