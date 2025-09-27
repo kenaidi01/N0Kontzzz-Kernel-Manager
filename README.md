@@ -13,8 +13,8 @@
 
 ## ✨ Features
 
-- 📊 **Real-time CPU Temperature Monitoring**  
-  View individual core temperatures in a clean, responsive UI.
+- 📊 **Real-time CPU Monitoring**  
+  View individual core in a clean, responsive UI.
 
 - 🌡️ **Thermal Zone Status**  
   Retrieve and display system thermal zone data for advanced thermal debugging.
@@ -22,18 +22,18 @@
 - ⚙️ **CPU Tuning**
   Apply governor changes on-the-fly with native shell execution via [libsu](https://github.com/topjohnwu/libsu).
 
-- 💡 **Material 3 UI**  
-  Elegant interface using the latest Jetpack Compose and Material Design 3 components.
+- 💡 **Material 3 Expressive UI**  
+  Elegant interface using the latest Jetpack Compose and Material Design 3 Expressive components.
 
 - 🚀 **Fast & Minimal**  
-  Lightweight architecture using MVVM pattern, ensuring smooth performance on rooted devices.
+  Lightweight architecture using MVVM pattern, ensuring smooth performance on rooted Poco F4 devices.
 
 ---
 
 ## 📱 Requirements
 
-- ✅ Root access (Magisk / KernelSU supported).
 - ✅ Poco F4 (munch) running N0Kontzzz kernel.
+- ✅ Root access (Magisk / KernelSU supported).
 
 ---
 
