@@ -121,7 +121,6 @@ fun MiscScreen(
 @Composable
 fun SystemTweaksCard() {
     var animationsEnabled by remember { mutableStateOf(true) }
-    var debugMode by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -184,48 +183,7 @@ fun SystemTweaksCard() {
                 )
             }
 
-            // Debug mode toggle
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Debug Mode",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = "Enable debug logging",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-                Switch(
-                    checked = debugMode,
-                    onCheckedChange = { debugMode = it },
-                    thumbContent = if (debugMode) {
-                        {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(SwitchDefaults.IconSize),
-                            )
-                        }
-                    } else {
-                        {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.inverseOnSurface,
-                                modifier = Modifier.size(SwitchDefaults.IconSize),
-                            )
-                        }
-                    }
-                )
-            }
+            
         }
     }
 }
