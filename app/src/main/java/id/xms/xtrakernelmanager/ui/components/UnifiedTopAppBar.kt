@@ -16,6 +16,7 @@ import androidx.navigation.NavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import id.xms.xtrakernelmanager.R
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.ui.graphics.luminance
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,7 +29,7 @@ fun UnifiedTopAppBar(
     val systemUiController = rememberSystemUiController()
     val surfaceColor = MaterialTheme.colorScheme.surface
     val surfaceColorAtElevation = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
-    val topBarContainerColor by androidx.compose.runtime.remember(scrollBehavior) {
+    val topBarContainerColor by androidx.compose.runtime.remember(scrollBehavior, surfaceColor, surfaceColorAtElevation) {
         androidx.compose.runtime.derivedStateOf {
             scrollBehavior?.state?.overlappedFraction?.let { fraction ->
                 lerp(
@@ -40,12 +41,12 @@ fun UnifiedTopAppBar(
         }
     }
     
-    val darkTheme = isSystemInDarkTheme()
+    val isLightTheme = MaterialTheme.colorScheme.surface.luminance() > 0.5f
 
-    androidx.compose.runtime.LaunchedEffect(topBarContainerColor, darkTheme) {
+    androidx.compose.runtime.LaunchedEffect(topBarContainerColor, isLightTheme) {
         systemUiController.setStatusBarColor(
             color = topBarContainerColor,
-            darkIcons = !darkTheme
+            darkIcons = isLightTheme
         )
     }
 
