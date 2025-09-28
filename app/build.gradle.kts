@@ -26,7 +26,7 @@ android {
     compileSdk = 36
     defaultConfig {
         applicationId = "id.xms.xtrakernelmanager"
-        minSdk = 29
+        minSdk = 31
         targetSdk = 36
         versionCode = 1
         versionName = "1.4.-Release"
