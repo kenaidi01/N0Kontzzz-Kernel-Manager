@@ -126,6 +126,7 @@ class MainActivity : ComponentActivity() {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
                 var showFabMenu by remember { mutableStateOf(false) }
+                val isAmoledMode by themeManager.isAmoledMode.collectAsState(initial = false)
 
                 val currentRoute = currentDestination?.route
 
@@ -146,7 +147,8 @@ class MainActivity : ComponentActivity() {
                             title = title,
                             navController = navController,
                             showSettingsIcon = showSettingsIcon,
-                            scrollBehavior = scrollBehavior
+                            scrollBehavior = scrollBehavior,
+                            isAmoledMode = isAmoledMode
                         )
                     },
                     floatingActionButton = {
@@ -215,7 +217,7 @@ class MainActivity : ComponentActivity() {
                         }
                     },
                     floatingActionButtonPosition = FabPosition.End,
-                    bottomBar = { BottomNavBar(navController, items) }
+                    bottomBar = { BottomNavBar(navController, items, isAmoledMode = isAmoledMode) }
                 ) { innerPadding ->
                     if (showKernelVerificationDialog) {
                         KernelVerificationDialog(onDismiss = { finish() })

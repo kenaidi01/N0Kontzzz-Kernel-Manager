@@ -8,7 +8,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Contrast
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme
@@ -143,6 +146,64 @@ fun SettingsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { showThemeDialog = true }
+            )
+
+            val isDarkTheme = when (currentThemeMode) {
+                ThemeMode.LIGHT -> false
+                ThemeMode.DARK -> true
+                ThemeMode.SYSTEM_DEFAULT -> isSystemInDarkTheme()
+            }
+            val isAmoledMode by viewModel.isAmoledMode.collectAsState()
+
+            ListItem(
+                headlineContent = { 
+                    Text(
+                        text = "AMOLED Mode",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                },
+                supportingContent = { 
+                    Text(
+                        text = "Use a pure black background in dark mode",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Default.DarkMode,
+                        contentDescription = null
+                    )
+                },
+                trailingContent = {
+                    Switch(
+                        checked = isAmoledMode,
+                        onCheckedChange = { viewModel.setAmoledMode(it) },
+                        enabled = isDarkTheme,
+                        thumbContent = if (isAmoledMode) {
+                            {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                                )
+                            }
+                        } else {
+                            {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                                )
+                            }
+                        }
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(enabled = isDarkTheme) { 
+                        viewModel.setAmoledMode(!isAmoledMode) 
+                    }
             )
         }
     }

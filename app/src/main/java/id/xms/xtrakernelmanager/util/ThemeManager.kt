@@ -8,6 +8,7 @@ import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import id.xms.xtrakernelmanager.ui.theme.ThemeMode
@@ -26,6 +27,7 @@ class ThemeManager @Inject constructor(
 ) {
     companion object {
         private val THEME_MODE_KEY = stringPreferencesKey("theme_mode")
+        private val AMOLED_MODE_KEY = booleanPreferencesKey("amoled_mode")
     }
 
     private val _themeChanged = MutableStateFlow(false)
@@ -47,6 +49,10 @@ class ThemeManager @Inject constructor(
         }
     }
 
+    val isAmoledMode: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[AMOLED_MODE_KEY] ?: false
+    }
+
     suspend fun setThemeMode(themeMode: ThemeMode) {
         dataStore.edit { preferences ->
             preferences[THEME_MODE_KEY] = themeMode.name
@@ -60,6 +66,13 @@ class ThemeManager @Inject constructor(
         }
         
         // Beri sinyal bahwa tema telah berubah
+        _themeChanged.value = true
+    }
+
+    suspend fun setAmoledMode(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[AMOLED_MODE_KEY] = enabled
+        }
         _themeChanged.value = true
     }
 

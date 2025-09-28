@@ -24,11 +24,13 @@ fun UnifiedTopAppBar(
     title: String,
     navController: NavController? = null,
     showSettingsIcon: Boolean = false,
-    scrollBehavior: TopAppBarScrollBehavior? = null
+    scrollBehavior: TopAppBarScrollBehavior? = null,
+    isAmoledMode: Boolean = false
 ) {
     val systemUiController = rememberSystemUiController()
     val surfaceColor = MaterialTheme.colorScheme.surface
-    val surfaceColorAtElevation = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
+    val elevation = if (isAmoledMode) 6.dp else 3.dp
+    val surfaceColorAtElevation = MaterialTheme.colorScheme.surfaceColorAtElevation(elevation)
     val topBarContainerColor by androidx.compose.runtime.remember(scrollBehavior, surfaceColor, surfaceColorAtElevation) {
         androidx.compose.runtime.derivedStateOf {
             scrollBehavior?.state?.overlappedFraction?.let { fraction ->

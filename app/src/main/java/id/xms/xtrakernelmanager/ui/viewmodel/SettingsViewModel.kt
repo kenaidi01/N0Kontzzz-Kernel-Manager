@@ -33,6 +33,13 @@ class SettingsViewModel @Inject constructor(
             ThemeMode.SYSTEM_DEFAULT
         )
 
+    val isAmoledMode: StateFlow<Boolean> = themeManager.isAmoledMode
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            false
+        )
+
     val themeChanged: StateFlow<Boolean> = themeManager.themeChanged
         .stateIn(
             viewModelScope,
@@ -49,6 +56,12 @@ class SettingsViewModel @Inject constructor(
     fun setThemeMode(themeMode: ThemeMode) {
         viewModelScope.launch {
             themeManager.setThemeMode(themeMode)
+        }
+    }
+
+    fun setAmoledMode(enabled: Boolean) {
+        viewModelScope.launch {
+            themeManager.setAmoledMode(enabled)
         }
     }
 

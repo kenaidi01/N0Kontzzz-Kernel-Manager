@@ -16,13 +16,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 
 @Composable
-fun BottomNavBar(navController: NavHostController, items: List<String>) {
+fun BottomNavBar(navController: NavHostController, items: List<String>, isAmoledMode: Boolean) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val containerColor = if (isAmoledMode) MaterialTheme.colorScheme.surfaceContainerHigh else MaterialTheme.colorScheme.surfaceContainer
 
     NavigationBar(
         modifier = Modifier.fillMaxWidth(),
-        containerColor = MaterialTheme.colorScheme.surfaceContainer
+        containerColor = containerColor
     ) {
         items.forEach { screen ->
             val selected = currentRoute == screen.lowercase()

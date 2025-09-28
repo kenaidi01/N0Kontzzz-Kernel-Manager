@@ -82,6 +82,18 @@ private val DarkColors = darkColorScheme(
     surfaceTint = Color(0xFFD0BCFF),
 )
 
+private val AMOLED_BLACK = Color(0xFF000000)
+
+private fun Color.blend(other: Color, ratio: Float): Color {
+    val inverse = 1f - ratio
+    return Color(
+        red = red * inverse + other.red * ratio,
+        green = green * inverse + other.green * ratio,
+        blue = blue * inverse + other.blue * ratio,
+        alpha = alpha
+    )
+}
+
 @Composable
 fun RvKernelManagerTheme(
     themeManager: ThemeManager,
@@ -89,6 +101,7 @@ fun RvKernelManagerTheme(
 ) {
     val context = LocalContext.current
     val themeMode by themeManager.currentThemeMode.collectAsState(initial = ThemeMode.SYSTEM_DEFAULT)
+    val isAmoledMode by themeManager.isAmoledMode.collectAsState(initial = false)
 
     val isDarkTheme = when (themeMode) {
         ThemeMode.LIGHT -> false
@@ -96,22 +109,38 @@ fun RvKernelManagerTheme(
         ThemeMode.SYSTEM_DEFAULT -> isSystemInDarkTheme()
     }
 
+    val dynamicColor = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     val colorScheme = when {
+        isAmoledMode && isDarkTheme && dynamicColor -> {
+            val dynamicScheme = dynamicDarkColorScheme(context)
+            dynamicScheme.copy(
+                background = AMOLED_BLACK,
+                surface = AMOLED_BLACK,
+                surfaceVariant = dynamicScheme.surfaceVariant.blend(AMOLED_BLACK, 0.6f),
+                surfaceContainer = dynamicScheme.surfaceContainer.blend(AMOLED_BLACK, 0.6f),
+                surfaceContainerLow = dynamicScheme.surfaceContainerLow.blend(AMOLED_BLACK, 0.6f),
+                surfaceContainerLowest = dynamicScheme.surfaceContainerLowest.blend(AMOLED_BLACK, 0.6f),
+                surfaceContainerHigh = dynamicScheme.surfaceContainerHigh.blend(AMOLED_BLACK, 0.6f),
+                surfaceContainerHighest = dynamicScheme.surfaceContainerHighest.blend(AMOLED_BLACK, 0.6f),
+                primaryContainer = dynamicScheme.primaryContainer.blend(AMOLED_BLACK, 0.6f),
+                secondaryContainer = dynamicScheme.secondaryContainer.blend(AMOLED_BLACK, 0.6f),
+                tertiaryContainer = dynamicScheme.tertiaryContainer.blend(AMOLED_BLACK, 0.6f)
+            )
+        }
         isDarkTheme -> {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (dynamicColor) {
                 dynamicDarkColorScheme(context)
             } else {
                 DarkColors
             }
         }
-        !isDarkTheme -> {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        else -> {
+            if (dynamicColor) {
                 dynamicLightColorScheme(context)
             } else {
                 LightColors
             }
         }
-        else -> LightColors
     }
 
     val view = LocalView.current
