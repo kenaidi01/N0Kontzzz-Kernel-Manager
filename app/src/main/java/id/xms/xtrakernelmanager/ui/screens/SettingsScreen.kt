@@ -19,6 +19,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -30,6 +31,7 @@ import id.xms.xtrakernelmanager.util.Language
 import id.xms.xtrakernelmanager.ui.theme.ThemeMode
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.material3.surfaceColorAtElevation
+import android.widget.Toast
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,9 +40,10 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val currentLanguage by viewModel.currentLanguage.collectAsState()
-    var showLanguageDialog by remember { mutableStateOf(false) }
+    
     var showThemeDialog by remember { mutableStateOf(false) }
     val currentThemeMode by viewModel.currentThemeMode.collectAsState()
+    val context = LocalContext.current
     
     // Tambahkan state untuk memicu rekomposisi saat tema berubah
     var themeRefreshKey by remember { mutableIntStateOf(0) }
@@ -111,7 +114,9 @@ fun SettingsScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { showLanguageDialog = true }
+                    .clickable {
+                        Toast.makeText(context, "Coming Soon", Toast.LENGTH_SHORT).show()
+                    }
             )
             
             Divider(
@@ -208,54 +213,7 @@ fun SettingsScreen(
         }
     }
 
-    if (showLanguageDialog) {
-        AlertDialog(
-            onDismissRequest = { showLanguageDialog = false },
-            title = { 
-                Text(
-                    text = stringResource(R.string.select_language),
-                    style = MaterialTheme.typography.headlineSmall
-                )
-            },
-            confirmButton = { 
-                TextButton(onClick = { showLanguageDialog = false }) {
-                    Text(stringResource(R.string.close))
-                }
-            },
-            text = {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Language.values().forEach { language ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    viewModel.setLanguage(language)
-                                    showLanguageDialog = false
-                                }
-                                .padding(vertical = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = language.displayName,
-                                style = MaterialTheme.typography.bodyLarge,
-                                modifier = Modifier.weight(1f)
-                            )
-                            RadioButton(
-                                selected = currentLanguage == language,
-                                onClick = {
-                                    viewModel.setLanguage(language)
-                                    showLanguageDialog = false
-                                }
-                            )
-                        }
-                    }
-                }
-            }
-        )
-    }
+    
 
     if (showThemeDialog) {
         AlertDialog(
