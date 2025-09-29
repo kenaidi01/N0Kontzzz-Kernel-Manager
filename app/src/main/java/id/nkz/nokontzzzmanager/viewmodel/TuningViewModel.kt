@@ -4,7 +4,9 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.os.Build
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -591,7 +593,12 @@ class TuningViewModel @Inject constructor(
                     val intent = Intent(application, ThermalService::class.java)
                     intent.putExtra("thermal_mode", profile.index)
                     try {
-                        application.startService(intent)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                            // For Android 15+, start foreground service with proper handling
+                            ContextCompat.startForegroundService(application, intent)
+                        } else {
+                            application.startService(intent)
+                        }
                         Log.d("TuningVM_Thermal", "Started ThermalService for Dynamic mode")
                     } catch (e: Exception) {
                         Log.e("TuningVM_Thermal", "Failed to start ThermalService", e)

@@ -28,7 +28,7 @@ class SettingsViewModel @Inject constructor(
 
     val supportedLanguages = listOf(
         Language("en", R.string.language_english),
-        Language("in", R.string.language_indonesian)
+        Language("id", R.string.language_indonesian)
     )
 
     private val _language = MutableStateFlow(supportedLanguages[0]) // Default to English

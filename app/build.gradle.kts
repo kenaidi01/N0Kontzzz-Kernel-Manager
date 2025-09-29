@@ -28,7 +28,8 @@ android {
     defaultConfig {
         applicationId = "id.nkz.nokontzzzmanager"
         minSdk = 26
-        targetSdk = 34
+        //noinspection OldTargetApi
+        targetSdk = 35
         versionCode = 21
         versionName = "1.0.0"
     }

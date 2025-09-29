@@ -3,8 +3,16 @@ package id.nkz.nokontzzzmanager.service
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.IBinder
+import android.provider.Settings
 import android.util.Log
+import android.view.WindowManager
+import android.view.View
+import android.graphics.PixelFormat
+import android.view.Gravity
+import android.widget.TextView
+import androidx.core.app.NotificationCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -26,6 +34,8 @@ class ThermalService : Service() {
     private var monitoringJob: Job? = null
     private val TAG = "ThermalService"
     private var isRootAvailable = false
+    private var overlayWindow: View? = null
+    private var windowManager: WindowManager? = null
 
     private val thermalDataStore: DataStore<Preferences> by preferencesDataStore(name = "thermal_settings")
     private val LAST_THERMAL_MODE = intPreferencesKey("last_thermal_mode")
@@ -40,6 +50,12 @@ class ThermalService : Service() {
     override fun onCreate() {
         super.onCreate()
         checkRootAccess()
+        
+        // For Android 15+, create a minimal overlay window before starting foreground service
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            createMinimalOverlayWindow()
+        }
+        
         startForegroundWithoutNotification()
     }
 
@@ -47,6 +63,66 @@ class ThermalService : Service() {
         isRootAvailable = Shell.isAppGrantedRoot() == true && Shell.getShell().isRoot == true
         if (!isRootAvailable) {
             Log.e(TAG, "Root access not available, service will not monitor thermal settings")
+        }
+    }
+
+    /**
+     * Creates a minimal overlay window for Android 15+ compatibility.
+     * This is required when an app with SYSTEM_ALERT_WINDOW permission starts
+     * a foreground service from the background.
+     */
+    private fun createMinimalOverlayWindow() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return
+        
+        try {
+            if (Settings.canDrawOverlays(this)) {
+                windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+                
+                // Create a minimal 1x1 pixel view
+                val overlayView = View(this).apply {
+                    setBackgroundColor(0) // Transparent
+                    alpha = 0.0f // Invisible
+                }
+                
+                val params = WindowManager.LayoutParams(
+                    1, 1, // 1x1 pixel
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) 
+                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+                    else 
+                        @Suppress("DEPRECATION")
+                        WindowManager.LayoutParams.TYPE_PHONE,
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or 
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                    PixelFormat.TRANSLUCENT
+                ).apply {
+                    gravity = Gravity.TOP or Gravity.START
+                    x = 0
+                    y = 0
+                }
+                
+                windowManager?.addView(overlayView, params)
+                overlayWindow = overlayView
+                
+                Log.d(TAG, "Minimal overlay window created for Android 15+ compatibility")
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to create overlay window", e)
+        }
+    }
+    
+    /**
+     * Removes the overlay window if it exists.
+     */
+    private fun removeOverlayWindow() {
+        try {
+            overlayWindow?.let { view ->
+                windowManager?.removeView(view)
+                overlayWindow = null
+                windowManager = null
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to remove overlay window", e)
         }
     }
 
@@ -145,13 +221,11 @@ class ThermalService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
-        try {
-            monitoringJob?.cancel()
-            serviceScope.cancel()
-        } catch (e: Exception) {
-            Log.e(TAG, "Error cleaning up service", e)
-        }
         super.onDestroy()
+        monitoringJob?.cancel()
+        serviceScope.cancel()
+        removeOverlayWindow()
+        Log.d(TAG, "ThermalService destroyed")
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
