@@ -1,7 +1,6 @@
 package id.nkz.nokontzzzmanager
 
 import android.app.Application
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.topjohnwu.superuser.Shell
@@ -9,7 +8,7 @@ import dagger.hilt.android.HiltAndroidApp
 import android.util.Log
 
 @HiltAndroidApp
-class XtraApp : Application(), Configuration.Provider {
+class NkzApp : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
@@ -32,7 +31,7 @@ class XtraApp : Application(), Configuration.Provider {
                 .setMinimumLoggingLevel(Log.DEBUG) // Logging untuk debug
                 .build()
         )
-        Log.d("XtraApp", "WorkManager initialized successfully")
+        Log.d("NkzApp", "WorkManager initialized successfully")
     }
 
     override val workManagerConfiguration: Configuration
