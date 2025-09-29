@@ -61,6 +61,7 @@ kotlin {
 }
 
 dependencies {
+    implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("androidx.core:core-ktx:1.17.0")
     implementation("androidx.activity:activity-compose:1.11.0")
     implementation("androidx.work:work-runtime-ktx:2.10.4")
