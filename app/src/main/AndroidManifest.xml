@@ -46,14 +46,14 @@
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:enableOnBackInvokedCallback="true"
-        android:theme="@style/Theme.XtraKernelManager"
+        android:theme="@style/Theme.NokontzzzManager"
         android:requestLegacyExternalStorage="true"
         android:forceDarkAllowed="false">
 
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.XtraKernelManager">
+            android:theme="@style/Theme.NokontzzzManager">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

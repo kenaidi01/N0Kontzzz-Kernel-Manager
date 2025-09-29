@@ -8,7 +8,7 @@
 ![GitHub commits](https://img.shields.io/github/commit-activity/t/bimoalfarrabi/N0Kontzzz-Kernel-Manager?style=for-the-badge)
 [![Repo Size](https://img.shields.io/github/repo-size/bimoalfarrabi/N0Kontzzz-Kernel-Manager?style=for-the-badge&logo=github)](https://github.com/bimoalfarrabi/N0Kontzzz-Kernel-Manager)
 
-**N0Kontzzz Kernel Manager** is a modern, rooted Android application based on Xtra Kernel Manager. Built with Kotlin and Jetpack Compose, the app provides real-time monitoring and tuning of CPU performance, thermal behavior, and more for Poco F4 (munch), optimized for [N0Kontzzz](https://github.com/bimoalfarrabi/kernel_xiaomi_sm8250_n0kontzz) custom kernel.
+**N0Kontzzz Kernel Manager** is a modern, rooted Android application. Built with Kotlin and Jetpack Compose, the app provides real-time monitoring and tuning of CPU performance, thermal behavior, and more for Poco F4 (munch), optimized for [N0Kontzzz](https://github.com/bimoalfarrabi/kernel_xiaomi_sm8250_n0kontzz) custom kernel.
 
 
 ## ✨ Features
@@ -68,7 +68,7 @@ Feel free to fork, open issues, or contribute via pull requests.
 ---
 
 ### Credits
-- **[Xtra Kernel Manager](https://github.com/Gustyx-Power/Xtra-Kernel-Manager)** — used as the foundation for this app; this project was originally forked from Xtra Kernel Manager.
+- Forked from **[Xtra Kernel Manager](https://github.com/Gustyx-Power/Xtra-Kernel-Manager)** — used as the foundation for this app.
 - **[Danda](https://github.com/Danda420)** — for contributions to app development and guidance in understanding Android internals.
 ---
 

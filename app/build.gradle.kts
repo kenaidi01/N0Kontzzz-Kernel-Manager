@@ -22,14 +22,15 @@ plugins {
 }
 
 android {
-    namespace = "id.xms.xtrakernelmanager"
+    namespace = "id.nkz.nokontzzzmanager"
     compileSdk = 36
+
     defaultConfig {
-        applicationId = "id.xms.xtrakernelmanager"
-        minSdk = 31
-        targetSdk = 36
-        versionCode = 1
-        versionName = "1.4.-Release"
+        applicationId = "id.nkz.nokontzzzmanager"
+        minSdk = 26
+        targetSdk = 34
+        versionCode = 21
+        versionName = "1.0.0"
     }
     buildTypes {
         release {
@@ -42,15 +43,19 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
         lint.disable.add("NullSafeMutableLiveData")
     }
-    kotlin {
-        compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) }
-    }
     buildFeatures { compose = true }
     
     configurations.all {
         resolutionStrategy {
             force("com.google.guava:guava:32.1.3-jre")
         }
+    }
+}
+
+// Separate Kotlin configuration to avoid conflicts
+kotlin {
+    compilerOptions { 
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) 
     }
 }
 
@@ -85,7 +90,7 @@ dependencies {
     testImplementation("com.google.dagger:hilt-android-testing:2.57.1")
     kaptTest("com.google.dagger:hilt-compiler:2.57.1")
 
-    implementation("com.google.accompanist:accompanist-systemuicontroller:0.36.0")
+    
 
     // LibSu & Coil
     implementation("com.github.topjohnwu.libsu:core:6.0.0")
