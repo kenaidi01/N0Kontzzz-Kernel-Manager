@@ -7,9 +7,15 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.Image
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
@@ -34,12 +40,20 @@ import androidx.compose.ui.unit.dp
 import id.nkz.nokontzzzmanager.R
 
 data class Developer(val name: String, val role: String, val githubUsername: String, val drawableResId: Int)
+data class RepositoryContributor(val name: String, val url: String, val description: String, val drawableResId: Int)
 
-val developers = listOf(
-    Developer("Gustyx-Power", "Founder & Developer", "Gustyx-Power", R.drawable.gustyx_power),
-    Developer("Pavelc4", "Ui Supports", "pavelc4", R.drawable.pavelc4),
-    Developer("Ziyu", "Tuning Supports", "Ziyu", R.drawable.ziyu),
-    Developer("Viasco", "MD3 UI Migration", "bimoalfarrabi", R.drawable.viasco)
+// Special recognition for the main developer who led this rebrand
+val leadDeveloper = Developer("Viasco", "NKM Developer", "bimoalfarrabi", R.drawable.viasco)
+
+val individualContributors = listOf(
+    Developer("Gustyx-Power", "XKM Developer", "Gustyx-Power", R.drawable.gustyx_power),
+    Developer("Radika", "RvKernel Manager", "Rve27", R.drawable.radika),
+    Developer("Danda", "Help and Support", "Danda420", R.drawable.danda)
+)
+
+val repositoryContributors = listOf(
+    RepositoryContributor("Xtra Kernel Manager Repository", "https://github.com/Gustyx-Power/Xtra-Kernel-Manager", "Original project repository", R.drawable.xkm),
+    RepositoryContributor("RvKernel Manager Repository", "https://github.com/Rve27/RvKernel-Manager", "Feature and code reference from this repository", R.drawable.rv)
 )
 
 @Composable
@@ -180,10 +194,52 @@ fun AboutCard(
                     }
                 },
                 text = {
-                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                        developers.forEach { developer ->
+                    val scrollState = rememberScrollState()
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(400.dp)
+                            .verticalScroll(scrollState),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        // Lead Developer Section
+                        Text(
+                            text = "Developer",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        
+                        DeveloperCreditItem(developer = leadDeveloper)
+                        
+                        // Separator
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        // Individual Contributors Section
+                        Text(
+                            text = "Individual Contributors",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        
+                        individualContributors.forEach { developer ->
                             DeveloperCreditItem(developer = developer)
                         }
+                        
+                        // Repository Contributors Section
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        Text(
+                            text = "Repository Contributors",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        
+                        repositoryContributors.forEach { repo ->
+                            RepositoryCreditItem(repository = repo)
+                        }
+                        
+                        // Add some padding at the end
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
                 },
                 confirmButton = {
@@ -236,6 +292,61 @@ fun DeveloperCreditItem(developer: Developer) {
                 )
                 Text(
                     text = "@${developer.githubUsername}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun RepositoryCreditItem(repository: RepositoryContributor) {
+    val uriHandler = LocalUriHandler.current
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { uriHandler.openUri(repository.url) },
+        shape = RoundedCornerShape(24.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
+        ) {
+            // Repository icon
+            Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primaryContainer,
+                modifier = Modifier.size(48.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = repository.drawableResId),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .align(Alignment.CenterVertically)
+                )
+            }
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = repository.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = repository.description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "GitHub",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Medium

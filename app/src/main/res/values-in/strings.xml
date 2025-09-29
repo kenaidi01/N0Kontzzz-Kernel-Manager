@@ -5,7 +5,7 @@
     <string name="about">Tentang Aplikasi</string>
     <string name="telegram">Telegram</string>
     <string name="github">Github</string>
-    <string name="credits">Pengembang Xtra Kernel Manager</string>
+    <string name="credits">Pengembang dan Kontributor</string>
     <string name="credits_author">1. Gustyx-Power : Pendiri &amp; Pengembang
 2. Pavellc : Dukungan UI
 3. Ziyu : Dukungan Penyetelan</string>
@@ -20,8 +20,8 @@
     <string name="misc">Misc</string>
     <string name="info">Info</string>
     <string name="sched">Penjadwal I/O: %1$s</string>
-    <string name="github_link">https://github.com/Gustyx-Power/Xtra-Kernel-Manager</string>
-    <string name="telegram_link">https://t.me/XtraManagerSoftware</string>
+    <string name="github_link">https://github.com/bimoalfarrabi/kernel_xiaomi_sm8250_n0kontzz</string>
+    <string name="telegram_link">https://t.me/n0kontzzz</string>
     <string name="reboot_system">Mulai Ulang Sistem</string>
     <string name="reboot_systemui">Mulai Ulang System UI</string>
     <string name="reboot_bootloader">Mulai Ulang Bootloader</string>
