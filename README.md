@@ -70,7 +70,7 @@ Feel free to fork, open issues, or contribute via pull requests.
 ### Credits
 - Forked from **[Xtra Kernel Manager](https://github.com/Gustyx-Power/Xtra-Kernel-Manager)** — used as the foundation for this app.
 - **[Danda](https://github.com/Danda420)** — for contributions to app development and guidance in understanding Android internals.
-- **[RvKernel Manager](https://github.com/Rve27/RvKernel-Manager)** — used as features & code references.
+- **[RvKernel Manager](https://github.com/Rve27/RvKernel-Manager)** —  inspired feature concepts and code references in this project.
 ---
 
 ## 📣 Disclaimer
