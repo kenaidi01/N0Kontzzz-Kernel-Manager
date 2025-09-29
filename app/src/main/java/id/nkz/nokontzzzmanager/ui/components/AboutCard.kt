@@ -45,7 +45,7 @@ val leadDeveloper = Developer("Viasco", "NKM Developer", "bimoalfarrabi", R.draw
 
 val individualContributors = listOf(
     Developer("Gustyx-Power", "XKM Developer", "Gustyx-Power", R.drawable.gustyx_power),
-    Developer("Radika", "RvKernel Manager", "Rve27", R.drawable.radika),
+    Developer("Radika", "RvKM Developer", "Rve27", R.drawable.radika),
     Developer("Danda", "Help and Support", "Danda420", R.drawable.danda)
 )
 
