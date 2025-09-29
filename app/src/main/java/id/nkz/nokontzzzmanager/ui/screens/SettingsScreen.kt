@@ -195,6 +195,26 @@ fun SettingsScreen(
                     }
             )
         }
+
+        // Version Info
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            val versionName = try {
+                val pInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+                pInfo.versionName
+            } catch (e: Exception) {
+                "N/A"
+            }
+            Text(
+                text = "Version $versionName",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 
     
