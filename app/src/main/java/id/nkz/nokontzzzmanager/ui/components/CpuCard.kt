@@ -194,10 +194,10 @@ private fun CpuCoresSection(info: RealtimeCpuInfo, clusters: List<CpuCluster>) {
                 }
                 // Determine rounded corners based on position
                 val shape = when {
-                    index == 0 && index == clusters.size - 1 -> RoundedCornerShape(24.dp) // Only item
-                    index == 0 -> RoundedCornerShape(24.dp, 24.dp, 8.dp, 8.dp) // First item: top corners 24dp, bottom 8dp
-                    index == clusters.size - 1 -> RoundedCornerShape(8.dp, 8.dp, 24.dp, 24.dp) // Last item: top corners 8dp, bottom 24dp
-                    else -> RoundedCornerShape(8.dp) // Middle items: all corners 8dp
+                    index == 0 && index == clusters.size - 1 -> RoundedCornerShape(12.dp) // Only item
+                    index == 0 -> RoundedCornerShape(12.dp, 12.dp, 4.dp, 4.dp) // First item: top corners 24dp, bottom 8dp
+                    index == clusters.size - 1 -> RoundedCornerShape(4.dp, 4.dp, 12.dp, 12.dp) // Last item: top corners 8dp, bottom 24dp
+                    else -> RoundedCornerShape(4.dp) // Middle items: all corners 8dp
                 }
 
                 Surface(

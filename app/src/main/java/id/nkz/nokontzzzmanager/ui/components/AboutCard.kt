@@ -359,9 +359,9 @@ fun DeveloperCreditItem(developer: Developer, position: Int, totalItems: Int) {
     // Determine rounded corners based on position
     val shape = when {
         position == 0 && position == totalItems - 1 -> RoundedCornerShape(24.dp) // Only item
-        position == 0 -> RoundedCornerShape(24.dp, 24.dp, 8.dp, 8.dp) // First item: top corners 24dp, bottom 8dp
-        position == totalItems - 1 -> RoundedCornerShape(8.dp, 8.dp, 24.dp, 24.dp) // Last item: top corners 8dp, bottom 24dp
-        else -> RoundedCornerShape(8.dp) // Middle items: all corners 8dp
+        position == 0 -> RoundedCornerShape(24.dp, 24.dp, 4.dp, 4.dp) // First item: top corners 24dp, bottom 8dp
+        position == totalItems - 1 -> RoundedCornerShape(4.dp, 4.dp, 24.dp, 24.dp) // Last item: top corners 8dp, bottom 24dp
+        else -> RoundedCornerShape(4.dp) // Middle items: all corners 8dp
     }
 
     Surface(
