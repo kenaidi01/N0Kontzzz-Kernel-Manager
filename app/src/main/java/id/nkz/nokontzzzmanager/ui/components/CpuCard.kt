@@ -183,7 +183,7 @@ private fun CpuHeaderSection(
 
 @Composable
 private fun CpuCoresSection(info: RealtimeCpuInfo, clusters: List<id.nkz.nokontzzzmanager.data.model.CpuCluster>) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
         Text(
             text = stringResource(R.string.cpu_cores_title),
             style = MaterialTheme.typography.titleMedium,
@@ -192,10 +192,21 @@ private fun CpuCoresSection(info: RealtimeCpuInfo, clusters: List<id.nkz.nokontz
 
         // Display cluster information with max frequencies
         if (clusters.isNotEmpty()) {
-            clusters.forEach { cluster ->
+            clusters.forEachIndexed { index, cluster ->
+                if (index > 0) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                }
+                // Determine rounded corners based on position
+                val shape = when {
+                    index == 0 && index == clusters.size - 1 -> RoundedCornerShape(24.dp) // Only item
+                    index == 0 -> RoundedCornerShape(24.dp, 24.dp, 8.dp, 8.dp) // First item: top corners 24dp, bottom 8dp
+                    index == clusters.size - 1 -> RoundedCornerShape(8.dp, 8.dp, 24.dp, 24.dp) // Last item: top corners 8dp, bottom 24dp
+                    else -> RoundedCornerShape(8.dp) // Middle items: all corners 8dp
+                }
+
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp),
+                    shape = shape,
                     color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 ) {
