@@ -189,6 +189,8 @@ private fun CpuCoresSection(info: RealtimeCpuInfo, clusters: List<id.nkz.nokontz
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
+        
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Display cluster information with max frequencies
         if (clusters.isNotEmpty()) {
@@ -208,7 +210,7 @@ private fun CpuCoresSection(info: RealtimeCpuInfo, clusters: List<id.nkz.nokontz
                     modifier = Modifier.fillMaxWidth(),
                     shape = shape,
                     color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    contentColor = MaterialTheme.colorScheme.primaryContainer
                 ) {
                     Row(
                         modifier = Modifier
@@ -230,7 +232,7 @@ private fun CpuCoresSection(info: RealtimeCpuInfo, clusters: List<id.nkz.nokontz
                         Text(
                             text = "Max: ${cluster.maxFreq} MHz",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
                 }
