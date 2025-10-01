@@ -108,7 +108,7 @@ fun TuningScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
             // Hero Header
             HeroHeader(
@@ -316,7 +316,7 @@ fun PerformanceModeCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),
-        shape = RoundedCornerShape(24.dp)
+        shape = RoundedCornerShape(8.dp, 8.dp, 8.dp, 8.dp)
     ) {
         Column(
             modifier = Modifier.padding(24.dp),
@@ -348,9 +348,9 @@ fun PerformanceModeCard(
 
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                performanceModes.forEach { mode ->
+                performanceModes.forEachIndexed { index, mode ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -369,6 +369,21 @@ fun PerformanceModeCard(
                                 else -> MaterialTheme.colorScheme.surface
                             }
                         ),
+                        shape = when (mode) {
+                            "Balanced" -> RoundedCornerShape(
+                                topStart = 12.dp,
+                                topEnd = 12.dp,
+                                bottomStart = 4.dp,
+                                bottomEnd = 4.dp
+                            )
+                            "Performance" -> RoundedCornerShape(
+                                topStart = 4.dp,
+                                topEnd = 4.dp,
+                                bottomStart = 12.dp,
+                                bottomEnd = 12.dp
+                            )
+                            else -> RoundedCornerShape(12.dp)
+                        }
                     ) {
                         Row(
                             modifier = Modifier
@@ -495,7 +510,7 @@ fun HeroHeader(
             .fillMaxWidth()
             .padding(bottom = 4.dp)
             .clickable { onClick() },
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(24.dp, 24.dp, 8.dp, 8.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer

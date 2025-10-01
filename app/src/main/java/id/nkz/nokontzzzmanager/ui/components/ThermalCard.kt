@@ -45,7 +45,7 @@ fun ThermalCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(8.dp, 8.dp, 8.dp, 8.dp),
     ) {
         Column(
             modifier = Modifier

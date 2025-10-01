@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.VideogameAsset
@@ -42,11 +41,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import id.nkz.nokontzzzmanager.R
 import id.nkz.nokontzzzmanager.viewmodel.TuningViewModel
 import kotlinx.coroutines.launch
 import kotlin.math.abs
@@ -109,7 +110,7 @@ fun GpuControlCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(8.dp, 8.dp, 8.dp, 8.dp),
     ) {
         Column(
             modifier = Modifier
@@ -130,10 +131,10 @@ fun GpuControlCard(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Memory,
+                        painter = painterResource(id = R.drawable.gpu_card),
                         contentDescription = "GPU Icon",
                         tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(28.dp)
+                        modifier = Modifier.size(24.dp)
                     )
 
                     Column {
@@ -195,7 +196,8 @@ fun GpuControlCard(
                                 .clickable { showGovernorDialog = true },
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.surface
-                            )
+                            ),
+                            shape = getRoundedCornerShape(0, 1) // Only one item
                         ) {
                             Row(
                                 modifier = Modifier
@@ -240,7 +242,7 @@ fun GpuControlCard(
                         // Cards for GPU frequency control with dialogs
                         Column(
                             modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                            verticalArrangement = Arrangement.spacedBy(2.dp) // Changed from 12.dp to 2.dp as per your other requirements
                         ) {
                             // Min Frequency Card
                             Card(
@@ -249,7 +251,8 @@ fun GpuControlCard(
                                     .clickable { showMinFreqDialog = true },
                                 colors = CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.surface
-                                )
+                                ),
+                                shape = getRoundedCornerShape(0, 2) // First card in group of 2
                             ) {
                                 Row(
                                     modifier = Modifier
@@ -289,7 +292,8 @@ fun GpuControlCard(
                                     .clickable { showMaxFreqDialog = true },
                                 colors = CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.surface
-                                )
+                                ),
+                                shape = getRoundedCornerShape(1, 2) // Second card in group of 2
                             ) {
                                 Row(
                                     modifier = Modifier
@@ -338,7 +342,8 @@ fun GpuControlCard(
                                 .clickable { showRendererDialog = true },
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.surface
-                            )
+                            ),
+                            shape = getRoundedCornerShape(0, 1) // Only one item
                         ) {
                             Row(
                                 modifier = Modifier
@@ -376,7 +381,7 @@ fun GpuControlCard(
 
                     // GPU Power Level and Throttling Control
                     GPUControlSection(
-                        title = "GPU Controls",
+                        title = "GPU Power Level",
                         description = "Adjust GPU power and throttling settings",
                         icon = Icons.Default.VideogameAsset
                     ) {
@@ -385,13 +390,14 @@ fun GpuControlCard(
                         val maxPowerLevel = maxOf(gpuPowerLevelRange.first, gpuPowerLevelRange.second)
                         
                         Column(
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                            verticalArrangement = Arrangement.spacedBy(2.dp) // Changed from 12.dp to 2.dp as per your other requirements
                         ) {
                             // GPU Power Level Card
                             Card(
                                 colors = CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.surface
-                                )
+                                ),
+                                shape = getRoundedCornerShape(0, 2) // First card in group of 2
                             ) {
                                 Column(
                                     modifier = Modifier
@@ -462,7 +468,8 @@ fun GpuControlCard(
                             Card(
                                 colors = CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.surface
-                                )
+                                ),
+                                shape = getRoundedCornerShape(1, 2) // Second card in group of 2
                             ) {
                                 Row(
                                     modifier = Modifier
@@ -837,5 +844,29 @@ private fun GPUControlSection(
         }
         Spacer(modifier = Modifier.height(8.dp))
         content()
+    }
+}
+
+private fun getRoundedCornerShape(index: Int, totalItems: Int): RoundedCornerShape {
+    return when (totalItems) {
+        1 -> RoundedCornerShape(12.dp) // If only one card, all corners 12dp
+        2 -> {
+            when (index) {
+                0 -> RoundedCornerShape( // First card: 12dp top, 4dp bottom
+                    topStart = 12.dp,
+                    topEnd = 12.dp,
+                    bottomStart = 4.dp,
+                    bottomEnd = 4.dp
+                )
+                1 -> RoundedCornerShape( // Second card: 4dp top, 12dp bottom
+                    topStart = 4.dp,
+                    topEnd = 4.dp,
+                    bottomStart = 12.dp,
+                    bottomEnd = 12.dp
+                )
+                else -> RoundedCornerShape(12.dp) // Default case
+            }
+        }
+        else -> RoundedCornerShape(12.dp) // Default for other cases
     }
 }

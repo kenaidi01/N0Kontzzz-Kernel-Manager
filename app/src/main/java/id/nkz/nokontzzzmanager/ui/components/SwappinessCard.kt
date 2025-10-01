@@ -27,10 +27,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import id.nkz.nokontzzzmanager.R
 import id.nkz.nokontzzzmanager.viewmodel.TuningViewModel
 import kotlin.math.roundToInt
 
@@ -72,7 +74,7 @@ fun SwappinessCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(8.dp, 8.dp, 24.dp, 24.dp),
     ) {
         Column(
             modifier = Modifier
@@ -100,16 +102,29 @@ fun SwappinessCard(
 
                     AnimatedVisibility(visible = zramEnabled) {
                         Column(
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
-                            // ZRAM Settings
+                            // ZRAM Settings title
+                            Text(
+                                text = "ZRAM Settings",
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 8.dp, bottom = 4.dp)
+                            )
+                            
+                            // ZRAM Settings - 2 items
                             RamSettingItem(
                                 icon = Icons.Default.Storage,
                                 title = "ZRAM Size",
                                 value = "${zramDisksize / (1024 * 1024)}MB",
                                 description = "Adjust compressed RAM size",
                                 color = MaterialTheme.colorScheme.primary,
-                                onClick = { showZramSizeDialog = true }
+                                onClick = { showZramSizeDialog = true },
+                                shape = getRoundedCornerShape(0, 2) // First card in group of 2
                             )
 
                             RamSettingItem(
@@ -118,14 +133,27 @@ fun SwappinessCard(
                                 value = currentCompression,
                                 description = "Compression algorithm",
                                 color = MaterialTheme.colorScheme.primary,
-                                onClick = { showCompressionDialog = true }
+                                onClick = { showCompressionDialog = true },
+                                shape = getRoundedCornerShape(1, 2) // Second card in group of 2
                             )
                         }
                     }
 
-                    // Always visible RAM settings (not dependent on ZRAM)
+                    // Memory Settings title
+                    Text(
+                        text = "Memory Settings",
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp, bottom = 4.dp)
+                    )
+                    
+                    // Always visible RAM settings (not dependent on ZRAM) - 7 items
                     Column(
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        verticalArrangement = Arrangement.spacedBy(2.dp) // Changed from 12.dp to 2.dp to match your other requirements
                     ) {
                         RamSettingItem(
                             icon = Icons.Default.Speed,
@@ -133,7 +161,8 @@ fun SwappinessCard(
                             value = "$swappiness%",
                             description = "Memory swap aggressiveness",
                             color = MaterialTheme.colorScheme.primary,
-                            onClick = { showSwappinessDialog = true }
+                            onClick = { showSwappinessDialog = true },
+                            shape = getRoundedCornerShape(0, 7) // First card in group of 7
                         )
 
                         RamSettingItem(
@@ -142,7 +171,8 @@ fun SwappinessCard(
                             value = "$dirtyRatio%",
                             description = "Page cache dirty data threshold",
                             color = MaterialTheme.colorScheme.primary,
-                            onClick = { showDirtyRatioDialog = true }
+                            onClick = { showDirtyRatioDialog = true },
+                            shape = getRoundedCornerShape(1, 7) // Second card in group of 7
                         )
 
                         RamSettingItem(
@@ -151,7 +181,8 @@ fun SwappinessCard(
                             value = "$dirtyBackgroundRatio%",
                             description = "Background writeback threshold",
                             color = MaterialTheme.colorScheme.primary,
-                            onClick = { showDirtyBgRatioDialog = true }
+                            onClick = { showDirtyBgRatioDialog = true },
+                            shape = getRoundedCornerShape(2, 7) // Third card in group of 7
                         )
 
                         RamSettingItem(
@@ -160,7 +191,8 @@ fun SwappinessCard(
                             value = "${dirtyWriteback}s",
                             description = "Writeback interval time",
                             color = MaterialTheme.colorScheme.primary,
-                            onClick = { showDirtyWritebackDialog = true }
+                            onClick = { showDirtyWritebackDialog = true },
+                            shape = getRoundedCornerShape(3, 7) // Fourth card in group of 7
                         )
 
                         RamSettingItem(
@@ -169,7 +201,8 @@ fun SwappinessCard(
                             value = "${dirtyExpireCentisecs}cs",
                             description = "Page expiration time",
                             color = MaterialTheme.colorScheme.primary,
-                            onClick = { showDirtyExpireDialog = true }
+                            onClick = { showDirtyExpireDialog = true },
+                            shape = getRoundedCornerShape(4, 7) // Fifth card in group of 7
                         )
 
                         RamSettingItem(
@@ -178,7 +211,8 @@ fun SwappinessCard(
                             value = "${minFreeMemory}MB",
                             description = "Minimum free memory reserve",
                             color = MaterialTheme.colorScheme.primary,
-                            onClick = { showMinFreeMemoryDialog = true }
+                            onClick = { showMinFreeMemoryDialog = true },
+                            shape = getRoundedCornerShape(5, 7) // Sixth card in group of 7
                         )
 
                         RamSettingItem(
@@ -187,7 +221,8 @@ fun SwappinessCard(
                             value = if (swapSize == 0L) "Disabled" else "${swapSize / (1024 * 1024)}MB",
                             description = "Virtual memory swap file size",
                             color = MaterialTheme.colorScheme.primary,
-                            onClick = { showAdjustSwapSizeDialog = true }
+                            onClick = { showAdjustSwapSizeDialog = true },
+                            shape = getRoundedCornerShape(6, 7) // Seventh card in group of 7
                         )
                     }
                 }
@@ -391,7 +426,7 @@ fun RamControlHeaderSection(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Memory,
+                    painter = painterResource(id = R.drawable.memory_alt_24),
                     contentDescription = "Memory",
                     modifier = Modifier.size(28.dp),
                     tint = MaterialTheme.colorScheme.onPrimaryContainer
@@ -467,64 +502,73 @@ fun RamSettingItem(
     value: String,
     description: String,
     color: Color,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    shape: RoundedCornerShape = RoundedCornerShape(12.dp)
 ) {
-    Row(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .clickable { onClick() }
-            .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+            .clickable { onClick() },
+        shape = shape,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
-        Box(
-            modifier = Modifier
-                .size(36.dp)
-                .clip(RoundedCornerShape(18.dp))
-                .background(color.copy(alpha = 0.15f)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = title,
-                modifier = Modifier.size(20.dp),
-                tint = color
-            )
-        }
-
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.SemiBold
-                ),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-            )
-        }
-
         Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                text = value,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-                color = color
-            )
-            Icon(
-                imageVector = Icons.Default.ChevronRight,
-                contentDescription = "Configure",
-                modifier = Modifier.size(16.dp),
-                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-            )
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(color.copy(alpha = 0.15f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = title,
+                    modifier = Modifier.size(20.dp),
+                    tint = color
+                )
+            }
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = color
+                )
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = "Configure",
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                )
+            }
         }
     }
 }
@@ -1346,4 +1390,45 @@ fun SwapLoadingDialog(
             }
         }
     )
+}
+
+private fun getRoundedCornerShape(index: Int, totalItems: Int): RoundedCornerShape {
+    return when (totalItems) {
+        1 -> RoundedCornerShape(12.dp) // If only one card, all corners 12dp
+        2 -> {
+            when (index) {
+                0 -> RoundedCornerShape( // First card: 12dp top, 4dp bottom
+                    topStart = 12.dp,
+                    topEnd = 12.dp,
+                    bottomStart = 4.dp,
+                    bottomEnd = 4.dp
+                )
+                1 -> RoundedCornerShape( // Second card: 4dp top, 12dp bottom
+                    topStart = 4.dp,
+                    topEnd = 4.dp,
+                    bottomStart = 12.dp,
+                    bottomEnd = 12.dp
+                )
+                else -> RoundedCornerShape(12.dp) // Default case
+            }
+        }
+        else -> {
+            // For groups with more than 2 items
+            when (index) {
+                0 -> RoundedCornerShape( // First card: 12dp top, 4dp bottom
+                    topStart = 12.dp,
+                    topEnd = 12.dp,
+                    bottomStart = 4.dp,
+                    bottomEnd = 4.dp
+                )
+                totalItems - 1 -> RoundedCornerShape( // Last card: 4dp top, 12dp bottom
+                    topStart = 4.dp,
+                    topEnd = 4.dp,
+                    bottomStart = 12.dp,
+                    bottomEnd = 12.dp
+                )
+                else -> RoundedCornerShape(4.dp) // Middle cards: 4dp all sides
+            }
+        }
+    }
 }

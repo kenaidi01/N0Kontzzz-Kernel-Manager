@@ -86,7 +86,7 @@ fun CpuGovernorCard(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(8.dp, 8.dp, 8.dp, 8.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),
@@ -111,7 +111,8 @@ fun CpuGovernorCard(
                     Icon(
                         imageVector = Icons.Default.Memory,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(28.dp)
                     )
                     Text(
                         text = "CPU Control",
@@ -694,11 +695,11 @@ fun CpuClusterCard(
                 }
             }
 
-            // Enhanced Control Sections
+            // Enhanced Control Sections with custom rounded corners
             Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                // Governor Section
+                // Governor Section (first card - 12dp top, 4dp bottom)
                 ControlSection(
                     icon = Icons.Default.Tune,
                     title = "Governor",
@@ -706,10 +707,16 @@ fun CpuClusterCard(
                     isLoading = currentGovernor == "..." || currentGovernor == "Error",
                     themeColor = MaterialTheme.colorScheme.primary,
                     onClick = onGovernorClick,
-                    enabled = currentGovernor != "..." && currentGovernor != "Error"
+                    enabled = currentGovernor != "..." && currentGovernor != "Error",
+                    cornerShape = RoundedCornerShape(
+                        topStart = 12.dp,
+                        topEnd = 12.dp,
+                        bottomStart = 4.dp,
+                        bottomEnd = 4.dp
+                    )
                 )
 
-                // Min Frequency Section
+                // Min Frequency Section (middle card - 8dp all sides)
                 val minFreqText = when {
                     currentGovernor == "..." || currentGovernor == "Error" -> currentGovernor
                     currentFreqPair.first == 0 && currentFreqPair.second == 0 && availableFrequenciesForCluster.isEmpty() -> "Loading..."
@@ -724,10 +731,11 @@ fun CpuClusterCard(
                     isLoading = minFreqText == "Loading..." || minFreqText == "Error",
                     themeColor = MaterialTheme.colorScheme.primary,
                     onClick = onMinFrequencyClick,
-                    enabled = availableFrequenciesForCluster.isNotEmpty() || minFreqText == "Loading..." || minFreqText == "Error"
+                    enabled = availableFrequenciesForCluster.isNotEmpty() || minFreqText == "Loading..." || minFreqText == "Error",
+                    cornerShape = RoundedCornerShape(4.dp)
                 )
 
-                // Max Frequency Section
+                // Max Frequency Section (middle card - 8dp all sides)
                 val maxFreqText = when {
                     currentGovernor == "..." || currentGovernor == "Error" -> currentGovernor
                     currentFreqPair.first == 0 && currentFreqPair.second == 0 && availableFrequenciesForCluster.isEmpty() -> "Loading..."
@@ -742,10 +750,11 @@ fun CpuClusterCard(
                     isLoading = maxFreqText == "Loading..." || maxFreqText == "Error",
                     themeColor = MaterialTheme.colorScheme.primary,
                     onClick = onMaxFrequencyClick,
-                    enabled = availableFrequenciesForCluster.isNotEmpty() || maxFreqText == "Loading..." || maxFreqText == "Error"
+                    enabled = availableFrequenciesForCluster.isNotEmpty() || maxFreqText == "Loading..." || maxFreqText == "Error",
+                    cornerShape = RoundedCornerShape(4.dp)
                 )
 
-                // Core Status Section
+                // Core Status Section (last card - 8dp top, 12dp bottom)
                 ControlSection(
                     icon = Icons.Default.Memory,
                     title = "Core Status",
@@ -753,7 +762,13 @@ fun CpuClusterCard(
                     isLoading = false,
                     themeColor = MaterialTheme.colorScheme.primary,
                     onClick = onCoreClick,
-                    enabled = true
+                    enabled = true,
+                    cornerShape = RoundedCornerShape(
+                        topStart = 4.dp,
+                        topEnd = 4.dp,
+                        bottomStart = 12.dp,
+                        bottomEnd = 12.dp
+                    )
                 )
             }
         }
@@ -768,13 +783,14 @@ private fun ControlSection(
     isLoading: Boolean,
     themeColor: Color,
     onClick: () -> Unit,
-    enabled: Boolean
+    enabled: Boolean,
+    cornerShape: RoundedCornerShape = RoundedCornerShape(24.dp)
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(enabled = enabled) { onClick() },
-        shape = RoundedCornerShape(24.dp),
+        shape = cornerShape,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
@@ -800,7 +816,7 @@ private fun ControlSection(
                     imageVector = icon,
                     contentDescription = null,
                     tint = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(28.dp)
                 )
             }
 
