@@ -418,7 +418,7 @@ fun KernelCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp, 16.dp),
+                    .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -460,10 +460,9 @@ fun KernelCard(
 
             // Quick info grid with MD3 cards
             Column(
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
                 modifier = Modifier
-                    .padding(horizontal = 20.dp, vertical = 4.dp)
-                    .padding(bottom = 12.dp)
+                    .padding(start = 16.dp, top = 0.dp, end = 16.dp, bottom = 16.dp)
             ) {
                 // Process kernel version to extract clean version info
                 val shortenedVersion = shortenKernelVersion(k.version)
@@ -485,7 +484,7 @@ fun KernelCard(
                     value = shortenedVersion,
                     icon = Icons.Filled.Memory,
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp, 24.dp, 8.dp, 8.dp), // top left, top right, bottom right, bottom left
+                    shape = RoundedCornerShape(12.dp, 12.dp, 4.dp, 4.dp), // top left, top right, bottom right, bottom left
                     onCardClick = {
                         detailInfo = KernelDetailInfo(
                             title = "Kernel Version",
@@ -501,7 +500,7 @@ fun KernelCard(
                     value = getKernelTypeByVersion(k.version),
                     icon = Icons.Filled.Computer,
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(4.dp),
                     onCardClick = {
                         detailInfo = KernelDetailInfo(
                             title = "Kernel Type",
@@ -517,7 +516,7 @@ fun KernelCard(
                     value = k.fingerprint.substringAfterLast("/"),
                     icon = Icons.Outlined.Fingerprint,
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(4.dp),
                     onCardClick = {
                         detailInfo = KernelDetailInfo(
                             title = "Build Fingerprint",
@@ -533,7 +532,7 @@ fun KernelCard(
                     value = k.scheduler,
                     icon = Icons.Filled.Settings,
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(4.dp),
                     onCardClick = {
                         detailInfo = KernelDetailInfo(
                             title = "I/O Scheduler",
@@ -543,9 +542,9 @@ fun KernelCard(
                     }
                 )
 
-                // Row: ABI and Architecture with 8dp rounded corners on all sides
+                // Row: ABI and Architecture with 2dp rounded corners on all sides
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
                     // ABI Card (left card) - 8dp on all sides
                     CompactInfoCardWithCustomShape(
@@ -553,7 +552,7 @@ fun KernelCard(
                         value = k.abi,
                         icon = Icons.Filled.Computer,
                         modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(8.dp),
+                        shape = RoundedCornerShape(4.dp),
                         onCardClick = {
                             detailInfo = KernelDetailInfo(
                                 title = "ABI",
@@ -568,7 +567,7 @@ fun KernelCard(
                         value = k.architecture,
                         icon = Icons.Filled.Memory,
                         modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(8.dp),
+                        shape = RoundedCornerShape(4.dp),
                         onCardClick = {
                             detailInfo = KernelDetailInfo(
                                 title = "Architecture",
@@ -581,7 +580,7 @@ fun KernelCard(
 
                 // Row: SELinux and KernelSU (highlighted with colors) with custom rounded corners
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(3.dp)
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
                     // SELinux Card (left card) - 8dp top left/right, 8dp bottom left, 24dp bottom right
                     CompactInfoCardWithCustomShape(
@@ -590,7 +589,7 @@ fun KernelCard(
                         icon = Icons.Filled.Shield,
                         valueColor = getSelinuxColor(k.selinuxStatus),
                         modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(8.dp, 8.dp, 8.dp, 24.dp), // top left, top right, bottom right, bottom left
+                        shape = RoundedCornerShape(4.dp, 4.dp, 4.dp, 12.dp), // top left, top right, bottom right, bottom left
                         onCardClick = {
                             detailInfo = KernelDetailInfo(
                                 title = "SELinux",
@@ -614,7 +613,7 @@ fun KernelCard(
                         icon = Icons.Filled.AdminPanelSettings,
                         valueColor = getKernelSuColor(k.kernelSuStatus),
                         modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(8.dp, 8.dp, 24.dp, 8.dp), // top left, top right, bottom right, bottom left
+                        shape = RoundedCornerShape(4.dp, 4.dp, 12.dp, 4.dp), // top left, top right, bottom right, bottom left
                         onCardClick = {
                             detailInfo = KernelDetailInfo(
                                 title = "KernelSU",
