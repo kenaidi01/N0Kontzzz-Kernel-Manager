@@ -1118,7 +1118,8 @@ class SystemRepository @Inject constructor(
             selinuxStatus = selinuxStatus,
             abi = abi,
             architecture = architecture,
-            kernelSuStatus = kernelSuStatus
+            kernelSuStatus = kernelSuStatus,
+            fingerprint = android.os.Build.FINGERPRINT
         )
     }
 

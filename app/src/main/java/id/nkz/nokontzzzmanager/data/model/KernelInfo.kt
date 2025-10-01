@@ -9,5 +9,6 @@ data class KernelInfo(
     val selinuxStatus: String = "Unknown",
     val abi: String = "Unknown",
     val architecture: String = "Unknown",
-    val kernelSuStatus: String = "Not Detected"
+    val kernelSuStatus: String = "Not Detected",
+    val fingerprint: String = "Unknown"
 )

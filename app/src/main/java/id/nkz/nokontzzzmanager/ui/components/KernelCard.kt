@@ -1,6 +1,7 @@
 package id.nkz.nokontzzzmanager.ui.components
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,6 +12,7 @@ import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Fingerprint
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,6 +27,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.draw.clip
 import id.nkz.nokontzzzmanager.data.model.KernelDetailInfo
 import id.nkz.nokontzzzmanager.data.model.KernelInfo
 import id.nkz.nokontzzzmanager.ui.dialog.KernelDetailDialog
@@ -402,7 +405,6 @@ fun KernelCard(
             }
         }
     }
-
                 Surface(
                 modifier = modifier,
                 shape = RoundedCornerShape(24.dp),
@@ -410,7 +412,7 @@ fun KernelCard(
             ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             // Header Section with MD3 styling
             Row(
@@ -425,17 +427,18 @@ fun KernelCard(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.weight(1f)
                 ) {
-                    Surface(
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = RoundedCornerShape(16.dp)
+                    Box(
+                        modifier = Modifier
+                            .size(56.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.primaryContainer),
+                        contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.kernel),
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier
-                                .size(40.dp)
-                                .padding(8.dp)
+                            modifier = Modifier.size(28.dp)
                         )
                     }
 
@@ -457,10 +460,10 @@ fun KernelCard(
 
             // Quick info grid with MD3 cards
             Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier
-                    .padding(horizontal = 20.dp, vertical = 8.dp)
-                    .padding(bottom = 20.dp)
+                    .padding(horizontal = 20.dp, vertical = 4.dp)
+                    .padding(bottom = 12.dp)
             ) {
                 // Process kernel version to extract clean version info
                 val shortenedVersion = shortenKernelVersion(k.version)
@@ -477,11 +480,12 @@ fun KernelCard(
                 }
 
                 // Single card: Kernel Version (full width)
-                CompactInfoCard(
-                    label = stringResource(R.string.version, shortenedVersion),
-                    value = "",
+                CompactInfoCardWithCustomShape(
+                    label = stringResource(R.string.version),
+                    value = shortenedVersion,
                     icon = Icons.Filled.Memory,
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(24.dp, 24.dp, 8.dp, 8.dp), // top left, top right, bottom right, bottom left
                     onCardClick = {
                         detailInfo = KernelDetailInfo(
                             title = "Kernel Version",
@@ -492,11 +496,12 @@ fun KernelCard(
                 )
 
                 // Single card: GKI Type (full width)
-                CompactInfoCard(
-                    label = stringResource(R.string.kernel_type, getKernelTypeByVersion(k.version)),
-                    value = "",
+                CompactInfoCardWithCustomShape(
+                    label = stringResource(R.string.kernel_type),
+                    value = getKernelTypeByVersion(k.version),
                     icon = Icons.Filled.Computer,
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
                     onCardClick = {
                         detailInfo = KernelDetailInfo(
                             title = "Kernel Type",
@@ -506,12 +511,29 @@ fun KernelCard(
                     }
                 )
 
+                // Single card: Build Fingerprint (full width)
+                CompactInfoCardWithCustomShape(
+                    label = "Build",
+                    value = k.fingerprint.substringAfterLast("/"),
+                    icon = Icons.Outlined.Fingerprint,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    onCardClick = {
+                        detailInfo = KernelDetailInfo(
+                            title = "Build Fingerprint",
+                            value = k.fingerprint,
+                            icon = Icons.Outlined.Fingerprint
+                        )
+                    }
+                )
+
                 // Single card: I/O Scheduler (full width)
-                CompactInfoCard(
-                    label = stringResource(R.string.sched, k.scheduler),
-                    value = "",
+                CompactInfoCardWithCustomShape(
+                    label = stringResource(R.string.sched),
+                    value = k.scheduler,
                     icon = Icons.Filled.Settings,
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
                     onCardClick = {
                         detailInfo = KernelDetailInfo(
                             title = "I/O Scheduler",
@@ -521,15 +543,17 @@ fun KernelCard(
                     }
                 )
 
-                // Row: ABI and Architecture
+                // Row: ABI and Architecture with 8dp rounded corners on all sides
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    CompactInfoCard(
+                    // ABI Card (left card) - 8dp on all sides
+                    CompactInfoCardWithCustomShape(
                         label = "ABI",
                         value = k.abi,
                         icon = Icons.Filled.Computer,
                         modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(8.dp),
                         onCardClick = {
                             detailInfo = KernelDetailInfo(
                                 title = "ABI",
@@ -538,11 +562,13 @@ fun KernelCard(
                             )
                         }
                     )
-                    CompactInfoCard(
+                    // Architecture Card (right card) - 8dp on all sides
+                    CompactInfoCardWithCustomShape(
                         label = "Architecture",
                         value = k.architecture,
                         icon = Icons.Filled.Memory,
                         modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(8.dp),
                         onCardClick = {
                             detailInfo = KernelDetailInfo(
                                 title = "Architecture",
@@ -553,16 +579,18 @@ fun KernelCard(
                     )
                 }
 
-                // Row: SELinux and KernelSU (highlighted with colors)
+                // Row: SELinux and KernelSU (highlighted with colors) with custom rounded corners
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(3.dp)
                 ) {
-                    CompactInfoCard(
+                    // SELinux Card (left card) - 8dp top left/right, 8dp bottom left, 24dp bottom right
+                    CompactInfoCardWithCustomShape(
                         label = "SELinux",
                         value = k.selinuxStatus,
                         icon = Icons.Filled.Shield,
                         valueColor = getSelinuxColor(k.selinuxStatus),
                         modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(8.dp, 8.dp, 8.dp, 24.dp), // top left, top right, bottom right, bottom left
                         onCardClick = {
                             detailInfo = KernelDetailInfo(
                                 title = "SELinux",
@@ -571,7 +599,8 @@ fun KernelCard(
                             )
                         }
                     )
-                    CompactInfoCard(
+                    // KernelSU Card (right card) - 8dp top left/right, 24dp bottom left, 8dp bottom right
+                    CompactInfoCardWithCustomShape(
                         label = "KernelSU",
                         value = when {
                             k.kernelSuStatus.contains("Version", ignoreCase = true) -> "✓ " + k.kernelSuStatus.substringAfter("Version ").take(8)
@@ -585,6 +614,7 @@ fun KernelCard(
                         icon = Icons.Filled.AdminPanelSettings,
                         valueColor = getKernelSuColor(k.kernelSuStatus),
                         modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(8.dp, 8.dp, 24.dp, 8.dp), // top left, top right, bottom right, bottom left
                         onCardClick = {
                             detailInfo = KernelDetailInfo(
                                 title = "KernelSU",
@@ -618,6 +648,105 @@ private fun CompactInfoCard(
                 }
             ),
         shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+        tonalElevation = 1.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Icon with MD3 styling using dynamic colors based on label
+            val iconColor = when {
+                label.contains("version", ignoreCase = true) -> MaterialTheme.colorScheme.primaryContainer
+                label.contains("type", ignoreCase = true) -> MaterialTheme.colorScheme.primaryContainer
+                label.contains("abi", ignoreCase = true) -> MaterialTheme.colorScheme.primaryContainer
+                label.contains("arch", ignoreCase = true) -> MaterialTheme.colorScheme.primaryContainer
+                label.contains("selinux", ignoreCase = true) -> MaterialTheme.colorScheme.primaryContainer
+                label.contains("kernelsu", ignoreCase = true) -> MaterialTheme.colorScheme.primaryContainer
+                else -> MaterialTheme.colorScheme.primaryContainer
+            }
+            
+            Surface(
+                modifier = Modifier.size(36.dp),
+                color = iconColor,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = if (iconColor == MaterialTheme.colorScheme.errorContainer)
+                            MaterialTheme.colorScheme.onErrorContainer
+                        else 
+                            MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                // Jika value tidak kosong, tampilkan label dan value terpisah
+                // Jika value kosong, anggap label sudah berisi format lengkap
+                if (value.isNotEmpty()) {
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = value,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = valueColor ?: MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                } else {
+                    // Untuk kasus format string seperti "Version: 4.19.0"
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CompactInfoCardWithCustomShape(
+    label: String,
+    value: String,
+    icon: ImageVector,
+    modifier: Modifier = Modifier,
+    shape: RoundedCornerShape,
+    valueColor: Color? = null,
+    onCardClick: (() -> Unit)? = null
+) {
+    Surface(
+        modifier = modifier
+            .then(
+                if (onCardClick != null) {
+                    Modifier.clickable(onClick = onCardClick)
+                } else {
+                    Modifier
+                }
+            ),
+        shape = shape,
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
         tonalElevation = 1.dp
     ) {

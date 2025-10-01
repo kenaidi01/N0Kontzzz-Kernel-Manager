@@ -1,4 +1,4 @@
-package id.xms.xtrakernelmanager.ui.icons
+package id.nkz.nokontzzzmanager.ui.icons
 
 import androidx.compose.material.icons.materialIcon
 import androidx.compose.material.icons.materialPath
