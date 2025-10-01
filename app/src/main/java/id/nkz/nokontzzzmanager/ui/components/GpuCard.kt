@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material3.*
@@ -80,7 +81,11 @@ private fun GpuHeaderSection(info: RealtimeGpuInfo) {
             Text(
                 text = if (info.model.isNotBlank() && info.model != "N/A" && info.model != "Graphics Processing Unit (GPU)") {
                     // Truncate long GPU model names but make sure we show meaningful info
-                    val modelName = info.model
+                    var modelName = info.model
+                    // Add trademark symbol after Adreno
+                    if (modelName.contains("Adreno")) {
+                        modelName = modelName.replace("Adreno", "Adreno™")
+                    }
                     if (modelName.length > 25) {
                         modelName.substring(0, 22) + "..."
                     } else {
@@ -115,7 +120,7 @@ private fun GpuHeaderSection(info: RealtimeGpuInfo) {
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.Default.Memory,
+                imageVector = Icons.Default.GraphicEq,
                 contentDescription = "GPU Icon",
                 modifier = Modifier.size(28.dp),
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
