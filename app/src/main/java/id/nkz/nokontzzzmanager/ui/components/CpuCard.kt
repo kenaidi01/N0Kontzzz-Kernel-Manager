@@ -176,7 +176,7 @@ private fun CpuHeaderSection(
 }
 
 @Composable
-private fun CpuCoresSection(info: RealtimeCpuInfo, clusters: List<id.nkz.nokontzzzmanager.data.model.CpuCluster>) {
+private fun CpuCoresSection(info: RealtimeCpuInfo, clusters: List<CpuCluster>) {
     Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
         Text(
             text = stringResource(R.string.cpu_cores_title),
