@@ -92,15 +92,14 @@ fun CpuGovernorCard(
         ),
     ) {
         Column(
-            modifier = Modifier.padding(24.dp),
+            modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Header with expand/collapse
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { isExpanded = !isExpanded }
-                    .padding(vertical = 8.dp),
+                    .clickable { isExpanded = !isExpanded },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -120,6 +119,7 @@ fun CpuGovernorCard(
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
                         ),
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
                 Icon(
@@ -133,7 +133,7 @@ fun CpuGovernorCard(
             Text(
                 text = "Configure CPU governor and frequency settings for each cluster",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             AnimatedVisibility(
@@ -143,7 +143,7 @@ fun CpuGovernorCard(
             ) {
                 Column(
                     modifier = Modifier.padding(top = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     if (availableGovernors.isEmpty() && clusters.isNotEmpty()) {
                         Card(
@@ -174,14 +174,38 @@ fun CpuGovernorCard(
                             }
                         }
                     } else if (clusters.isNotEmpty()) {
+                        val totalClusters = clusters.size
                         clusters.forEachIndexed { index, clusterName ->
+                            // Fungsi untuk menentukan bentuk rounded corner berdasarkan posisi
+                            val clusterCardShape = when (totalClusters) {
+                                1 -> RoundedCornerShape(24.dp) // If only one cluster, all corners same
+                                else -> {
+                                    when (index) {
+                                        0 -> RoundedCornerShape( // First cluster: 24dp top, 8dp bottom
+                                            topStart = 12.dp,
+                                            topEnd = 12.dp,
+                                            bottomStart = 4.dp,
+                                            bottomEnd = 4.dp
+                                        )
+                                        totalClusters - 1 -> RoundedCornerShape( // Last cluster: 8dp top, 24dp bottom
+                                            topStart = 4.dp,
+                                            topEnd = 4.dp,
+                                            bottomStart = 12.dp,
+                                            bottomEnd = 12.dp
+                                        )
+                                        else -> RoundedCornerShape(4.dp) // Middle clusters: 8dp all sides
+                                    }
+                                }
+                            }
+                            
                             CpuClusterCard(
                                 clusterName = clusterName,
                                 vm = vm,
                                 onGovernorClick = { showGovernorDialogForCluster = clusterName },
                                 onMinFrequencyClick = { showMinFreqDialogForCluster = clusterName },
                                 onMaxFrequencyClick = { showMaxFreqDialogForCluster = clusterName },
-                                onCoreClick = { showCoreDialogForCluster = clusterName }
+                                onCoreClick = { showCoreDialogForCluster = clusterName },
+                                shape = clusterCardShape
                             )
                         }
                     }
@@ -603,7 +627,8 @@ fun CpuClusterCard(
     onGovernorClick: () -> Unit,
     onMinFrequencyClick: () -> Unit,
     onMaxFrequencyClick: () -> Unit,
-    onCoreClick: () -> Unit
+    onCoreClick: () -> Unit,
+    shape: RoundedCornerShape
 ) {
     val currentGovernor by vm.getCpuGov(clusterName).collectAsState()
     val currentFreqPair by vm.getCpuFreq(clusterName).collectAsState()
@@ -620,14 +645,14 @@ fun CpuClusterCard(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = shape,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
         Column(
-            modifier = Modifier.padding(20.dp),
+            modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Enhanced Header with cluster-specific styling

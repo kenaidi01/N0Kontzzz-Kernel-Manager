@@ -115,20 +115,20 @@ fun GpuControlCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Header Section
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { isExpanded = !isExpanded }
-                    .padding(bottom = 16.dp),
+                    .clickable { isExpanded = !isExpanded },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.gpu_card),
@@ -165,8 +165,6 @@ fun GpuControlCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
-
             // Expanded Content
             AnimatedVisibility(
                 visible = isExpanded,
@@ -182,8 +180,6 @@ fun GpuControlCard(
                 )
             ) {
                 Column {
-                    Spacer(modifier = Modifier.height(20.dp))
-
                     // GPU Governor Control
                     GPUControlSection(
                         title = "GPU Governor",
