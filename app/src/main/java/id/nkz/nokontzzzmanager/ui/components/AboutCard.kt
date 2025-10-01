@@ -74,21 +74,23 @@ fun AboutCard(
 ) {
     var showCreditsDialog by remember { mutableStateOf(false) }
 
-    Surface(
+    Card(
         modifier = modifier,
-        shape = RoundedCornerShape(24.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        shape = RoundedCornerShape(8.dp, 8.dp, 24.dp, 24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        ),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp),
+                .padding(16.dp, 16.dp, 16.dp, 8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Header Section
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Box(
                     modifier = Modifier
@@ -121,7 +123,6 @@ fun AboutCard(
 
             // Action Section
             Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // Social Links Row
                 val uriHandler = LocalUriHandler.current
@@ -144,7 +145,7 @@ fun AboutCard(
                         Icon(
                             painter = painterResource(id = R.drawable.telegram),
                             contentDescription = stringResource(id = R.string.telegram),
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(32.dp)
                         )
                     }
 
@@ -156,10 +157,13 @@ fun AboutCard(
                         Icon(
                             painter = painterResource(id = R.drawable.github),
                             contentDescription = stringResource(id = R.string.github),
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(16.dp)
                         )
                     }
                 }
+
+                // Add spacing between social links and credits badge
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Credits Badge
                 Row(
@@ -250,7 +254,7 @@ fun AboutCard(
                             
                             individualContributors.forEachIndexed { index, developer ->
                                 if (index > 0) {
-                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Spacer(modifier = Modifier.height(2.dp))
                                 }
                                 DeveloperCreditItem(developer = developer, position = index, totalItems = individualContributors.size)
                             }
@@ -415,9 +419,9 @@ fun RepositoryCreditItem(repository: RepositoryContributor, position: Int, total
     // Determine rounded corners based on position
     val shape = when {
         position == 0 && position == totalItems - 1 -> RoundedCornerShape(24.dp) // Only item
-        position == 0 -> RoundedCornerShape(24.dp, 24.dp, 8.dp, 8.dp) // First item: top corners 24dp, bottom 8dp
-        position == totalItems - 1 -> RoundedCornerShape(8.dp, 8.dp, 24.dp, 24.dp) // Last item: top corners 8dp, bottom 24dp
-        else -> RoundedCornerShape(8.dp) // Middle items: all corners 8dp
+        position == 0 -> RoundedCornerShape(24.dp, 24.dp, 4.dp, 4.dp) // First item: top corners 24dp, bottom 8dp
+        position == totalItems - 1 -> RoundedCornerShape(4.dp, 4.dp, 24.dp, 24.dp) // Last item: top corners 8dp, bottom 24dp
+        else -> RoundedCornerShape(4.dp) // Middle items: all corners 8dp
     }
 
     Surface(

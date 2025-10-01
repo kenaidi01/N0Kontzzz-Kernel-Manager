@@ -405,10 +405,12 @@ fun KernelCard(
             }
         }
     }
-                Surface(
+                Card(
                 modifier = modifier,
-                shape = RoundedCornerShape(24.dp),
-                color = MaterialTheme.colorScheme.surfaceContainerLow
+                shape = RoundedCornerShape(8.dp, 8.dp, 8.dp, 8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                    ),
             ) {
         Column(
             modifier = Modifier.fillMaxWidth(),

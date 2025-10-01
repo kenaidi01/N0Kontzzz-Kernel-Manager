@@ -80,7 +80,7 @@ fun CpuCard(
 
     Card( // Mengganti ElevatedCard menjadi Card dengan konfigurasi baru
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(24.dp, 24.dp, 8.dp, 8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
@@ -89,7 +89,7 @@ fun CpuCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp), // Consistent padding
+                .padding(16.dp, 12.dp, 16.dp, 0.dp), // Consistent padding
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             CpuHeaderSection(soc = soc, info = info)
@@ -131,9 +131,9 @@ private fun CpuHeaderSection(
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = soc.takeIf { it.isNotBlank() && it != "Unknown SoC" && it != "N/A" }
                     ?: info.soc.takeIf { it.isNotBlank() && it != "Unknown SoC" && it != "N/A" }
