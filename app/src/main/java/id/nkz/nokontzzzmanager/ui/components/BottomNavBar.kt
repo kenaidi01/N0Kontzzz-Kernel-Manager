@@ -34,21 +34,15 @@ fun BottomNavBar(navController: NavHostController, items: List<String>, isAmoled
                 selected = selected,
                 onClick = {
                     val targetRoute = screen.lowercase()
-                    // Jika pengguna berada di SettingsScreen (atau screen lain yang tidak ada di bottom nav),
-                    // dan mengklik tombol home, arahkan ke home screen
-                    if (currentRoute != "home" && targetRoute == "home") {
+                    if (currentRoute != targetRoute) {
+                        // Navigate to the target screen
                         navController.navigate(targetRoute) {
-                            // Pop semua screen sampai kembali ke home
-                            popUpTo("home") {
-                                inclusive = false
-                            }
-                            launchSingleTop = true
-                        }
-                    } else if (currentRoute != targetRoute) {
-                        // Untuk screen lain dalam bottom nav, gunakan navigasi normal
-                        navController.navigate(targetRoute) {
-                            popUpTo("home") {
-                                saveState = true
+                            // If coming from settings (or other non-bottom-nav screen), 
+                            // pop inclusive to remove settings from back stack
+                            if (currentRoute !in listOf("home", "tuning", "misc")) {
+                                popUpTo("settings") {
+                                    inclusive = true
+                                }
                             }
                             launchSingleTop = true
                             restoreState = true

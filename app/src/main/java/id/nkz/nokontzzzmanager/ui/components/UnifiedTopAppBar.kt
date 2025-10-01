@@ -58,7 +58,15 @@ fun UnifiedTopAppBar(
         },
         actions = {
             if (showSettingsIcon && navController != null) {
-                IconButton(onClick = { navController.navigate("settings") }) {
+                IconButton(onClick = { 
+                    val currentRoute = navController.currentBackStackEntry?.destination?.route
+                    val routeWithArgs = if (currentRoute != null) {
+                        "settings?fromScreen=$currentRoute"
+                    } else {
+                        "settings"
+                    }
+                    navController.navigate(routeWithArgs)
+                }) {
                     Icon(
                         imageVector = Icons.Default.Settings,
                         contentDescription = stringResource(R.string.home_settings_button_desc)
