@@ -26,7 +26,7 @@ import id.nkz.nokontzzzmanager.ui.viewmodel.SettingsViewModel
 import id.nkz.nokontzzzmanager.ui.theme.ThemeMode
 import id.nkz.nokontzzzmanager.R
 import android.widget.Toast
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.background
 import androidx.compose.ui.text.font.FontWeight
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,6 +63,7 @@ fun SettingsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface)
             .verticalScroll(rememberScrollState())
     ) {
         // Settings section
@@ -202,8 +203,6 @@ fun SettingsScreen(
             )
         }
     }
-
-    
 
     if (showThemeDialog) {
         AlertDialog(
