@@ -15,10 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import id.nkz.nokontzzzmanager.R
 import id.nkz.nokontzzzmanager.data.model.BatteryInfo
 import id.nkz.nokontzzzmanager.data.model.DeepSleepInfo
 import id.nkz.nokontzzzmanager.data.model.MemoryInfo
@@ -282,7 +284,7 @@ private fun MemoryHeaderSection(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.Default.Memory,
+                painter = painterResource(id = R.drawable.memory_alt_24),
                 contentDescription = "Memory",
                 modifier = Modifier.size(28.dp),
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
