@@ -19,14 +19,15 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import id.nkz.nokontzzzmanager.R
 import id.nkz.nokontzzzmanager.data.model.RealtimeGpuInfo
 import id.nkz.nokontzzzmanager.viewmodel.GraphDataViewModel
-import id.nkz.nokontzzzmanager.R
 
 const val MAX_GPU_HISTORY_POINTS = 50
 const val SIMULATE_GPU_LOAD_TOGGLE = false // Keep for existing logic
@@ -111,7 +112,7 @@ private fun GpuHeaderSection(info: RealtimeGpuInfo) {
             }
         }
 
-        // Simplified GPU icon
+        // GPU icon
         Box(
             modifier = Modifier
                 .size(56.dp)
@@ -120,7 +121,7 @@ private fun GpuHeaderSection(info: RealtimeGpuInfo) {
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.Default.GraphicEq,
+                painter = painterResource(id = R.drawable.gpu_card),
                 contentDescription = "GPU Icon",
                 modifier = Modifier.size(28.dp),
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
