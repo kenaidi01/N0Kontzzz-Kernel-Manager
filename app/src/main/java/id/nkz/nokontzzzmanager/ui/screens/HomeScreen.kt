@@ -10,6 +10,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
+import androidx.activity.ComponentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -31,7 +33,8 @@ fun HomeScreen(
 ) {
     val vm: HomeViewModel = hiltViewModel()
     val storageViewModel: StorageInfoViewModel = hiltViewModel()
-    val graphDataViewModel: GraphDataViewModel = viewModel()
+    val activity = LocalContext.current as ComponentActivity
+    val graphDataViewModel: GraphDataViewModel = viewModel(viewModelStoreOwner = activity)
 
     // Kumpulkan semua state dari ViewModel
     val cpuInfo by vm.cpuInfo.collectAsState()
