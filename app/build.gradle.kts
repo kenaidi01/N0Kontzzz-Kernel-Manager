@@ -30,8 +30,8 @@ android {
         minSdk = 26
         //noinspection OldTargetApi
         targetSdk = 35
-        versionCode = 21
-        versionName = "1.0.0"
+        versionCode = 23
+        versionName = "1.0.1-hotfix-1"
     }
     buildTypes {
         release {
