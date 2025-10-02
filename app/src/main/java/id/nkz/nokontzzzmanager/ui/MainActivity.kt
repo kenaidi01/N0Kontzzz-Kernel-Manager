@@ -2,7 +2,6 @@ package id.nkz.nokontzzzmanager.ui
 
 import TuningScreen
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -10,8 +9,6 @@ import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -19,12 +16,10 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
@@ -35,12 +30,10 @@ import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import id.nkz.nokontzzzmanager.data.repository.RootRepository
 import id.nkz.nokontzzzmanager.data.repository.ThermalRepository
-import id.nkz.nokontzzzmanager.service.ThermalService
 import id.nkz.nokontzzzmanager.ui.components.BottomNavBar
 
 import id.nkz.nokontzzzmanager.ui.components.KernelVerificationDialog
 import id.nkz.nokontzzzmanager.ui.components.RootRequiredDialog
-import id.nkz.nokontzzzmanager.ui.components.CustomSystemBarStyle
 import id.nkz.nokontzzzmanager.ui.dialog.BatteryOptDialog
 import id.nkz.nokontzzzmanager.ui.screens.*
 import id.nkz.nokontzzzmanager.ui.theme.RvKernelManagerTheme
@@ -55,15 +48,11 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.currentBackStackEntryAsState
 import id.nkz.nokontzzzmanager.R
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.ui.unit.dp
@@ -201,12 +190,21 @@ class MainActivity : ComponentActivity() {
                                         }
                                     ) { if (it) 0f else 40f * (fabMenuItems.size - index) }
 
+                                    val scale by transition.animateFloat(
+                                        label = "scale_anim",
+                                        transitionSpec = {
+                                            tween(durationMillis = 200)
+                                        }
+                                    ) { if (it) 1f else 0f }
+
 
                                     Box(
                                         modifier = Modifier
                                             .graphicsLayer {
                                                 this.alpha = alpha
                                                 this.translationY = translationY
+                                                this.scaleX = scale
+                                                this.scaleY = scale
                                             }
                                     ) {
                                         val icon = when (action) {
@@ -365,10 +363,9 @@ class MainActivity : ComponentActivity() {
         // Only check permissions if device is rooted
         if (rootRepo.checkRootFresh() && !batteryOptChecker.hasRequiredPermissions()) {
             showBatteryOptDialog = true
-        } else if (rootRepo.checkRootFresh()) {
+        }
             // Only start service for Dynamic mode (10) which requires continuous monitoring
             // For other thermal modes, persistent scripts handle settings
-        }
     }
 
     private fun isKernelSupported(): Boolean {
