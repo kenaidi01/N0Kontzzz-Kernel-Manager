@@ -5,8 +5,10 @@
 ![UI](https://img.shields.io/badge/Jetpack-Compose-blue?style=for-the-badge&logo=jetpackcompose)
 ![License](https://img.shields.io/github/license/bimoalfarrabi/N0Kontzzz-Kernel-Manager?style=for-the-badge)
 ![Root Required](https://img.shields.io/badge/Root-Required-critical?style=for-the-badge&logo=android)
-![GitHub commits](https://img.shields.io/github/commit-activity/t/bimoalfarrabi/N0Kontzzz-Kernel-Manager?style=for-the-badge)
 [![Repo Size](https://img.shields.io/github/repo-size/bimoalfarrabi/N0Kontzzz-Kernel-Manager?style=for-the-badge&logo=github)](https://github.com/bimoalfarrabi/N0Kontzzz-Kernel-Manager)
+[![Downloads](https://img.shields.io/github/downloads/bimoalfarrabi/N0Kontzzz-Kernel-Manager/total?color=%233DDC84&logo=android&logoColor=%23fff&style=for-the-badge)](https://github.com/bimoalfarrabi/N0Kontzzz-Kernel-Manager/releases)
+[![Telegram](https://img.shields.io/badge/Telegram-Join-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/n0kontzzz)
+
 
 **N0Kontzzz Kernel Manager** is a modern, rooted Android application. Built with Kotlin and Jetpack Compose, the app provides real-time monitoring and tuning of CPU performance, thermal behavior, and more for Poco F4 (munch), optimized for [N0Kontzzz](https://github.com/bimoalfarrabi/kernel_xiaomi_sm8250_n0kontzz) custom kernel.
 
