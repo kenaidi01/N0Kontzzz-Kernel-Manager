@@ -28,6 +28,7 @@ import id.nkz.nokontzzzmanager.data.model.RealtimeCpuInfo
 import id.nkz.nokontzzzmanager.viewmodel.GraphDataViewModel
 import id.nkz.nokontzzzmanager.viewmodel.GraphMode
 import id.nkz.nokontzzzmanager.R
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 import kotlin.random.Random
@@ -39,7 +40,7 @@ const val SIMULATE_CPU_LOAD_TOGGLE = false // Keep for existing logic
 fun CpuCard(
     soc: String,
     info: RealtimeCpuInfo,
-    clusters: List<CpuCluster>,
+    clusters: ImmutableList<CpuCluster>,
     modifier1: Boolean, // Parameter tetap ada
     modifier: Modifier = Modifier,
     graphDataViewModel: GraphDataViewModel = viewModel()
@@ -176,7 +177,7 @@ private fun CpuHeaderSection(
 }
 
 @Composable
-private fun CpuCoresSection(info: RealtimeCpuInfo, clusters: List<CpuCluster>) {
+private fun CpuCoresSection(info: RealtimeCpuInfo, clusters: ImmutableList<CpuCluster>) {
     Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
         Text(
             text = stringResource(R.string.cpu_cores_title),

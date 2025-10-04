@@ -19,6 +19,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -74,8 +76,8 @@ class HomeViewModel @Inject constructor(
         _isTitleAnimationDone.value = true
     }
 
-    private val _cpuClusters = MutableStateFlow<List<CpuCluster>>(emptyList())
-    val cpuClusters: StateFlow<List<CpuCluster>> = _cpuClusters.asStateFlow()
+    private val _cpuClusters = MutableStateFlow<ImmutableList<CpuCluster>>(kotlinx.collections.immutable.persistentListOf())
+    val cpuClusters: StateFlow<ImmutableList<CpuCluster>> = _cpuClusters.asStateFlow()
 
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
@@ -119,7 +121,7 @@ class HomeViewModel @Inject constructor(
             _systemInfo.value = systemInfoDeferred.await()
             _kernelInfo.value = kernelInfoDeferred.await()
             _rootStatus.value = rootStatusDeferred.await()
-            _cpuClusters.value = cpuClustersDeferred.await()
+            _cpuClusters.value = cpuClustersDeferred.await().toImmutableList()
             _appVersion.value = appVersionDeferred.await()
             _isLoading.value = false
         }
