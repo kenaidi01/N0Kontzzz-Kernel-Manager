@@ -10,6 +10,7 @@ import android.util.Log
 @HiltAndroidApp
 class NkzApp : Application(), Configuration.Provider {
 
+    @Suppress("DEPRECATION")
     override fun onCreate() {
         super.onCreate()
 
@@ -17,7 +18,7 @@ class NkzApp : Application(), Configuration.Provider {
         Shell.enableVerboseLogging = true  // Enable during development
         Shell.setDefaultBuilder(
             Shell.Builder.create()
-                .setFlags(Shell.FLAG_REDIRECT_STDERR or Shell.FLAG_NON_ROOT_SHELL)
+                .setFlags(Shell.FLAG_REDIRECT_STDERR)
                 .setTimeout(10)
         )
 
