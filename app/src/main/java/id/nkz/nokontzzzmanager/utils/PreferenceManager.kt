@@ -5,10 +5,11 @@ import android.content.SharedPreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import androidx.core.content.edit
 
 @Singleton
 class PreferenceManager @Inject constructor(
-    @field:ApplicationContext private val context: Context
+    @field:ApplicationContext private val context: Context,
 ) {
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences("nkm_preferences", Context.MODE_PRIVATE)
@@ -19,9 +20,9 @@ class PreferenceManager @Inject constructor(
     }
 
     fun setTargetGamePackages(packages: Set<String>) {
-        sharedPreferences.edit()
-            .putStringSet(KEY_TARGET_GAME_PACKAGES, packages)
-            .apply()
+        sharedPreferences.edit {
+            putStringSet(KEY_TARGET_GAME_PACKAGES, packages)
+        }
     }
 
     fun getTargetGamePackages(): Set<String> {
@@ -29,9 +30,9 @@ class PreferenceManager @Inject constructor(
     }
 
     fun setKgslSkipZeroing(enabled: Boolean) {
-        sharedPreferences.edit()
-            .putBoolean(KEY_KGSL_SKIP_ZEROING, enabled)
-            .apply()
+        sharedPreferences.edit {
+            putBoolean(KEY_KGSL_SKIP_ZEROING, enabled)
+        }
     }
 
     fun getKgslSkipZeroing(): Boolean {
