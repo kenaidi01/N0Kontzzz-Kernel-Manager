@@ -15,7 +15,7 @@ import javax.inject.Singleton
 
 @Singleton
 class StorageRepository @Inject constructor(
-    @ApplicationContext private val context: Context
+    @field:ApplicationContext private val context: Context
 ) {
 
     fun getStorageInfo(): Flow<StorageInfo> = flow {

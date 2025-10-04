@@ -1,5 +1,8 @@
 package id.nkz.nokontzzzmanager.ui.screens
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -11,8 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
-import androidx.activity.ComponentActivity
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import id.nkz.nokontzzzmanager.ui.components.AboutCard
@@ -26,6 +29,13 @@ import id.nkz.nokontzzzmanager.viewmodel.GraphDataViewModel
 import id.nkz.nokontzzzmanager.viewmodel.HomeViewModel
 import kotlin.text.isNotBlank
 
+// Helper function to safely find an Activity from a Context.
+private fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -33,8 +43,16 @@ fun HomeScreen(
 ) {
     val vm: HomeViewModel = hiltViewModel()
     val storageViewModel: StorageInfoViewModel = hiltViewModel()
-    val activity = LocalContext.current as ComponentActivity
-    val graphDataViewModel: GraphDataViewModel = viewModel(viewModelStoreOwner = activity)
+    
+    // Safely get the activity context and create the activity-scoped ViewModel.
+    val context = LocalContext.current
+    val activity = remember(context) { context.findActivity() }
+    val graphDataViewModel: GraphDataViewModel = if (activity != null) {
+        viewModel(viewModelStoreOwner = activity as ViewModelStoreOwner)
+    } else {
+        // Fallback if activity is not available, though unlikely in this context.
+        viewModel()
+    }
 
     // Kumpulkan semua state dari ViewModel
     val cpuInfo by vm.cpuInfo.collectAsState()
@@ -49,8 +67,6 @@ fun HomeScreen(
     val cpuClusters by vm.cpuClusters.collectAsState()
     val storageInfo by storageViewModel.storageInfo.collectAsState()
     val isLoading by vm.isLoading.collectAsState()
-
-    var showFabMenu by remember { mutableStateOf(false) }
 
     if (isLoading) {
         Box(

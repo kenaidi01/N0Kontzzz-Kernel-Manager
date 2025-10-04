@@ -12,13 +12,8 @@ import id.nkz.nokontzzzmanager.data.model.RealtimeAggregatedInfo
 import id.nkz.nokontzzzmanager.data.model.RealtimeCpuInfo
 import id.nkz.nokontzzzmanager.data.model.RealtimeGpuInfo
 import id.nkz.nokontzzzmanager.data.model.SystemInfo
-// Hapus impor yang tidak terpakai jika ada, seperti:
-// import androidx.compose.ui.geometry.isEmpty
-// import androidx.compose.ui.graphics.vector.path
-// import kotlin.io.path.inputStream // Ini juga sepertinya tidak digunakan, File.inputStream() lebih umum
 
 import id.nkz.nokontzzzmanager.data.model.*
-import id.nkz.nokontzzzmanager.data.repository.TuningRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -31,7 +26,6 @@ import kotlinx.coroutines.channels.awaitClose // Diperlukan untuk callbackFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.firstOrNull
-// import kotlinx.coroutines.flow.mapLatest // Tidak digunakan di kode yang Anda berikan
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -322,8 +316,8 @@ class SystemRepository @Inject constructor(
             }
         } else 0
 
-        var calculatedSohPercentage: Int = 0
-        var currentCapacityMah: Int = 0
+        var calculatedSohPercentage = 0
+        var currentCapacityMah = 0
 
         if (finalDesignCapacityMah > 0 && designCapacityUah != null) {
             val currentFullUahStr = readFileToString("$batteryDir/charge_full", "Battery Current Full Capacity (uAh)")
@@ -359,8 +353,8 @@ class SystemRepository @Inject constructor(
                 calculatedSohPercentage = sohDouble.toInt().coerceIn(0, 100)
 
                 Log.d(TAG, "Real Battery Health Calculation:")
-                Log.d(TAG, "Design Capacity: ${finalDesignCapacityMah} mAh")
-                Log.d(TAG, "Current Capacity: ${currentCapacityMah} mAh")
+                Log.d(TAG, "Design Capacity: $finalDesignCapacityMah mAh")
+                Log.d(TAG, "Current Capacity: $currentCapacityMah mAh")
                 Log.d(TAG, "Health Percentage: ${calculatedSohPercentage}% = (${currentCapacityMah} / ${finalDesignCapacityMah}) × 100%")
             } else {
                 // If we can't read current capacity, try to get health directly from system
@@ -399,7 +393,7 @@ class SystemRepository @Inject constructor(
                     currentCapacityMah = estimatedCapacityMah
                     // Assume this is 100% health since we don't have design capacity
                     calculatedSohPercentage = 100
-                    Log.d(TAG, "Estimated capacity from energy counter: ${currentCapacityMah} mAh")
+                    Log.d(TAG, "Estimated capacity from energy counter: $currentCapacityMah mAh")
                 }
             }
         }
@@ -650,7 +644,7 @@ class SystemRepository @Inject constructor(
         return android.os.SystemClock.uptimeMillis()
     }
 
-    private suspend fun getSystemInfoInternal(): SystemInfo {
+    private fun getSystemInfoInternal(): SystemInfo {
         Log.d(TAG, "Mengambil SystemInfo (API based)...")
 
         // Improved SoC detection with multiple property sources
@@ -792,12 +786,24 @@ class SystemRepository @Inject constructor(
     private fun getDisplayInfo(): DisplayInfo {
         try {
             val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as android.view.WindowManager
-            val display = windowManager.defaultDisplay
-            val metrics = android.util.DisplayMetrics()
-            display.getRealMetrics(metrics)
+            val resolution: String
+            val dpi: String
 
-            val resolution = "${metrics.widthPixels}x${metrics.heightPixels}"
-            val dpi = "${metrics.densityDpi}"
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val metrics = windowManager.currentWindowMetrics
+                val bounds = metrics.bounds
+                resolution = "${bounds.width()}x${bounds.height()}"
+                dpi = "${context.resources.configuration.densityDpi}"
+            } else {
+                @Suppress("DEPRECATION")
+                val display = windowManager.defaultDisplay
+                @Suppress("DEPRECATION")
+                val metrics = android.util.DisplayMetrics()
+                @Suppress("DEPRECATION")
+                display.getRealMetrics(metrics)
+                resolution = "${metrics.widthPixels}x${metrics.heightPixels}"
+                dpi = "${metrics.densityDpi}"
+            }
 
             // Get refresh rate - hardcoded to 60-120Hz
             val refreshRate = "60-120Hz"
@@ -849,14 +855,14 @@ class SystemRepository @Inject constructor(
 
         // Get kernel version
         val version = readFileToString("/proc/version", "Kernel Version")
-            ?: android.os.Build.VERSION.RELEASE
+            ?: Build.VERSION.RELEASE
 
         // Improved GKI type detection with version-based detection
         val gkiType = when {
             // Check for specific GKI patterns first (more specific)
             version.contains("gki", ignoreCase = true) ||
             version.contains("generic kernel image", ignoreCase = true) ||
-            android.os.Build.VERSION.RELEASE.contains("gki", ignoreCase = true) -> "Generic Kernel Image (GKI)"
+            Build.VERSION.RELEASE.contains("gki", ignoreCase = true) -> "Generic Kernel Image (GKI)"
 
             // Check for Android Common Kernel patterns
             version.contains("android-mainline", ignoreCase = true) ||
@@ -876,14 +882,14 @@ class SystemRepository @Inject constructor(
                     kernelVersion != null && kernelVersion >= 5.4f -> "Generic Kernel Image (GKI 1.0)"
                     kernelVersion != null && kernelVersion >= 4.19f &&
                     (version.contains("android", ignoreCase = true) ||
-                     android.os.Build.VERSION.SDK_INT >= 29) -> "Generic Kernel Image (GKI)"
+                     Build.VERSION.SDK_INT >= 29) -> "Generic Kernel Image (GKI)"
                     version.contains("android", ignoreCase = true) -> "Android Kernel"
                     else -> "Linux Kernel $kernelVersion"
                 }
             }
 
             // Check build fingerprint for additional clues
-            android.os.Build.FINGERPRINT.contains("gki", ignoreCase = true) -> "Generic Kernel Image (GKI)"
+            Build.FINGERPRINT.contains("gki", ignoreCase = true) -> "Generic Kernel Image (GKI)"
 
             // Fallback check for android (less specific) - moved to lower priority
             version.contains("android", ignoreCase = true) -> "Android Kernel"
@@ -895,7 +901,7 @@ class SystemRepository @Inject constructor(
         val scheduler = readFileToString("/sys/block/sda/queue/scheduler", "I/O Scheduler")
             ?.let { schedulerLine ->
                 // Extract currently active scheduler (marked with brackets)
-                val activeSchedulerRegex = """\[([^\]]+)\]""".toRegex()
+                val activeSchedulerRegex = """\[([^]]+)]""".toRegex()
                 activeSchedulerRegex.find(schedulerLine)?.groupValues?.get(1) ?: schedulerLine.trim()
             } ?: run {
                 // Try alternative block devices
@@ -903,7 +909,7 @@ class SystemRepository @Inject constructor(
                 for (device in alternativeDevices) {
                     val altScheduler = readFileToString("/sys/block/$device/queue/scheduler", "I/O Scheduler ($device)")
                     if (altScheduler != null) {
-                        val activeSchedulerRegex = """\[([^\]]+)\]""".toRegex()
+                        val activeSchedulerRegex = """\[([^]]+)]""".toRegex()
                         val result = activeSchedulerRegex.find(altScheduler)?.groupValues?.get(1) ?: altScheduler.trim()
                         if (result.isNotBlank()) return@run result
                     }
@@ -934,7 +940,7 @@ class SystemRepository @Inject constructor(
         }
 
         // Get ABI
-        val abi = android.os.Build.SUPPORTED_ABIS.firstOrNull() ?: "Unknown"
+        val abi = Build.SUPPORTED_ABIS.firstOrNull() ?: "Unknown"
 
         // Get architecture
         val architecture = when {
@@ -1027,7 +1033,7 @@ class SystemRepository @Inject constructor(
 
                         if (exitCode == 0) {
                             val result = output.toString().trim()
-                            return if (result.isNotBlank()) result else null
+                            return result.ifBlank { null }
                         }
 
                     } catch (e: Exception) {
@@ -1119,7 +1125,7 @@ class SystemRepository @Inject constructor(
             abi = abi,
             architecture = architecture,
             kernelSuStatus = kernelSuStatus,
-            fingerprint = android.os.Build.FINGERPRINT
+            fingerprint = Build.FINGERPRINT
         )
     }
 
@@ -1272,7 +1278,7 @@ class SystemRepository @Inject constructor(
             val result = readFileToString(path, "I/O Scheduler from $path")
             if (result != null) {
                 // Find the active scheduler (the one in brackets [scheduler])
-                val activeMatch = Regex("""\[(\w+)\]""").find(result)
+                val activeMatch = Regex("""\[(\w+)]""").find(result)
                 return activeMatch?.groupValues?.get(1) ?: "N/A"
             }
         }
@@ -1292,7 +1298,7 @@ class SystemRepository @Inject constructor(
             val result = readFileToString(path, "Available I/O Schedulers from $path")
             if (result != null) {
                 // Extract all schedulers, removing brackets from the active one
-                val schedulers = Regex("""\[(\w+)\]|(\w+)""")
+                val schedulers = Regex("""\[(\w+)]|(\w+)""")
                     .findAll(result)
                     .map { matchResult ->
                         val active = matchResult.groupValues[1]

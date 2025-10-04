@@ -17,7 +17,7 @@ class NkzApp : Application(), Configuration.Provider {
         Shell.enableVerboseLogging = true  // Enable during development
         Shell.setDefaultBuilder(
             Shell.Builder.create()
-                .setFlags(Shell.FLAG_REDIRECT_STDERR)
+                .setFlags(Shell.FLAG_REDIRECT_STDERR or Shell.FLAG_NON_ROOT_SHELL)
                 .setTimeout(10)
         )
 

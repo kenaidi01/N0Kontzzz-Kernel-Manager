@@ -11,15 +11,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import id.nkz.nokontzzzmanager.ui.dialog.TcpCongestionDialog
 import id.nkz.nokontzzzmanager.viewmodel.MiscViewModel
 import androidx.compose.runtime.collectAsState
 import id.nkz.nokontzzzmanager.ui.dialog.IoSchedulerDialog
+
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,7 +28,6 @@ fun MiscScreen(
     navController: NavController? = null,
     viewModel: MiscViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
 
     val kgslSkipZeroingEnabled by viewModel.kgslSkipZeroingEnabled.collectAsState()
     val isKgslFeatureAvailable by viewModel.isKgslFeatureAvailable.collectAsState()
@@ -222,7 +222,7 @@ fun TcpCongestionControlCard(
                     )
                 }
                 Icon(
-                    imageVector = Icons.Default.KeyboardArrowRight,
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = "Change algorithm",
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -286,7 +286,7 @@ fun IoSchedulerCard(
                     )
                 }
                 Icon(
-                    imageVector = Icons.Default.KeyboardArrowRight,
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = "Change scheduler",
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )

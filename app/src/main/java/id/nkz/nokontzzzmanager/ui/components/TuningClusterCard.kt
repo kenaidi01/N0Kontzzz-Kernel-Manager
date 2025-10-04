@@ -34,7 +34,6 @@ fun TuningClusterCard(
                     onValueChange = {},
                     label = { Text("Governor") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                    modifier = Modifier.menuAnchor()
                 )
                 ExposedDropdownMenu(
                     expanded = expanded,

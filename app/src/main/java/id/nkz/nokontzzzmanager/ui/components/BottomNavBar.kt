@@ -1,17 +1,16 @@
 package id.nkz.nokontzzzmanager.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
-// Removed: import androidx.compose.foundation.layout.padding, not directly used now
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.* // Import outlined icons
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.automirrored.filled.Help
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-// Removed: import androidx.compose.ui.graphics.Color // No longer needed by the helper for this approach
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight // Import FontWeight
-// Removed: import androidx.compose.ui.unit.dp // Not directly used now
+import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 
@@ -75,6 +74,6 @@ private fun getNavIcons(screen: String): Pair<ImageVector, ImageVector> { // Pai
         "tuning" -> Pair(Icons.Filled.Build, Icons.Outlined.Build) // Assuming Build has an Outlined version
         "misc" -> Pair(Icons.Filled.Tune, Icons.Outlined.Tune) // Changed icon
         // Fallback icons if a screen name doesn't match
-        else -> Pair(Icons.Filled.Help, Icons.Outlined.HelpOutline) // Example fallback
+        else -> Pair(Icons.AutoMirrored.Filled.Help, Icons.AutoMirrored.Outlined.HelpOutline) // Example fallback
     }
 }

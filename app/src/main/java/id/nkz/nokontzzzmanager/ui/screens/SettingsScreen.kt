@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import id.nkz.nokontzzzmanager.ui.viewmodel.SettingsViewModel
 import id.nkz.nokontzzzmanager.ui.theme.ThemeMode
@@ -47,17 +47,6 @@ fun SettingsScreen(
     // Perbarui key saat currentThemeMode berubah untuk memicu rekomposisi
     LaunchedEffect(currentThemeMode) {
         themeRefreshKey++ // Ini akan memicu rekomposisi komponen
-    }
-    
-    // Gunakan warna langsung dari color scheme untuk responsivitas lebih cepat
-    val colorScheme = MaterialTheme.colorScheme
-    val topBarContainerColor = colorScheme.surface
-    
-    // Tentukan tema gelap atau terang berdasarkan tema aplikasi, bukan sistem
-    val isDarkTheme = when (currentThemeMode) {
-        ThemeMode.LIGHT -> false
-        ThemeMode.DARK -> true
-        ThemeMode.SYSTEM_DEFAULT -> isSystemInDarkTheme()
     }
 
     Column(

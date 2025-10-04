@@ -1,5 +1,3 @@
-
-
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -16,7 +14,6 @@ android {
     defaultConfig {
         applicationId = "id.nkz.nokontzzzmanager"
         minSdk = 26
-        //noinspection OldTargetApi
         targetSdk = 35
         versionCode = 23
         versionName = "1.0.1-hotfix-1"
@@ -36,12 +33,12 @@ android {
     
     configurations.all {
         resolutionStrategy {
-            force("com.google.guava:guava:32.1.3-jre")
+            force(libs.guava)
         }
+        exclude(group = "com.google.guava", module = "listenablefuture")
     }
 }
 
-// Separate Kotlin configuration to avoid conflicts
 kotlin {
     compilerOptions { 
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) 
@@ -50,49 +47,50 @@ kotlin {
 
 dependencies {
     // Core & App
-    implementation("androidx.core:core-splashscreen:1.0.1")
-    implementation("androidx.core:core-ktx:1.17.0")
-    implementation("androidx.appcompat:appcompat:1.7.1")
-    implementation("androidx.activity:activity-compose:1.11.0")
+    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.material)
 
     // Compose
     implementation(platform(libs.androidx.compose.bom))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3:alpha")
-    implementation("androidx.compose.material:material-icons-extended")
-    debugImplementation("androidx.compose.ui:ui-tooling")
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.material.icons.extended)
+    debugImplementation(libs.androidx.ui.tooling)
 
     // Navigation & Lifecycle
-    implementation("androidx.navigation:navigation-compose:2.9.4")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.2")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.2")
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     // Hilt (Dependency Injection)
-    implementation("com.google.dagger:hilt-android:2.57.1")
-    kapt("com.google.dagger:hilt-compiler:2.57.1")
-    implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
-    implementation("androidx.hilt:hilt-work:1.3.0")
-    kaptTest("com.google.dagger:hilt-compiler:2.57.1")
-    testImplementation("com.google.dagger:hilt-android-testing:2.57.1")
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.hilt.work)
+    kaptTest(libs.hilt.compiler)
+    testImplementation(libs.hilt.android.testing)
 
     // Data
-    implementation("androidx.datastore:datastore-preferences:1.1.7")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.kotlinx.serialization.json)
 
     // Background Tasks
-    implementation("androidx.work:work-runtime-ktx:2.10.4")
+    implementation(libs.androidx.work.runtime.ktx)
 
     // Utility
-    implementation("com.github.topjohnwu.libsu:core:6.0.0")
-    implementation("io.coil-kt:coil-compose:2.7.0")
-    implementation("com.google.guava:guava:32.1.3-jre") {
-        exclude(mapOf("group" to "com.google.guava", "module" to "listenablefuture"))
+    implementation(libs.libsu)
+    implementation(libs.coil.compose)
+    implementation(libs.guava) {
+        exclude(group = "com.google.guava", module = "listenablefuture")
     }
 
     // Testing
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("androidx.test:core:1.7.0")
-    testImplementation("org.mockito:mockito-core:5.20.0")
-    testImplementation("org.robolectric:robolectric:4.16")
+    testImplementation(libs.junit)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.robolectric)
 }

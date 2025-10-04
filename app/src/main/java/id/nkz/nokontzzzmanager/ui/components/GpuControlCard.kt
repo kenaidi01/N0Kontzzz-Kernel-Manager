@@ -46,7 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import id.nkz.nokontzzzmanager.R
 import id.nkz.nokontzzzmanager.viewmodel.TuningViewModel
 import kotlinx.coroutines.launch
@@ -74,8 +74,6 @@ fun GpuControlCard(
     val availableGpuFrequencies by tuningViewModel.availableGpuFrequencies.collectAsState()
     val gpuPowerLevelRange by tuningViewModel.gpuPowerLevelRange.collectAsState()
     val currentGpuPowerLevel by tuningViewModel.currentGpuPowerLevel.collectAsState()
-    val openGlesDriver by tuningViewModel.currentOpenGlesDriver.collectAsState()
-    val vulkanVersion by tuningViewModel.vulkanApiVersion.collectAsState()
     val currentRenderer by tuningViewModel.currentGpuRenderer.collectAsState()
     val availableRenderers = tuningViewModel.availableGpuRenderers
     

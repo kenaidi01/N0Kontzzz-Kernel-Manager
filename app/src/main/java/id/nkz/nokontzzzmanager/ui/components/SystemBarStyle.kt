@@ -2,7 +2,6 @@ package id.nkz.nokontzzzmanager.ui.components
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import androidx.activity.ComponentActivity
@@ -24,9 +23,6 @@ fun CustomSystemBarStyle(
 
     SideEffect {
         WindowCompat.setDecorFitsSystemWindows(activity.window, false)
-
-        activity.window.statusBarColor = statusBarScrim.toArgb()
-        activity.window.navigationBarColor = navigationBarScrim.toArgb()
 
         val controller = WindowCompat.getInsetsController(activity.window, activity.window.decorView)
         controller.isAppearanceLightStatusBars = !darkMode
