@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2025 Rve <rve27github @gmail.com>
  * All Rights Reserved.
@@ -5,10 +6,14 @@
 package id.nkz.nokontzzzmanager.ui.theme
 
 import android.app.Activity
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.MotionScheme.Companion.expressive
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
@@ -31,6 +36,8 @@ private fun Color.blend(other: Color, ratio: Float): Color {
     )
 }
 
+@RequiresApi(Build.VERSION_CODES.S)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun RvKernelManagerTheme(
     themeManager: ThemeManager,
@@ -79,5 +86,6 @@ fun RvKernelManagerTheme(
         colorScheme = colorScheme,
         typography = AppTypography,
         content = content,
+        motionScheme = expressive()
     )
 }
