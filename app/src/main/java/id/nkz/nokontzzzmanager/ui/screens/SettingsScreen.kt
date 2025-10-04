@@ -179,14 +179,16 @@ fun SettingsScreen(
                 .padding(vertical = 16.dp),
             contentAlignment = Alignment.Center
         ) {
-            val versionName = try {
+            val versionInfo = try {
                 val pInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-                pInfo.versionName
+                val versionName = pInfo.versionName
+                val versionCode = androidx.core.content.pm.PackageInfoCompat.getLongVersionCode(pInfo)
+                "Version $versionName ($versionCode)"
             } catch (e: Exception) {
-                "N/A"
+                "Version N/A"
             }
             Text(
-                text = "Version $versionName",
+                text = versionInfo,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
