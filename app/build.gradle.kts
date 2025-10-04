@@ -1,7 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("kotlin-kapt")
+    alias(libs.plugins.ksp)
     id("com.google.dagger.hilt.android")
     id("kotlinx-serialization")
     alias(libs.plugins.kotlin.compose)
@@ -68,15 +68,16 @@ dependencies {
 
     // Hilt (Dependency Injection)
     implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
+    ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.hilt.work)
-    kaptTest(libs.hilt.compiler)
+    kspTest(libs.hilt.compiler)
     testImplementation(libs.hilt.android.testing)
 
     // Data
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.collections.immutable)
 
     // Background Tasks
     implementation(libs.androidx.work.runtime.ktx)
