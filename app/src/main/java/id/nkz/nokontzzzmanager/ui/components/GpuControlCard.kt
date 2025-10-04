@@ -543,7 +543,7 @@ fun GpuControlCard(
                     }
                 } else {
                     LazyColumn {
-                        items(availableGovernors) { governor ->
+                        items(availableGovernors, key = { it }) { governor ->
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -600,7 +600,7 @@ fun GpuControlCard(
             },
             text = {
                 LazyColumn {
-                    items(availableRenderers) { renderer ->
+                    items(availableRenderers, key = { it }) { renderer ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -691,7 +691,7 @@ fun GpuControlCard(
                     }
                 } else {
                     LazyColumn {
-                        items(availableGpuFrequencies.sorted()) { frequency ->
+                        items(availableGpuFrequencies.sorted(), key = { it }) { frequency ->
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -758,7 +758,7 @@ fun GpuControlCard(
                     }
                 } else {
                     LazyColumn {
-                        items(availableGpuFrequencies.sorted()) { frequency ->
+                        items(availableGpuFrequencies.sorted(), key = { it }) { frequency ->
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()

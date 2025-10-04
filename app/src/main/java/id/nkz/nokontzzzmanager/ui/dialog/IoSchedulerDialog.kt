@@ -33,7 +33,7 @@ fun IoSchedulerDialog(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(availableSchedulers) { scheduler ->
+                items(availableSchedulers, key = { it }) { scheduler ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()

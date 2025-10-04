@@ -35,7 +35,7 @@ fun TcpCongestionDialog(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(availableAlgorithms) { algorithm ->
+                items(availableAlgorithms, key = { it }) { algorithm ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
