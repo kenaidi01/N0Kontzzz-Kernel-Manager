@@ -230,6 +230,24 @@ class TuningRepository @Inject constructor(
         emit(readShellCommand("cat $zramInitStatePath").trim() == "1")
     }.flowOn(Dispatchers.IO)
 
+    fun getZramUsed(): Flow<Long> = flow {
+        val mmStat = readShellCommand("cat /sys/block/zram0/mm_stat").trim()
+        val stats = mmStat.split("\\s+".toRegex())
+        // mem_used_total is the 4th value in mm_stat
+        val usedBytes = if (stats.size >= 4) stats[3].toLongOrNull() ?: 0L else 0L
+        emit(usedBytes)
+    }.flowOn(Dispatchers.IO)
+
+    fun getSwapUsed(): Flow<Long> = flow {
+        val swapInfo = readShellCommand("cat /proc/swaps")
+        val totalUsedKb = swapInfo.lines()
+            .drop(1) // Skip header line
+            .map { it.trim().split("\\s+".toRegex()) }
+            .filter { it.size >= 4 }
+            .sumOf { it[3].toLongOrNull() ?: 0L }
+        emit(totalUsedKb * 1024) // Convert KB to Bytes
+    }.flowOn(Dispatchers.IO)
+
     fun setCompressionAlgorithm(algo: String): Boolean {
         val currentSize = readShellCommand("cat $zramDisksizePath").toLongOrNull() ?: 0L
         if (readShellCommand("if [ -e $zramControlPath ]; then echo 1; else echo 0; fi").trim() != "1") {

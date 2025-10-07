@@ -498,15 +498,26 @@ class SystemRepository @Inject constructor(
         return getBatteryInfoInternal()
     }
 
-    private fun getMemoryInfoInternal(): MemoryInfo {
+    private suspend fun getMemoryInfoInternal(): MemoryInfo {
         return try {
             val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as android.app.ActivityManager
             val memoryInfo = android.app.ActivityManager.MemoryInfo()
             activityManager.getMemoryInfo(memoryInfo)
+
+            // Fetch ZRAM and Swap details from TuningRepository
+            val zramTotal = tuningRepository.getZramDisksize().firstOrNull() ?: 0L
+            val zramUsed = tuningRepository.getZramUsed().firstOrNull() ?: 0L
+            val swapTotal = tuningRepository.getSwapSize().firstOrNull() ?: 0L
+            val swapUsed = tuningRepository.getSwapUsed().firstOrNull() ?: 0L
+
             MemoryInfo(
                 used = memoryInfo.totalMem - memoryInfo.availMem,
                 total = memoryInfo.totalMem,
-                free = memoryInfo.availMem
+                free = memoryInfo.availMem,
+                zramTotal = zramTotal,
+                zramUsed = zramUsed,
+                swapTotal = swapTotal,
+                swapUsed = swapUsed
             )
         } catch (e: Exception) {
             Log.e(TAG, "Gagal mengambil MemoryInfo", e)
@@ -516,7 +527,7 @@ class SystemRepository @Inject constructor(
 
     fun getMemoryInfo(): MemoryInfo {
         Log.w(TAG, "Panggilan getMemoryInfo() sinkron. Disarankan menggunakan Flow untuk update realtime.")
-        return getMemoryInfoInternal()
+        return runBlocking { getMemoryInfoInternal() }
     }
 
     private suspend fun getGpuModel(): String {
