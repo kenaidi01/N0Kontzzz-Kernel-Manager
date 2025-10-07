@@ -187,8 +187,88 @@ private fun CpuCoresSection(info: RealtimeCpuInfo, clusters: ImmutableList<CpuCl
         
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Display cluster information with max frequencies
+        // --- Active Cores Section ---
+        val activeCoresFreq = info.freqs
+        val itemsPerRow = 4 // Fixed at 4 as per the layout description
+        val totalCores = activeCoresFreq.size
+
+        activeCoresFreq.chunked(itemsPerRow).forEachIndexed { rowIndex, freqsInRow ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(2.dp) // Horizontal spacing set to 2dp
+            ) {
+                freqsInRow.forEachIndexed { cardIndexInRow, freq ->
+                    val absoluteIndex = rowIndex * itemsPerRow + cardIndexInRow
+                    
+                    val shape = when (absoluteIndex) {
+                        0 -> RoundedCornerShape(topStart = 12.dp, topEnd = 4.dp, bottomStart = 4.dp, bottomEnd = 4.dp)
+                        3 -> RoundedCornerShape(topStart = 4.dp, topEnd = 12.dp, bottomStart = 4.dp, bottomEnd = 4.dp)
+                        4 -> RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomStart = 12.dp, bottomEnd = 4.dp)
+                        7 -> RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomStart = 4.dp, bottomEnd = 12.dp)
+                        else -> RoundedCornerShape(4.dp)
+                    }
+
+                    Surface(
+                        modifier = Modifier.weight(1f),
+                        shape = shape, // Apply conditional shape
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp, horizontal = 6.dp)
+                        ) {
+                            Text(
+                                text = "Core $absoluteIndex", // Use absolute index
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            if (freq == 0) {
+                                Text(
+                                    text = stringResource(R.string.cpu_core_offline),
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                )
+                            } else {
+                                Text(
+                                    text = "$freq",
+                                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
+                                Text(
+                                    text = "MHz",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                                )
+                            }
+                        }
+                    }
+                }
+                // Fill remaining space in the row if chunk size is not met
+                repeat((itemsPerRow - freqsInRow.size).coerceAtLeast(0)) {
+                    Spacer(Modifier.weight(1f))
+                }
+            }
+            if (rowIndex < (totalCores - 1) / itemsPerRow) {
+                Spacer(modifier = Modifier.height(2.dp)) // Vertical spacing set to 2dp
+            }
+        }
+
+        // Add a spacer between the two sections
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // --- CPU Clusters Section ---
         if (clusters.isNotEmpty()) {
+            Text(
+                text = "CPU Clusters", // Title for this section
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(8.dp))
             clusters.forEachIndexed { index, cluster ->
                 if (index > 0) {
                     Spacer(modifier = Modifier.height(2.dp))
@@ -196,9 +276,9 @@ private fun CpuCoresSection(info: RealtimeCpuInfo, clusters: ImmutableList<CpuCl
                 // Determine rounded corners based on position
                 val shape = when {
                     index == 0 && index == clusters.size - 1 -> RoundedCornerShape(12.dp) // Only item
-                    index == 0 -> RoundedCornerShape(12.dp, 12.dp, 4.dp, 4.dp) // First item: top corners 24dp, bottom 8dp
-                    index == clusters.size - 1 -> RoundedCornerShape(4.dp, 4.dp, 12.dp, 12.dp) // Last item: top corners 8dp, bottom 24dp
-                    else -> RoundedCornerShape(4.dp) // Middle items: all corners 8dp
+                    index == 0 -> RoundedCornerShape(12.dp, 12.dp, 4.dp, 4.dp) // First item
+                    index == clusters.size - 1 -> RoundedCornerShape(4.dp, 4.dp, 12.dp, 12.dp) // Last item
+                    else -> RoundedCornerShape(4.dp) // Middle items
                 }
 
                 Surface(
@@ -229,64 +309,6 @@ private fun CpuCoresSection(info: RealtimeCpuInfo, clusters: ImmutableList<CpuCl
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
-                    }
-                }
-            }
-        } else {
-            // Fallback to original core display if no cluster info available
-            val activeCoresFreq = info.freqs
-            // Group cores for better layout, e.g., 2 columns if many cores
-            val itemsPerRow = if (activeCoresFreq.size > 4) 4 else activeCoresFreq.size.coerceAtLeast(1)
-
-            activeCoresFreq.chunked(itemsPerRow).forEach { freqsInRow ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    freqsInRow.forEachIndexed { index, freq ->
-                        Surface( // Use Surface for each core item
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 12.dp, horizontal = 6.dp) // Adjusted padding
-                            ) {
-                                Text(
-                                    text = "Core ${info.freqs.indexOf(freq)}", // Display Core Index
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                if (freq == 0) {
-                                    Text(
-                                        text = stringResource(R.string.cpu_core_offline),
-                                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                    )
-                                } else {
-                                    Text(
-                                        text = "$freq",
-                                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
-                                        color = MaterialTheme.colorScheme.primary,
-                                    )
-                                    Text(
-                                        text = "MHz",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    // Fill remaining space in the row if chunk size is not met
-                    repeat((itemsPerRow - freqsInRow.size).coerceAtLeast(0)) {
-                        Spacer(Modifier.weight(1f))
                     }
                 }
             }
