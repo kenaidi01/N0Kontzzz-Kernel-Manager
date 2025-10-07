@@ -34,7 +34,7 @@ private fun Context.findActivity(): Activity? = when (this) {
     else -> null
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.animation.ExperimentalAnimationApi::class)
 @Composable
 fun HomeScreen(
     navController: NavController
@@ -82,83 +82,94 @@ fun HomeScreen(
             }
     }
 
-    LazyColumn(
-        state = lazyListState,
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(2.dp)
+    var visible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        visible = true
+    }
+
+    androidx.compose.animation.AnimatedVisibility(
+        visible = visible,
+        enter = androidx.compose.animation.fadeIn(animationSpec = androidx.compose.animation.core.tween(300)) + androidx.compose.animation.scaleIn(initialScale = 0.92f, animationSpec = androidx.compose.animation.core.tween(300)),
+        exit = androidx.compose.animation.fadeOut(animationSpec = androidx.compose.animation.core.tween(150))
     ) {
-        if (isLoading) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillParentMaxSize()
-                        .padding(bottom = 100.dp), // Adjust padding to better center the indicator
-                    contentAlignment = Alignment.Center
-                ) {
-                    IndeterminateExpressiveLoadingIndicator()
-                }
-            }
-        } else {
-            /* 1. CPU */
-            item {
-                val currentSystemInfo = systemInfoState
-                val clusters = cpuClusters
-                if (clusters != null) {
-                    val socNameToDisplay = currentSystemInfo?.soc?.takeIf { it.isNotBlank() && it != "Unknown" } ?: cpuInfo.soc.takeIf { it.isNotBlank() && it != "Unknown SoC" && it != "N/A" } ?: "CPU"
-                    CpuCard(socNameToDisplay, cpuInfo, clusters, false, Modifier, graphDataViewModel)
-                } else {
-                    // Show a smaller placeholder if just this data is missing
-                    Card(modifier = Modifier.fillMaxWidth().height(150.dp)) { /* Placeholder */ }
-                }
-            }
-
-            /* 2. GPU */
-            item {
-                GpuCard(gpuInfo, Modifier, graphDataViewModel)
-            }
-
-            /* 3. Merged card */
-            item {
-                val currentBattery = batteryInfo
-                val currentMemory = memoryInfo
-                val currentDeepSleep = deepSleepInfo
-                val currentRoot = rootStatus
-                val currentVersion = appVersion
-                val currentSystem = systemInfoState
-
-                if (currentBattery != null && currentMemory != null && currentDeepSleep != null &&
-                    currentRoot != null && currentVersion != null && currentSystem != null) {
-                    MergedSystemCard(
-                        b = currentBattery,
-                        d = currentDeepSleep,
-                        rooted = currentRoot,
-                        version = currentVersion,
-                        mem = currentMemory,
-                        systemInfo = currentSystem,
-                        storageInfo = storageInfo,
+        LazyColumn(
+            state = lazyListState,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            if (isLoading) {
+                item {
+                    Box(
                         modifier = Modifier
-                    )
-                } else {
-                    // Placeholder for the merged card while data is loading
-                    Card(modifier = Modifier.fillMaxWidth().height(200.dp)) { /* Placeholder */ }
+                            .fillParentMaxSize()
+                            .padding(bottom = 100.dp), // Adjust padding to better center the indicator
+                        contentAlignment = Alignment.Center
+                    ) {
+                        IndeterminateExpressiveLoadingIndicator()
+                    }
                 }
-            }
-
-            /* 4. Kernel */
-            item {
-                val currentKernel = kernelInfo
-                if (currentKernel != null) {
-                    KernelCard(currentKernel, Modifier)
-                } else {
-                    // Optional: Placeholder for KernelCard while data is loading
-                    Card(modifier = Modifier.fillMaxWidth().height(100.dp)) { /* Placeholder */ }
+            } else {
+                /* 1. CPU */
+                item {
+                    val currentSystemInfo = systemInfoState
+                    val clusters = cpuClusters
+                    if (clusters != null) {
+                        val socNameToDisplay = currentSystemInfo?.soc?.takeIf { it.isNotBlank() && it != "Unknown" } ?: cpuInfo.soc.takeIf { it.isNotBlank() && it != "Unknown SoC" && it != "N/A" } ?: "CPU"
+                        CpuCard(socNameToDisplay, cpuInfo, clusters, false, Modifier, graphDataViewModel)
+                    } else {
+                        // Show a smaller placeholder if just this data is missing
+                        Card(modifier = Modifier.fillMaxWidth().height(150.dp)) { /* Placeholder */ }
+                    }
                 }
-            }
 
-            /* 5. About */
-            item {
-                AboutCard(false, Modifier)
+                /* 2. GPU */
+                item {
+                    GpuCard(gpuInfo, Modifier, graphDataViewModel)
+                }
+
+                /* 3. Merged card */
+                item {
+                    val currentBattery = batteryInfo
+                    val currentMemory = memoryInfo
+                    val currentDeepSleep = deepSleepInfo
+                    val currentRoot = rootStatus
+                    val currentVersion = appVersion
+                    val currentSystem = systemInfoState
+
+                    if (currentBattery != null && currentMemory != null && currentDeepSleep != null &&
+                        currentRoot != null && currentVersion != null && currentSystem != null) {
+                        MergedSystemCard(
+                            b = currentBattery,
+                            d = currentDeepSleep,
+                            rooted = currentRoot,
+                            version = currentVersion,
+                            mem = currentMemory,
+                            systemInfo = currentSystem,
+                            storageInfo = storageInfo,
+                            modifier = Modifier
+                        )
+                    } else {
+                        // Placeholder for the merged card while data is loading
+                        Card(modifier = Modifier.fillMaxWidth().height(200.dp)) { /* Placeholder */ }
+                    }
+                }
+
+                /* 4. Kernel */
+                item {
+                    val currentKernel = kernelInfo
+                    if (currentKernel != null) {
+                        KernelCard(currentKernel, Modifier)
+                    } else {
+                        // Optional: Placeholder for KernelCard while data is loading
+                        Card(modifier = Modifier.fillMaxWidth().height(100.dp)) { /* Placeholder */ }
+                    }
+                }
+
+                /* 5. About */
+                item {
+                    AboutCard(false, Modifier)
+                }
             }
         }
     }
