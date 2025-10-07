@@ -25,6 +25,7 @@ fun BottomNavBar(navController: NavHostController, items: List<String>, isAmoled
         modifier = Modifier.fillMaxWidth(),
         containerColor = containerColor
     ) {
+        val bottomNavRoutes = items.map { it.lowercase() }
         items.forEach { screen ->
             val selected = currentRoute == screen.lowercase()
             val (filledIcon, outlinedIcon) = getNavIcons(screen)
@@ -35,17 +36,14 @@ fun BottomNavBar(navController: NavHostController, items: List<String>, isAmoled
                 onClick = {
                     val targetRoute = screen.lowercase()
                     if (currentRoute != targetRoute) {
+                        if (currentRoute != null && currentRoute !in bottomNavRoutes) {
+                            navController.popBackStack()
+                        }
                         navController.navigate(targetRoute) {
-                            // Pop up to the start destination of the graph to
-                            // avoid building up a large stack of destinations
-                            // on the back stack as users select items
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
                             }
-                            // Avoid multiple copies of the same destination when
-                            // reselecting the same item
                             launchSingleTop = true
-                            // Restore state when reselecting a previously selected item
                             restoreState = true
                         }
                     }
