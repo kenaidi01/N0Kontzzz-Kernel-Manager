@@ -25,6 +25,7 @@ import id.nkz.nokontzzzmanager.ui.components.MergedSystemCard
 import id.nkz.nokontzzzmanager.ui.viewmodel.StorageInfoViewModel
 import id.nkz.nokontzzzmanager.viewmodel.GraphDataViewModel
 import id.nkz.nokontzzzmanager.viewmodel.HomeViewModel
+import kotlinx.coroutines.launch
 import kotlin.text.isNotBlank
 
 // Helper function to safely find an Activity from a Context.
@@ -73,6 +74,22 @@ fun HomeScreen(
     val isLoading by vm.isLoading.collectAsState()
 
     val lazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
+    // Listen for destination changes to reset scroll state
+    DisposableEffect(navController) {
+        val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
+            if (destination.route == "home") {
+                coroutineScope.launch {
+                    lazyListState.scrollToItem(0)
+                }
+            }
+        }
+        navController.addOnDestinationChangedListener(listener)
+        onDispose {
+            navController.removeOnDestinationChangedListener(listener)
+        }
+    }
 
     // Notify the ViewModel about the scroll state to pause data updates during scroll
     LaunchedEffect(lazyListState) {

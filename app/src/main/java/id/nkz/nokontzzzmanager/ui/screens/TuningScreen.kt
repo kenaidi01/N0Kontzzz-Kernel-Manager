@@ -31,6 +31,7 @@ import id.nkz.nokontzzzmanager.ui.components.GpuControlCard
 import id.nkz.nokontzzzmanager.ui.components.SwappinessCard
 import id.nkz.nokontzzzmanager.ui.components.ThermalCard
 import id.nkz.nokontzzzmanager.viewmodel.TuningViewModel
+import kotlinx.coroutines.launch
 
 
 data class FeatureText(
@@ -86,6 +87,8 @@ fun TuningScreen(
     viewModel: TuningViewModel = hiltViewModel()
 ) {
     var showInfoDialog by remember { mutableStateOf(false) }
+    val lazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
 
     // Data is now loaded lazily. The LaunchedEffect triggers data loading
     // after the UI is composed, making the screen appear instantly.
@@ -97,7 +100,23 @@ fun TuningScreen(
         viewModel.loadRamData()
     }
 
+    // Listen for destination changes to reset scroll state
+    DisposableEffect(navController) {
+        val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
+            if (destination.route == "tuning") {
+                coroutineScope.launch {
+                    lazyListState.scrollToItem(0)
+                }
+            }
+        }
+        navController?.addOnDestinationChangedListener(listener)
+        onDispose {
+            navController?.removeOnDestinationChangedListener(listener)
+        }
+    }
+
     LazyColumn(
+        state = lazyListState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp)

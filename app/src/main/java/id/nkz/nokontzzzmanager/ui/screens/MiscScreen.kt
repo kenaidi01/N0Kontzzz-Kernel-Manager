@@ -2,9 +2,7 @@ package id.nkz.nokontzzzmanager.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -22,6 +20,7 @@ import androidx.compose.runtime.collectAsState
 import id.nkz.nokontzzzmanager.ui.dialog.IoSchedulerDialog
 
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,15 +28,33 @@ fun MiscScreen(
     navController: NavController? = null,
     viewModel: MiscViewModel = hiltViewModel()
 ) {
+    val lazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         viewModel.loadInitialData()
+    }
+
+    // Listen for destination changes to reset scroll state
+    DisposableEffect(navController) {
+        val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
+            if (destination.route == "misc") {
+                coroutineScope.launch {
+                    lazyListState.scrollToItem(0)
+                }
+            }
+        }
+        navController?.addOnDestinationChangedListener(listener)
+        onDispose {
+            navController?.removeOnDestinationChangedListener(listener)
+        }
     }
 
     val kgslSkipZeroingEnabled by viewModel.kgslSkipZeroingEnabled.collectAsState()
     val isKgslFeatureAvailable by viewModel.isKgslFeatureAvailable.collectAsState()
 
     LazyColumn(
+        state = lazyListState,
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
