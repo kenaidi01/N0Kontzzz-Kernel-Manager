@@ -1,6 +1,7 @@
 package id.nkz.nokontzzzmanager.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -29,42 +30,52 @@ fun MiscScreen(
     viewModel: MiscViewModel = hiltViewModel()
 ) {
 
+    LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(150)
+        viewModel.loadInitialData()
+    }
+
     val kgslSkipZeroingEnabled by viewModel.kgslSkipZeroingEnabled.collectAsState()
     val isKgslFeatureAvailable by viewModel.isKgslFeatureAvailable.collectAsState()
 
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         // KGSL Skip Pool Zeroing feature
-        KgslSkipZeroingCard(
-            kgslSkipZeroingEnabled = kgslSkipZeroingEnabled,
-            isKgslFeatureAvailable = isKgslFeatureAvailable,
-            onToggleKgslSkipZeroing = { enabled ->
-                viewModel.toggleKgslSkipZeroing(enabled)
-            }
-        )
+        item {
+            KgslSkipZeroingCard(
+                kgslSkipZeroingEnabled = kgslSkipZeroingEnabled,
+                isKgslFeatureAvailable = isKgslFeatureAvailable,
+                onToggleKgslSkipZeroing = { enabled ->
+                    viewModel.toggleKgslSkipZeroing(enabled)
+                }
+            )
+        }
         
         // TCP Congestion Control Algorithm feature
-        TcpCongestionControlCard(
-            tcpCongestionAlgorithm = viewModel.tcpCongestionAlgorithm.collectAsState().value,
-            availableAlgorithms = viewModel.availableTcpCongestionAlgorithms.collectAsState().value,
-            onAlgorithmChange = { algorithm ->
-                viewModel.updateTcpCongestionAlgorithm(algorithm)
-            }
-        )
+        item {
+            TcpCongestionControlCard(
+                tcpCongestionAlgorithm = viewModel.tcpCongestionAlgorithm.collectAsState().value,
+                availableAlgorithms = viewModel.availableTcpCongestionAlgorithms.collectAsState().value,
+                onAlgorithmChange = { algorithm ->
+                    viewModel.updateTcpCongestionAlgorithm(algorithm)
+                }
+            )
+        }
         
         // I/O Scheduler feature
-        IoSchedulerCard(
-            ioScheduler = viewModel.ioScheduler.collectAsState().value,
-            availableSchedulers = viewModel.availableIoSchedulers.collectAsState().value,
-            onSchedulerChange = { scheduler ->
-                viewModel.updateIoScheduler(scheduler)
-            }
-        )
+        item {
+            IoSchedulerCard(
+                ioScheduler = viewModel.ioScheduler.collectAsState().value,
+                availableSchedulers = viewModel.availableIoSchedulers.collectAsState().value,
+                onSchedulerChange = { scheduler ->
+                    viewModel.updateIoScheduler(scheduler)
+                }
+            )
+        }
     }
 }
 
@@ -216,7 +227,7 @@ fun TcpCongestionControlCard(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = if (tcpCongestionAlgorithm.isNotEmpty()) tcpCongestionAlgorithm else "Unknown",
+                        text = tcpCongestionAlgorithm.ifEmpty { "Unknown" },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -280,7 +291,7 @@ fun IoSchedulerCard(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = if (ioScheduler.isNotEmpty()) ioScheduler else "Unknown",
+                        text = ioScheduler.ifEmpty { "Unknown" },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

@@ -89,10 +89,7 @@ fun GpuControlCard(
 
     // Load GPU data when component is first composed
     LaunchedEffect(Unit) {
-        tuningViewModel.fetchGpuData()
-        tuningViewModel.fetchOpenGlesDriver()
-        tuningViewModel.fetchVulkanApiVersion()
-        tuningViewModel.fetchCurrentGpuRenderer()
+        tuningViewModel.loadGpuData()
     }
 
     // Animation values - Simplified MD3 animation

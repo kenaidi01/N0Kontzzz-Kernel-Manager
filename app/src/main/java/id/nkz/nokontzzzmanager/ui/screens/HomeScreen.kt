@@ -5,10 +5,11 @@ import android.content.Context
 import android.content.ContextWrapper
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -54,6 +55,12 @@ fun HomeScreen(
         viewModel()
     }
 
+    // Trigger the one-time data load after a short delay to allow animations to finish
+    LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(150)
+        vm.loadInitialData()
+    }
+
     // Kumpulkan semua state dari ViewModel
     val cpuInfo by vm.cpuInfo.collectAsState()
     val gpuInfo by vm.gpuInfo.collectAsState()
@@ -66,33 +73,38 @@ fun HomeScreen(
     val systemInfoState by vm.systemInfo.collectAsState()
     val cpuClusters by vm.cpuClusters.collectAsState()
     val storageInfo by storageViewModel.storageInfo.collectAsState()
-    val isLoading by vm.isLoading.collectAsState()
 
-    if (isLoading) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            IndeterminateExpressiveLoadingIndicator()
-        }
-    } else {
-        Column(
-            Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
+    val lazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
 
-            /* 1. CPU */
+    // Notify the ViewModel about the scroll state to pause data updates during scroll
+    LaunchedEffect(lazyListState) {
+        snapshotFlow { lazyListState.isScrollInProgress }
+            .collect { isScrolling ->
+                vm.setScrolling(isScrolling)
+            }
+    }
+
+    LazyColumn(
+        state = lazyListState,
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+
+        /* 1. CPU */
+        item {
             val currentSystemInfo = systemInfoState
             val socNameToDisplay = currentSystemInfo?.soc?.takeIf { it.isNotBlank() && it != "Unknown" } ?: cpuInfo.soc.takeIf { it.isNotBlank() && it != "Unknown SoC" && it != "N/A" } ?: "CPU"
             CpuCard(socNameToDisplay, cpuInfo, cpuClusters, false, Modifier, graphDataViewModel)
+        }
 
-            /* 2. GPU */
+        /* 2. GPU */
+        item {
             GpuCard(gpuInfo, Modifier, graphDataViewModel)
+        }
 
-            /* 3. Merged card */
+        /* 3. Merged card */
+        item {
             val currentBattery = batteryInfo
             val currentMemory = memoryInfo
             val currentDeepSleep = deepSleepInfo
@@ -113,20 +125,25 @@ fun HomeScreen(
                     modifier = Modifier
                 )
             } else {
+                // Placeholder for the merged card while data is loading
                 Box(Modifier.fillMaxWidth().height(200.dp).background(Color.LightGray.copy(alpha = 0.5f))) {
                     IndeterminateExpressiveLoadingIndicator(modifier = Modifier.align(Alignment.Center))
                 }
             }
+        }
 
-            /* 4. Kernel */
+        /* 4. Kernel */
+        item {
             val currentKernel = kernelInfo
             if (currentKernel != null) {
                 KernelCard(currentKernel, Modifier)
             } else {
-                // Opsional: Placeholder untuk KernelCard
+                // Optional: Placeholder for KernelCard while data is loading
             }
+        }
 
-            /* 5. About */
+        /* 5. About */
+        item {
             AboutCard(false, Modifier)
         }
     }

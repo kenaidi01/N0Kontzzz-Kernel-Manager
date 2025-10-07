@@ -82,27 +82,42 @@ class HomeViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    private val _isScrolling = MutableStateFlow(false)
+
+    private val isInitialDataLoaded = java.util.concurrent.atomic.AtomicBoolean(false)
+
     init {
-        _isLoading.value = true
+        // The realtime flow is relatively lightweight to start collecting.
+        // It will begin emitting data as it becomes available.
         viewModelScope.launch {
             systemRepo.realtimeAggregatedInfoFlow
                 .catch { e ->
                     Log.e("HomeViewModel", "Error in realtimeAggregatedInfoFlow: ${e.message}", e)
-
                 }
                 .collect { aggregatedInfo ->
-                    _cpuInfo.value = aggregatedInfo.cpuInfo
-                    _gpuInfo.value = aggregatedInfo.gpuInfo
-                    _batteryInfo.value = aggregatedInfo.batteryInfo
-                    _memoryInfo.value = aggregatedInfo.memoryInfo
-                    _deepSleep.value = DeepSleepInfo(
-                        uptime = aggregatedInfo.uptimeMillis,
-                        deepSleep = aggregatedInfo.deepSleepMillis
-                    )
+                    if (!_isScrolling.value) {
+                        _cpuInfo.value = aggregatedInfo.cpuInfo
+                        _gpuInfo.value = aggregatedInfo.gpuInfo
+                        _batteryInfo.value = aggregatedInfo.batteryInfo
+                        _memoryInfo.value = aggregatedInfo.memoryInfo
+                        _deepSleep.value = DeepSleepInfo(
+                            uptime = aggregatedInfo.uptimeMillis,
+                            deepSleep = aggregatedInfo.deepSleepMillis
+                        )
+                    }
                 }
         }
+    }
 
-                viewModelScope.launch(Dispatchers.IO) {
+    fun setScrolling(isScrolling: Boolean) {
+        _isScrolling.value = isScrolling
+    }
+
+    fun loadInitialData() {
+        if (isInitialDataLoaded.getAndSet(true)) return
+
+        _isLoading.value = true
+        viewModelScope.launch(Dispatchers.IO) {
             val systemInfoDeferred = async { systemRepo.getSystemInfo() }
             val kernelInfoDeferred = async { systemRepo.getKernelInfo() }
             val rootStatusDeferred = async { rootRepo.isRooted() }

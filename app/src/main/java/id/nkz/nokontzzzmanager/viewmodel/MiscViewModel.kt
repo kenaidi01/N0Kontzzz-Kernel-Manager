@@ -37,7 +37,15 @@ class MiscViewModel @Inject constructor(
     private val _availableIoSchedulers = MutableStateFlow<List<String>>(emptyList())
     val availableIoSchedulers: StateFlow<List<String>> = _availableIoSchedulers.asStateFlow()
 
+    private val isDataLoaded = java.util.concurrent.atomic.AtomicBoolean(false)
+
     init {
+        // Data is now loaded lazily by the UI by calling loadInitialData()
+    }
+
+    fun loadInitialData() {
+        if (isDataLoaded.getAndSet(true)) return
+
         // Load saved preferences on init
         _kgslSkipZeroingEnabled.value = preferenceManager.getKgslSkipZeroing()
         

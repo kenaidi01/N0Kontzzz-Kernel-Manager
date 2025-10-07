@@ -7,6 +7,7 @@ import android.content.SharedPreferences
 import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,6 +17,7 @@ import id.nkz.nokontzzzmanager.data.repository.TuningRepository
 import id.nkz.nokontzzzmanager.service.ThermalService
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 @HiltViewModel
@@ -32,44 +34,11 @@ class TuningViewModel @Inject constructor(
     private val KEY_LAST_APPLIED_THERMAL_INDEX = "last_applied_thermal_index"
 
     val cpuClusters = listOf("cpu0", "cpu4", "cpu7")
-    
+
+    //<editor-fold desc="StateFlows">
     // Dynamic cluster information with proper names
     private val _dynamicCpuClusters = MutableStateFlow<List<String>>(emptyList())
     val dynamicCpuClusters: StateFlow<List<String>> = _dynamicCpuClusters.asStateFlow()
-    
-    init {
-        // Initialize dynamic cluster information
-        fetchDynamicCpuClusters()
-    }
-    
-    private fun fetchDynamicCpuClusters() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val clusters = systemRepo.getCpuClusters()
-                // Map the dynamic cluster names to the corresponding cpu cluster identifiers
-                val clusterNames = clusters.map { cluster ->
-                    when {
-                        cluster.name.contains("Little", ignoreCase = true) -> "cpu0"
-                        cluster.name.contains("Big", ignoreCase = true) -> "cpu4"
-                        cluster.name.contains("Prime", ignoreCase = true) -> "cpu7"
-                        else -> {
-                            // Fallback to original naming
-                            when (cluster.name) {
-                                "Efficiency Cluster" -> "cpu0"
-                                "Performance Cluster" -> "cpu7"
-                                else -> "cpu4" // Mid cluster
-                            }
-                        }
-                    }
-                }
-                _dynamicCpuClusters.value = clusterNames
-            } catch (e: Exception) {
-                Log.e("TuningViewModel", "Error fetching dynamic CPU clusters", e)
-                // Fallback to hardcoded values
-                _dynamicCpuClusters.value = cpuClusters
-            }
-        }
-    }
 
     /* ---------------- CPU ---------------- */
     private val _coreStates = MutableStateFlow(List(8) { true })
@@ -178,33 +147,99 @@ class TuningViewModel @Inject constructor(
     val maxZramSize: StateFlow<Long> = _maxZramSize.asStateFlow()
 
     /* ---------------- Thermal ---------------- */
-    private val _isTuningDataLoading = MutableStateFlow(true)
-    val isTuningDataLoading: StateFlow<Boolean> = _isTuningDataLoading.asStateFlow()
-
     private val _currentThermalModeIndex = MutableStateFlow(-1)
     val currentThermalModeIndex: StateFlow<Int> = _currentThermalModeIndex.asStateFlow()
 
     val currentThermalProfileName: StateFlow<String> =
-        combine(_currentThermalModeIndex, _isTuningDataLoading) { idx, loading ->
-            if (loading) "Loading..."
-            else thermalRepo.getCurrentThermalProfileName(idx)
+        _currentThermalModeIndex.map { idx ->
+            thermalRepo.getCurrentThermalProfileName(idx)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "Loading...")
 
     val supportedThermalProfiles: StateFlow<List<ThermalRepository.ThermalProfile>> =
         thermalRepo.getSupportedThermalProfiles()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    //</editor-fold>
+
+    //<editor-fold desc="Load Flags">
+    private val isCpuDataLoaded = AtomicBoolean(false)
+    private val isGpuDataLoaded = AtomicBoolean(false)
+    private val isRamDataLoaded = AtomicBoolean(false)
+    private val isThermalDataLoaded = AtomicBoolean(false)
+    //</editor-fold>
 
     /* ---------------- Init ---------------- */
     init {
         Log.d("TuningVM_Init", "ViewModel initializing...")
         initializeCpuStateFlows()
-        // Only fetch initial data if not already loaded
-        if (_isTuningDataLoading.value) {
-            fetchAllInitialData()
-        }
-        refreshCoreStates()
-        fetchRamControlData()
+        fetchDynamicCpuClusters()
         Log.d("TuningVM_Init", "ViewModel initialization complete.")
+    }
+
+    //<editor-fold desc="Lazy Load Functions">
+    fun loadCpuData() {
+        if (isCpuDataLoaded.getAndSet(true)) return
+        Log.d("TuningVM_LazyLoad", "Loading CPU data...")
+        viewModelScope.launch(Dispatchers.IO) {
+            fetchAllCpuData()
+            refreshCoreStates()
+        }
+    }
+
+    fun loadGpuData() {
+        if (isGpuDataLoaded.getAndSet(true)) return
+        Log.d("TuningVM_LazyLoad", "Loading GPU data...")
+        viewModelScope.launch(Dispatchers.IO) {
+            launch { fetchGpuData() }
+            launch { fetchOpenGlesDriver() }
+            launch { fetchCurrentGpuRenderer() }
+            launch { fetchVulkanApiVersion() }
+        }
+    }
+
+    fun loadRamData() {
+        if (isRamDataLoaded.getAndSet(true)) return
+        Log.d("TuningVM_LazyLoad", "Loading RAM data...")
+        viewModelScope.launch(Dispatchers.IO) {
+            fetchRamControlData()
+        }
+    }
+
+    fun loadThermalData() {
+        if (isThermalDataLoaded.getAndSet(true)) return
+        Log.d("TuningVM_LazyLoad", "Loading Thermal data...")
+        viewModelScope.launch(Dispatchers.IO) {
+            fetchCurrentThermalMode(isInitialLoad = true)
+        }
+    }
+    //</editor-fold>
+
+    private fun fetchDynamicCpuClusters() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val clusters = systemRepo.getCpuClusters()
+                // Map the dynamic cluster names to the corresponding cpu cluster identifiers
+                val clusterNames = clusters.map { cluster ->
+                    when {
+                        cluster.name.contains("Little", ignoreCase = true) -> "cpu0"
+                        cluster.name.contains("Big", ignoreCase = true) -> "cpu4"
+                        cluster.name.contains("Prime", ignoreCase = true) -> "cpu7"
+                        else -> {
+                            // Fallback to original naming
+                            when (cluster.name) {
+                                "Efficiency Cluster" -> "cpu0"
+                                "Performance Cluster" -> "cpu7"
+                                else -> "cpu4" // Mid cluster
+                            }
+                        }
+                    }
+                }
+                _dynamicCpuClusters.value = clusterNames
+            } catch (e: Exception) {
+                Log.e("TuningViewModel", "Error fetching dynamic CPU clusters", e)
+                // Fallback to hardcoded values
+                _dynamicCpuClusters.value = cpuClusters
+            }
+        }
     }
 
     /* ---------------- CPU ---------------- */
@@ -222,30 +257,30 @@ class TuningViewModel @Inject constructor(
         val tempFreqs = mutableMapOf<String, List<Int>>()
 
         try {
-            cpuClusters.forEach { cluster ->
-                coroutineScope {
-                    launch { 
+            coroutineScope {
+                cpuClusters.forEach { cluster ->
+                    launch {
                         try {
                             repo.getCpuGov(cluster).take(1).collect { _currentCpuGovernors[cluster]?.value = it }
                         } catch (e: Exception) {
                             Log.e("TuningVM_CPU", "Error fetching CPU governor for $cluster", e)
                         }
                     }
-                    launch { 
+                    launch {
                         try {
                             repo.getCpuFreq(cluster).take(1).collect { _currentCpuFrequencies[cluster]?.value = it }
                         } catch (e: Exception) {
                             Log.e("TuningVM_CPU", "Error fetching CPU frequency for $cluster", e)
                         }
                     }
-                    launch { 
+                    launch {
                         try {
                             repo.getAvailableCpuGovernors(cluster).collect { tempGovernors[cluster] = it }
                         } catch (e: Exception) {
                             Log.e("TuningVM_CPU", "Error fetching available CPU governors for $cluster", e)
                         }
                     }
-                    launch { 
+                    launch {
                         try {
                             repo.getAvailableCpuFrequencies(cluster).collect { tempFreqs[cluster] = it }
                         } catch (e: Exception) {
@@ -293,12 +328,12 @@ class TuningViewModel @Inject constructor(
         }
     }
 
-    fun refreshCoreStates() = viewModelScope.launch(Dispatchers.IO) {
+    private fun refreshCoreStates() = viewModelScope.launch(Dispatchers.IO) {
         _coreStates.value = (0 until 8).map { repo.getCoreOnline(it) }
     }
 
     /* ---------------- GPU ---------------- */
-    fun fetchGpuData() = viewModelScope.launch(Dispatchers.IO) {
+    private fun fetchGpuData() = viewModelScope.launch(Dispatchers.IO) {
         try {
             _availableGpuGovernors.value = repo.getAvailableGpuGovernors().first()
             _currentGpuGovernor.value = repo.getGpuGov().first()
@@ -325,7 +360,7 @@ class TuningViewModel @Inject constructor(
     fun setGpuMinFrequency(freqKHz: Int) = viewModelScope.launch(Dispatchers.IO) {
         repo.setGpuMinFreq(freqKHz)
         if (repo.setGpuMinFreq(freqKHz)) {
-            val (min, max) = repo.getGpuFreq().first()
+            val (min, _) = repo.getGpuFreq().first()
             _currentGpuMinFreq.value = min
             fetchGpuData()
         }
@@ -334,7 +369,7 @@ class TuningViewModel @Inject constructor(
     fun setGpuMaxFrequency(freqKHz: Int) = viewModelScope.launch(Dispatchers.IO) {
         repo.setGpuMaxFreq(freqKHz)
         if (repo.setGpuMaxFreq(freqKHz)) {
-            val (min, max) = repo.getGpuFreq().first()
+            val (_, max) = repo.getGpuFreq().first()
             _currentGpuMaxFreq.value = max
             fetchGpuData()
         }
@@ -357,17 +392,17 @@ class TuningViewModel @Inject constructor(
     }
 
     /* ---------------- OpenGL / Vulkan ---------------- */
-    internal fun fetchOpenGlesDriver() = viewModelScope.launch(Dispatchers.IO) {
+    private fun fetchOpenGlesDriver() = viewModelScope.launch(Dispatchers.IO) {
         repo.getOpenGlesDriver().collect { _currentOpenGlesDriver.value = it }
     }
 
-    internal fun fetchCurrentGpuRenderer() = viewModelScope.launch(Dispatchers.IO) {
+    private fun fetchCurrentGpuRenderer() = viewModelScope.launch(Dispatchers.IO) {
         repo.getGpuRenderer().collect { renderer ->
             _currentGpuRenderer.value = renderer
         }
     }
 
-    internal fun fetchVulkanApiVersion() = viewModelScope.launch(Dispatchers.IO) {
+    private fun fetchVulkanApiVersion() = viewModelScope.launch(Dispatchers.IO) {
         repo.getVulkanApiVersion().collect { version ->
             _vulkanApiVersion.value = version
         }
@@ -543,24 +578,21 @@ class TuningViewModel @Inject constructor(
 
     /* ---------------- Thermal ---------------- */
     private fun fetchCurrentThermalMode(isInitialLoad: Boolean = false) {
-        if (isInitialLoad) _isTuningDataLoading.value = true
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 thermalRepo.getCurrentThermalModeIndex()
                     .catch { e ->
                         Log.e("TuningVM_Thermal", "Error getting current thermal mode", e)
-                        if (isInitialLoad) applyLastSavedThermalProfile() else _isTuningDataLoading.value = false
+                        if (isInitialLoad) applyLastSavedThermalProfile()
                     }
                     .collect { index ->
                         _currentThermalModeIndex.value = index
-                        if (isInitialLoad) applyLastSavedThermalProfile() else _isTuningDataLoading.value = false
+                        if (isInitialLoad) applyLastSavedThermalProfile()
                     }
             } catch (e: Exception) {
                 Log.e("TuningVM_Thermal", "Error in fetchCurrentThermalMode", e)
                 if (isInitialLoad) {
                     applyLastSavedThermalProfile()
-                } else {
-                    _isTuningDataLoading.value = false
                 }
             }
         }
@@ -572,20 +604,17 @@ class TuningViewModel @Inject constructor(
             val profile = thermalRepo.availableThermalProfiles.find { it.index == idx }
             if (profile != null && _currentThermalModeIndex.value != idx) {
                 setThermalProfileInternal(profile, isRestoring = true)
-            } else {
-                _isTuningDataLoading.value = false
             }
         } catch (e: Exception) {
-            _isTuningDataLoading.value = false
+            // ignore
         }
     }
 
     private suspend fun setThermalProfileInternal(profile: ThermalRepository.ThermalProfile, isRestoring: Boolean) {
-        if (!isRestoring) _isTuningDataLoading.value = true
         thermalRepo.setThermalModeIndex(profile.index).collect { ok ->
             if (ok) {
                 _currentThermalModeIndex.value = profile.index
-                if (!isRestoring) thermalPrefs.edit().putInt(KEY_LAST_APPLIED_THERMAL_INDEX, profile.index).apply()
+                if (!isRestoring) thermalPrefs.edit { putInt(KEY_LAST_APPLIED_THERMAL_INDEX, profile.index) }
                 // For Dynamic mode (10), we need continuous monitoring
                 // For other modes, persistent scripts handle reboot persistence
                 if (profile.index == 10) {
@@ -610,7 +639,6 @@ class TuningViewModel @Inject constructor(
             } else {
                 fetchCurrentThermalMode()
             }
-            _isTuningDataLoading.value = false
         }
     }
 
@@ -622,44 +650,4 @@ class TuningViewModel @Inject constructor(
 
     fun setThermalProfile(profile: ThermalRepository.ThermalProfile) =
         viewModelScope.launch { setThermalProfileInternal(profile, isRestoring = false) }
-
-    /* ---------------- Init ---------------- */
-    private fun fetchAllInitialData() {
-        viewModelScope.launch {
-            _isTuningDataLoading.value = true
-            
-            // Set a timeout to ensure loading doesn't get stuck
-            val timeoutJob = launch {
-                delay(10000) // 10 seconds timeout
-                if (_isTuningDataLoading.value) {
-                    Log.w("TuningVM_Init", "Data fetch timeout, forcing loading to false")
-                    _isTuningDataLoading.value = false
-                }
-            }
-            
-            try {
-                // Launch all data fetching operations in parallel
-                val jobs = listOf(
-                    launch(Dispatchers.IO) { fetchAllCpuData() },
-                    launch(Dispatchers.IO) { fetchGpuData() },
-                    launch(Dispatchers.IO) { fetchCurrentThermalMode(isInitialLoad = true) },
-                    launch(Dispatchers.IO) { fetchOpenGlesDriver() },
-                    launch(Dispatchers.IO) { fetchCurrentGpuRenderer() },
-                    launch(Dispatchers.IO) { fetchVulkanApiVersion() },
-                    launch(Dispatchers.IO) { fetchRamControlData() }
-                )
-                
-                // Wait for all jobs to complete
-                jobs.forEach { it.join() }
-            } catch (e: Exception) {
-                Log.e("TuningVM_Init", "Error during initial data fetch", e)
-            } finally {
-                // Cancel timeout job
-                timeoutJob.cancel()
-                // Always ensure loading is set to false
-                _isTuningDataLoading.value = false
-                Log.d("TuningVM_Init", "Initial data fetch completed, loading set to false")
-            }
-        }
-    }
 }

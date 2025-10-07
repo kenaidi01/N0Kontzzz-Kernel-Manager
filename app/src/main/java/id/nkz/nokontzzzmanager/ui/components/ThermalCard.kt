@@ -31,10 +31,14 @@ fun ThermalCard(
     viewModel: TuningViewModel,
     modifier: Modifier = Modifier
 ) {
+    // Trigger data loading when the card is first composed
+    LaunchedEffect(Unit) {
+        viewModel.loadThermalData()
+    }
+
     val supportedProfiles by viewModel.supportedThermalProfiles.collectAsState()
     val currentProfileName by viewModel.currentThermalProfileName.collectAsState()
     val currentProfileIndex by viewModel.currentThermalModeIndex.collectAsState()
-    val isLoading by viewModel.isTuningDataLoading.collectAsState()
 
     var showDialog by remember { mutableStateOf(false) }
     var isExpanded by remember { mutableStateOf(false) }
@@ -64,7 +68,7 @@ fun ThermalCard(
                 Column(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    if (isLoading) {
+                    if (currentProfileName == "Loading...") {
                         // Loading Section
                         ThermalLoadingSection()
                     } else if (supportedProfiles.isEmpty()) {

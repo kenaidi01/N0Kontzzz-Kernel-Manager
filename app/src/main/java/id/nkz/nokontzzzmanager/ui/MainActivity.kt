@@ -1,7 +1,7 @@
 
 package id.nkz.nokontzzzmanager.ui
 
-import TuningScreen
+import id.nkz.nokontzzzmanager.ui.screens.TuningScreen
 import android.content.Context
 import android.os.Build
 import android.os.Bundle

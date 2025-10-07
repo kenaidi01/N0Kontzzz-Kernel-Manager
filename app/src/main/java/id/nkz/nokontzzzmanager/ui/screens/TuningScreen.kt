@@ -1,8 +1,12 @@
+package id.nkz.nokontzzzmanager.ui.screens
+
+import kotlinx.coroutines.delay
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -21,9 +25,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavController
 import id.nkz.nokontzzzmanager.ui.components.CpuGovernorCard
 import id.nkz.nokontzzzmanager.ui.components.GpuControlCard
-import id.nkz.nokontzzzmanager.ui.components.IndeterminateExpressiveLoadingIndicator
 import id.nkz.nokontzzzmanager.ui.components.SwappinessCard
 import id.nkz.nokontzzzmanager.ui.components.ThermalCard
 import id.nkz.nokontzzzmanager.viewmodel.TuningViewModel
@@ -78,47 +82,50 @@ enum class Language {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TuningScreen(
-    navController: androidx.navigation.NavController? = null,
+    navController: NavController? = null,
     viewModel: TuningViewModel = hiltViewModel()
 ) {
     var showInfoDialog by remember { mutableStateOf(false) }
-    val isTuningDataLoading by viewModel.isTuningDataLoading.collectAsState()
 
-    // Log when screen is composed
+    // Data is now loaded lazily. The LaunchedEffect triggers data loading
+    // after the UI is composed, making the screen appear instantly.
     LaunchedEffect(Unit) {
-        android.util.Log.d("TuningScreen", "Screen composed, loading state: $isTuningDataLoading")
+        delay(150) // Allow navigation animation to finish
+        viewModel.loadCpuData()
+        viewModel.loadGpuData()
+        viewModel.loadThermalData()
+        viewModel.loadRamData()
     }
 
-    // Log loading state changes
-    LaunchedEffect(isTuningDataLoading) {
-        android.util.Log.d("TuningScreen", "Loading state changed to: $isTuningDataLoading")
-    }
-    
-    if (isTuningDataLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                IndeterminateExpressiveLoadingIndicator()
-                Spacer(modifier = Modifier.height(16.dp))
-                Text("Loading tuning data...")
-            }
-        }
-    } else {
-        Column(
-            Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            // Hero Header
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        // Hero Header
+        item {
             HeroHeader(
                 onClick = { showInfoDialog = true }
             )
-            
+        }
+        
+        item {
             PerformanceModeCard(viewModel = viewModel)
+        }
+
+        item {
             CpuGovernorCard(vm = viewModel)
+        }
+
+        item {
             GpuControlCard(tuningViewModel = viewModel)
+        }
+
+        item {
             ThermalCard(viewModel = viewModel)
+        }
+
+        item {
             SwappinessCard(vm = viewModel)
         }
     }
