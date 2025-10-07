@@ -22,17 +22,17 @@ class MiscViewModel @Inject constructor(
     private val _kgslSkipZeroingEnabled = MutableStateFlow(false)
     val kgslSkipZeroingEnabled: StateFlow<Boolean> = _kgslSkipZeroingEnabled.asStateFlow()
 
-    private val _isKgslFeatureAvailable = MutableStateFlow(false)
-    val isKgslFeatureAvailable: StateFlow<Boolean> = _isKgslFeatureAvailable.asStateFlow()
+    private val _isKgslFeatureAvailable = MutableStateFlow<Boolean?>(null)
+    val isKgslFeatureAvailable: StateFlow<Boolean?> = _isKgslFeatureAvailable.asStateFlow()
 
-    private val _tcpCongestionAlgorithm = MutableStateFlow("")
-    val tcpCongestionAlgorithm: StateFlow<String> = _tcpCongestionAlgorithm.asStateFlow()
+    private val _tcpCongestionAlgorithm = MutableStateFlow<String?>(null)
+    val tcpCongestionAlgorithm: StateFlow<String?> = _tcpCongestionAlgorithm.asStateFlow()
 
     private val _availableTcpCongestionAlgorithms = MutableStateFlow<List<String>>(emptyList())
     val availableTcpCongestionAlgorithms: StateFlow<List<String>> = _availableTcpCongestionAlgorithms.asStateFlow()
 
-    private val _ioScheduler = MutableStateFlow("")
-    val ioScheduler: StateFlow<String> = _ioScheduler.asStateFlow()
+    private val _ioScheduler = MutableStateFlow<String?>(null)
+    val ioScheduler: StateFlow<String?> = _ioScheduler.asStateFlow()
 
     private val _availableIoSchedulers = MutableStateFlow<List<String>>(emptyList())
     val availableIoSchedulers: StateFlow<List<String>> = _availableIoSchedulers.asStateFlow()

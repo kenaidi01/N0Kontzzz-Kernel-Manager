@@ -76,8 +76,8 @@ class HomeViewModel @Inject constructor(
         _isTitleAnimationDone.value = true
     }
 
-    private val _cpuClusters = MutableStateFlow<ImmutableList<CpuCluster>>(kotlinx.collections.immutable.persistentListOf())
-    val cpuClusters: StateFlow<ImmutableList<CpuCluster>> = _cpuClusters.asStateFlow()
+    private val _cpuClusters = MutableStateFlow<ImmutableList<CpuCluster>?>(null)
+    val cpuClusters: StateFlow<ImmutableList<CpuCluster>?> = _cpuClusters.asStateFlow()
 
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()

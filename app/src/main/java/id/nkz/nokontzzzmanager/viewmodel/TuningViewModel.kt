@@ -41,6 +41,9 @@ class TuningViewModel @Inject constructor(
     val dynamicCpuClusters: StateFlow<List<String>> = _dynamicCpuClusters.asStateFlow()
 
     /* ---------------- CPU ---------------- */
+    private val _performanceMode = MutableStateFlow("Balanced")
+    val performanceMode: StateFlow<String> = _performanceMode.asStateFlow()
+
     private val _coreStates = MutableStateFlow(List(8) { true })
     val coreStates: StateFlow<List<Boolean>> = _coreStates.asStateFlow()
 
@@ -147,12 +150,12 @@ class TuningViewModel @Inject constructor(
     val maxZramSize: StateFlow<Long> = _maxZramSize.asStateFlow()
 
     /* ---------------- Thermal ---------------- */
-    private val _currentThermalModeIndex = MutableStateFlow(-1)
-    val currentThermalModeIndex: StateFlow<Int> = _currentThermalModeIndex.asStateFlow()
+    private val _currentThermalModeIndex = MutableStateFlow<Int?>(null)
+    val currentThermalModeIndex: StateFlow<Int?> = _currentThermalModeIndex.asStateFlow()
 
     val currentThermalProfileName: StateFlow<String> =
         _currentThermalModeIndex.map { idx ->
-            thermalRepo.getCurrentThermalProfileName(idx)
+            idx?.let { thermalRepo.getCurrentThermalProfileName(it) } ?: "Loading..."
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "Loading...")
 
     val supportedThermalProfiles: StateFlow<List<ThermalRepository.ThermalProfile>> =
@@ -310,6 +313,17 @@ class TuningViewModel @Inject constructor(
     fun setCpuFreq(cluster: String, min: Int, max: Int) = viewModelScope.launch(Dispatchers.IO) {
         if (repo.setCpuFreq(cluster, min, max)) {
             repo.getCpuFreq(cluster).take(1).collect { _currentCpuFrequencies[cluster]?.value = it }
+        }
+    }
+
+    fun onPerformanceModeChange(mode: String) {
+        _performanceMode.value = mode
+        val governor = when (mode) {
+            "Performance" -> "performance"
+            else -> "schedutil"
+        }
+        cpuClusters.forEach { cluster ->
+            setCpuGov(cluster, governor)
         }
     }
 

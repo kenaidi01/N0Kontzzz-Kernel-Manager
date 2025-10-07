@@ -31,7 +31,6 @@ fun MiscScreen(
 ) {
 
     LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(150)
         viewModel.loadInitialData()
     }
 
@@ -84,9 +83,12 @@ fun MiscScreen(
 @Composable
 fun KgslSkipZeroingCard(
     kgslSkipZeroingEnabled: Boolean,
-    isKgslFeatureAvailable: Boolean,
+    isKgslFeatureAvailable: Boolean?,
     onToggleKgslSkipZeroing: (Boolean) -> Unit
 ) {
+    // Treat null as false for UI purposes, preventing flicker during initial load
+    val featureAvailable = isKgslFeatureAvailable == true
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp, 24.dp, 8.dp, 8.dp),
@@ -108,28 +110,28 @@ fun KgslSkipZeroingCard(
                         text = "KGSL Skip Pool Zeroing",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Medium,
-                        color = if (isKgslFeatureAvailable) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(
+                        color = if (featureAvailable) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(
                             alpha = 0.5f
                         )
                     )
                     Text(
-                        text = if (isKgslFeatureAvailable) {
+                        text = if (featureAvailable) {
                             "Improve FPS in emulators, Unity & Unreal games. May cause UI glitches."
                         } else {
                             "Feature not available in your kernel version."
                         },
                         style = MaterialTheme.typography.bodySmall,
-                        color = if (isKgslFeatureAvailable) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(
+                        color = if (featureAvailable) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(
                             alpha = 0.5f
                         )
                     )
                 }
 
                 Switch(
-                    checked = kgslSkipZeroingEnabled && isKgslFeatureAvailable,
-                    onCheckedChange = { if (isKgslFeatureAvailable) onToggleKgslSkipZeroing(!kgslSkipZeroingEnabled) },
-                    enabled = isKgslFeatureAvailable,
-                    thumbContent = if (kgslSkipZeroingEnabled && isKgslFeatureAvailable) {
+                    checked = kgslSkipZeroingEnabled && featureAvailable,
+                    onCheckedChange = { if (featureAvailable) onToggleKgslSkipZeroing(!kgslSkipZeroingEnabled) },
+                    enabled = featureAvailable,
+                    thumbContent = if (kgslSkipZeroingEnabled && featureAvailable) {
                         {
                             Icon(
                                 imageVector = Icons.Default.Check,
@@ -151,7 +153,7 @@ fun KgslSkipZeroingCard(
                 )
             }
 
-            if (kgslSkipZeroingEnabled && isKgslFeatureAvailable) {
+            if (kgslSkipZeroingEnabled && featureAvailable) {
                 Card(
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer
@@ -192,7 +194,7 @@ fun KgslSkipZeroingCard(
 
 @Composable
 fun TcpCongestionControlCard(
-    tcpCongestionAlgorithm: String,
+    tcpCongestionAlgorithm: String?,
     availableAlgorithms: List<String>,
     onAlgorithmChange: (String) -> Unit
 ) {
@@ -227,7 +229,7 @@ fun TcpCongestionControlCard(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = tcpCongestionAlgorithm.ifEmpty { "Unknown" },
+                        text = tcpCongestionAlgorithm ?: "...",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -243,7 +245,7 @@ fun TcpCongestionControlCard(
     
     if (showDialog) {
         TcpCongestionDialog(
-            currentAlgorithm = tcpCongestionAlgorithm,
+            currentAlgorithm = tcpCongestionAlgorithm ?: "",
             availableAlgorithms = availableAlgorithms,
             onAlgorithmSelected = { algorithm ->
                 onAlgorithmChange(algorithm)
@@ -256,7 +258,7 @@ fun TcpCongestionControlCard(
 
 @Composable
 fun IoSchedulerCard(
-    ioScheduler: String,
+    ioScheduler: String?,
     availableSchedulers: List<String>,
     onSchedulerChange: (String) -> Unit
 ) {
@@ -291,7 +293,7 @@ fun IoSchedulerCard(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = ioScheduler.ifEmpty { "Unknown" },
+                        text = ioScheduler ?: "...",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -307,7 +309,7 @@ fun IoSchedulerCard(
     
     if (showDialog) {
         IoSchedulerDialog(
-            currentScheduler = ioScheduler,
+            currentScheduler = ioScheduler ?: "",
             availableSchedulers = availableSchedulers,
             onSchedulerSelected = { scheduler ->
                 onSchedulerChange(scheduler)

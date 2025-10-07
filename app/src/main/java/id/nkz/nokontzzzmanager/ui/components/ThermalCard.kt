@@ -298,7 +298,7 @@ private fun ThermalActiveProfileSection(
 @Composable
 private fun ThermalProfileSelectionDialog(
     availableProfiles: List<ThermalRepository.ThermalProfile>,
-    currentProfileIndex: Int,
+    currentProfileIndex: Int?,
     onProfileSelected: (ThermalRepository.ThermalProfile) -> Unit,
     onDismiss: () -> Unit,
 ) {

@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 
@@ -34,16 +35,17 @@ fun BottomNavBar(navController: NavHostController, items: List<String>, isAmoled
                 onClick = {
                     val targetRoute = screen.lowercase()
                     if (currentRoute != targetRoute) {
-                        // Navigate to the target screen
                         navController.navigate(targetRoute) {
-                            // If coming from settings (or other non-bottom-nav screen), 
-                            // pop inclusive to remove settings from back stack
-                            if (currentRoute !in listOf("home", "tuning", "misc")) {
-                                popUpTo("settings") {
-                                    inclusive = true
-                                }
+                            // Pop up to the start destination of the graph to
+                            // avoid building up a large stack of destinations
+                            // on the back stack as users select items
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
                             }
+                            // Avoid multiple copies of the same destination when
+                            // reselecting the same item
                             launchSingleTop = true
+                            // Restore state when reselecting a previously selected item
                             restoreState = true
                         }
                     }

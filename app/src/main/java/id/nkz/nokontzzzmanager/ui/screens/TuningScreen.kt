@@ -298,8 +298,8 @@ fun PerformanceModeCard(
     viewModel: TuningViewModel,
     blur: Boolean = true
 ) {
-    // Use a key to preserve state across recompositions
-    var performanceMode by remember(key1 = viewModel) { mutableStateOf("Balanced") }
+    // Collect the performance mode from the ViewModel to make it survive recompositions
+    val performanceMode by viewModel.performanceMode.collectAsState()
     
     // Hardcoded performance modes
     val performanceModes = remember {
@@ -362,12 +362,8 @@ fun PerformanceModeCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                performanceMode = mode
-                                // Apply the corresponding governor to all CPU clusters
-                                val governor = governorMappings[mode] ?: "schedutil"
-                                viewModel.cpuClusters.forEach { cluster ->
-                                    viewModel.setCpuGov(cluster, governor)
-                                }
+                                // Let the ViewModel handle the logic
+                                viewModel.onPerformanceModeChange(mode)
                             },
                         colors = CardDefaults.cardColors(
                             containerColor = when (mode) {
