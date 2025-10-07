@@ -119,12 +119,18 @@ class MainActivity : ComponentActivity() {
             RvKernelManagerTheme(themeManager = themeManager) {
                 val navController = rememberNavController()
                 val items = listOf("Home", "Tuning", "Misc")
-                val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+                val topAppBarState = rememberTopAppBarState()
+                val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
                 val isAmoledMode by themeManager.isAmoledMode.collectAsState(initial = false)
 
                 val currentRoute = currentDestination?.route
+
+                // Reset TopAppBar scroll state when navigating to a new screen
+                LaunchedEffect(currentRoute) {
+                    topAppBarState.contentOffset = 0f
+                }
 
                 val title = when (currentRoute) {
                     "settings" -> "Settings"
