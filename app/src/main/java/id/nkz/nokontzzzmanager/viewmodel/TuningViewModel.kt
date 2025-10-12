@@ -294,6 +294,14 @@ class TuningViewModel @Inject constructor(
             }
             _availableCpuFrequenciesPerClusterMap.value = tempFreqs
             if (tempGovernors.isNotEmpty()) _generalAvailableCpuGovernors.value = tempGovernors.values.flatten().distinct().sorted()
+
+            // After fetching, update the performance mode based on the current governor
+            val primaryClusterGov = _currentCpuGovernors[cpuClusters.firstOrNull()]?.value
+            _performanceMode.value = when (primaryClusterGov) {
+                "performance" -> "Performance"
+                else -> "Balanced"
+            }
+
             Log.d("TuningVM_CPU", "Finished fetching all CPU data.")
         } catch (e: Exception) {
             Log.e("TuningVM_CPU", "Error in fetchAllCpuData", e)
