@@ -26,6 +26,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
+import id.nkz.nokontzzzmanager.ui.components.IndeterminateExpressiveLoadingIndicator
 import id.nkz.nokontzzzmanager.ui.components.CpuGovernorCard
 import id.nkz.nokontzzzmanager.ui.components.GpuControlCard
 import id.nkz.nokontzzzmanager.ui.components.SwappinessCard
@@ -89,15 +90,13 @@ fun TuningScreen(
     var showInfoDialog by remember { mutableStateOf(false) }
     val lazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     // Data is now loaded lazily. The LaunchedEffect triggers data loading
     // after the UI is composed, making the screen appear instantly.
     LaunchedEffect(Unit) {
         delay(150) // Allow navigation animation to finish
-        viewModel.loadCpuData()
-        viewModel.loadGpuData()
-        viewModel.loadThermalData()
-        viewModel.loadRamData()
+        viewModel.loadAllData()
     }
 
     // Listen for destination changes to reset scroll state
@@ -115,45 +114,56 @@ fun TuningScreen(
         }
     }
 
-    LazyColumn(
-        state = lazyListState,
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(2.dp)
-    ) {
-        // Hero Header
-        item {
-            HeroHeader(
-                onClick = { showInfoDialog = true }
+    if (isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 100.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            IndeterminateExpressiveLoadingIndicator()
+        }
+    } else {
+        LazyColumn(
+            state = lazyListState,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            // Hero Header
+            item {
+                HeroHeader(
+                    onClick = { showInfoDialog = true }
+                )
+            }
+
+            item {
+                PerformanceModeCard(viewModel = viewModel)
+            }
+
+            item {
+                CpuGovernorCard(vm = viewModel)
+            }
+
+            item {
+                GpuControlCard(tuningViewModel = viewModel)
+            }
+
+            item {
+                ThermalCard(viewModel = viewModel)
+            }
+
+            item {
+                SwappinessCard(vm = viewModel)
+            }
+        }
+
+        if (showInfoDialog) {
+            FeatureInfoDialog(
+                onDismissRequest = { showInfoDialog = false },
+                features = tuningFeatures
             )
         }
-        
-        item {
-            PerformanceModeCard(viewModel = viewModel)
-        }
-
-        item {
-            CpuGovernorCard(vm = viewModel)
-        }
-
-        item {
-            GpuControlCard(tuningViewModel = viewModel)
-        }
-
-        item {
-            ThermalCard(viewModel = viewModel)
-        }
-
-        item {
-            SwappinessCard(vm = viewModel)
-        }
-    }
-
-    if (showInfoDialog) {
-        FeatureInfoDialog(
-            onDismissRequest = { showInfoDialog = false },
-            features = tuningFeatures
-        )
     }
 }
 

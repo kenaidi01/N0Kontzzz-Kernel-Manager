@@ -87,10 +87,7 @@ fun GpuControlCard(
 
     // No frequency ranges needed since we're using dialogs instead of sliders
 
-    // Load GPU data when component is first composed
-    LaunchedEffect(Unit) {
-        tuningViewModel.loadGpuData()
-    }
+
 
     // Animation values - Simplified MD3 animation
     val rotationAngle by animateFloatAsState(

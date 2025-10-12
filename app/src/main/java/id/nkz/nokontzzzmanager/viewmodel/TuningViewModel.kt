@@ -31,7 +31,11 @@ class TuningViewModel @Inject constructor(
     private val thermalPrefs: SharedPreferences by lazy {
         application.getSharedPreferences("thermal_settings_prefs", Context.MODE_PRIVATE)
     }
+    private val performancePrefs: SharedPreferences by lazy {
+        application.getSharedPreferences("performance_mode_prefs", Context.MODE_PRIVATE)
+    }
     private val KEY_LAST_APPLIED_THERMAL_INDEX = "last_applied_thermal_index"
+    private val KEY_LAST_APPLIED_PERFORMANCE_MODE = "last_applied_performance_mode"
 
     val cpuClusters = listOf("cpu0", "cpu4", "cpu7")
 
@@ -41,7 +45,7 @@ class TuningViewModel @Inject constructor(
     val dynamicCpuClusters: StateFlow<List<String>> = _dynamicCpuClusters.asStateFlow()
 
     /* ---------------- CPU ---------------- */
-    private val _performanceMode = MutableStateFlow("Balanced")
+    private val _performanceMode = MutableStateFlow(performancePrefs.getString(KEY_LAST_APPLIED_PERFORMANCE_MODE, "Balanced") ?: "Balanced")
     val performanceMode: StateFlow<String> = _performanceMode.asStateFlow()
 
     private val _coreStates = MutableStateFlow(List(8) { true })
@@ -168,6 +172,9 @@ class TuningViewModel @Inject constructor(
     private val isGpuDataLoaded = AtomicBoolean(false)
     private val isRamDataLoaded = AtomicBoolean(false)
     private val isThermalDataLoaded = AtomicBoolean(false)
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
     //</editor-fold>
 
     /* ---------------- Init ---------------- */
@@ -179,7 +186,21 @@ class TuningViewModel @Inject constructor(
     }
 
     //<editor-fold desc="Lazy Load Functions">
-    fun loadCpuData() {
+    fun loadAllData() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            // Use coroutineScope to wait for all child coroutines to complete
+            coroutineScope {
+                launch { loadCpuData() }
+                launch { loadGpuData() }
+                launch { loadRamData() }
+                launch { loadThermalData() }
+            }
+            _isLoading.value = false
+        }
+    }
+
+    private fun loadCpuData() {
         if (isCpuDataLoaded.getAndSet(true)) return
         Log.d("TuningVM_LazyLoad", "Loading CPU data...")
         viewModelScope.launch(Dispatchers.IO) {
@@ -188,7 +209,7 @@ class TuningViewModel @Inject constructor(
         }
     }
 
-    fun loadGpuData() {
+    private fun loadGpuData() {
         if (isGpuDataLoaded.getAndSet(true)) return
         Log.d("TuningVM_LazyLoad", "Loading GPU data...")
         viewModelScope.launch(Dispatchers.IO) {
@@ -199,7 +220,7 @@ class TuningViewModel @Inject constructor(
         }
     }
 
-    fun loadRamData() {
+    private fun loadRamData() {
         if (isRamDataLoaded.getAndSet(true)) return
         Log.d("TuningVM_LazyLoad", "Loading RAM data...")
         viewModelScope.launch(Dispatchers.IO) {
@@ -207,7 +228,7 @@ class TuningViewModel @Inject constructor(
         }
     }
 
-    fun loadThermalData() {
+    private fun loadThermalData() {
         if (isThermalDataLoaded.getAndSet(true)) return
         Log.d("TuningVM_LazyLoad", "Loading Thermal data...")
         viewModelScope.launch(Dispatchers.IO) {
@@ -295,13 +316,6 @@ class TuningViewModel @Inject constructor(
             _availableCpuFrequenciesPerClusterMap.value = tempFreqs
             if (tempGovernors.isNotEmpty()) _generalAvailableCpuGovernors.value = tempGovernors.values.flatten().distinct().sorted()
 
-            // After fetching, update the performance mode based on the current governor
-            val primaryClusterGov = _currentCpuGovernors[cpuClusters.firstOrNull()]?.value
-            _performanceMode.value = when (primaryClusterGov) {
-                "performance" -> "Performance"
-                else -> "Balanced"
-            }
-
             Log.d("TuningVM_CPU", "Finished fetching all CPU data.")
         } catch (e: Exception) {
             Log.e("TuningVM_CPU", "Error in fetchAllCpuData", e)
@@ -326,6 +340,9 @@ class TuningViewModel @Inject constructor(
 
     fun onPerformanceModeChange(mode: String) {
         _performanceMode.value = mode
+        performancePrefs.edit {
+            putString(KEY_LAST_APPLIED_PERFORMANCE_MODE, mode)
+        }
         val governor = when (mode) {
             "Performance" -> "performance"
             else -> "schedutil"

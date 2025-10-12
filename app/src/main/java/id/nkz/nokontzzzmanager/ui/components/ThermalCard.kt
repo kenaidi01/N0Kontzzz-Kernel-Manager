@@ -31,10 +31,7 @@ fun ThermalCard(
     viewModel: TuningViewModel,
     modifier: Modifier = Modifier
 ) {
-    // Trigger data loading when the card is first composed
-    LaunchedEffect(Unit) {
-        viewModel.loadThermalData()
-    }
+
 
     val supportedProfiles by viewModel.supportedThermalProfiles.collectAsState()
     val currentProfileName by viewModel.currentThermalProfileName.collectAsState()
