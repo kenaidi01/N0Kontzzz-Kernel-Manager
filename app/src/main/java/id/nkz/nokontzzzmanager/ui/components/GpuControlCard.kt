@@ -87,8 +87,6 @@ fun GpuControlCard(
 
     // No frequency ranges needed since we're using dialogs instead of sliders
 
-
-
     // Animation values - Simplified MD3 animation
     val rotationAngle by animateFloatAsState(
         targetValue = if (isExpanded) 180f else 0f,
@@ -120,7 +118,7 @@ fun GpuControlCard(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.gpu_card),
