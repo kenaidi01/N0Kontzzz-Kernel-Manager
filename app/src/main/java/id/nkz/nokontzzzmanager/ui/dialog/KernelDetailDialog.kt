@@ -92,19 +92,14 @@ fun KernelDetailDialog(
                 }
                 
                 // Tombol Close
-                Button(
+                OutlinedButton(
                     onClick = onDismiss,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 16.dp)
-                        .height(48.dp),
-                    shape = RoundedCornerShape(12.dp)
+                        .padding(top = 16.dp),
+                    shape = RoundedCornerShape(16.dp)
                 ) {
-                    Text(
-                        text = "Close",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Medium
-                    )
+                    Text("Close")
                 }
             }
         }
