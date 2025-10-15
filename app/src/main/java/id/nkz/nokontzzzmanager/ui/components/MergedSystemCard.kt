@@ -1,6 +1,5 @@
 package id.nkz.nokontzzzmanager.ui.components
 
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -259,7 +257,6 @@ private fun MemoryHeaderSection(
             ) {
                 val totalGb = (memoryInfo.total / (1024 * 1024 * 1024))
                 val zramGb = (memoryInfo.zramTotal / (1024 * 1024 * 1024))
-                val swapGb = (memoryInfo.swapTotal / (1024 * 1024 * 1024))
 
                 val memoryText = buildString {
                     append("${usedPercentage}% Used • ${totalGb}GB")
