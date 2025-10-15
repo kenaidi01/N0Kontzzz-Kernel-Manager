@@ -349,7 +349,7 @@ class ThermalRepository @Inject constructor(
 
     fun getCurrentThermalProfileName(currentIndex: Int): String {
         return availableThermalProfiles.find { it.index == currentIndex }?.displayName
-            ?: if (currentIndex == -1) "Not Set/Error"
+            ?: if (currentIndex == -1) "Not Set"
             else "Unknown ($currentIndex)"
     }
 

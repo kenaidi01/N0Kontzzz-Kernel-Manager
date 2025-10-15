@@ -256,7 +256,7 @@ private fun ThermalActiveProfileSection(
             )
 
             Text(
-                text = "Manage thermal performance",
+                text = "Manage thermal profile",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )

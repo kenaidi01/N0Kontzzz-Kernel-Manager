@@ -220,7 +220,26 @@ class TuningViewModel @Inject constructor(
         if (isThermalDataLoaded.getAndSet(true)) return
         Log.d("TuningVM_LazyLoad", "Loading Thermal data...")
         viewModelScope.launch(Dispatchers.IO) {
-            fetchCurrentThermalMode(isInitialLoad = true)
+            // Prioritize restoring the user's last saved setting.
+            val lastSavedIndex = thermalPrefs.getInt(KEY_LAST_APPLIED_THERMAL_INDEX, -2) // Use -2 to indicate no value saved
+
+            if (lastSavedIndex != -2) {
+                // A profile was previously saved by the user. Restore it.
+                val profile = thermalRepo.availableThermalProfiles.find { it.index == lastSavedIndex }
+                if (profile != null) {
+                    Log.d("TuningVM_Thermal", "Restoring saved thermal profile: ${profile.displayName}")
+                    // setThermalProfileInternal will handle writing to kernel and updating the state flow.
+                    setThermalProfileInternal(profile, isRestoring = true)
+                } else {
+                    // The saved index is invalid for some reason, fall back to reading from kernel.
+                    Log.w("TuningVM_Thermal", "Invalid saved thermal index: $lastSavedIndex. Fetching from kernel.")
+                    fetchCurrentThermalMode()
+                }
+            } else {
+                // No setting was ever saved by the user. Just read the current kernel state.
+                Log.d("TuningVM_Thermal", "No saved thermal profile found. Fetching from kernel.")
+                fetchCurrentThermalMode()
+            }
         }
     }
     //</editor-fold>
@@ -536,24 +555,15 @@ class TuningViewModel @Inject constructor(
 
 
     /* ---------------- Thermal ---------------- */
-    private fun fetchCurrentThermalMode(isInitialLoad: Boolean = false) {
+    private fun fetchCurrentThermalMode() {
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                thermalRepo.getCurrentThermalModeIndex()
-                    .catch { e ->
-                        Log.e("TuningVM_Thermal", "Error getting current thermal mode", e)
-                        if (isInitialLoad) applyLastSavedThermalProfile()
-                    }
-                    .collect { index ->
-                        _currentThermalModeIndex.value = index
-                        if (isInitialLoad) applyLastSavedThermalProfile()
-                    }
-            } catch (e: Exception) {
-                Log.e("TuningVM_Thermal", "Error in fetchCurrentThermalMode", e)
-                if (isInitialLoad) {
-                    applyLastSavedThermalProfile()
+            thermalRepo.getCurrentThermalModeIndex()
+                .catch { e ->
+                    Log.e("TuningVM_Thermal", "Error getting current thermal mode", e)
                 }
-            }
+                .collect { index ->
+                    _currentThermalModeIndex.value = index
+                }
         }
     }
 
