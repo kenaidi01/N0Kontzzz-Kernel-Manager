@@ -7,6 +7,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,12 +24,16 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Monitor
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
@@ -39,13 +44,16 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import id.nkz.nokontzzzmanager.R
 import id.nkz.nokontzzzmanager.viewmodel.TuningViewModel
@@ -513,68 +521,16 @@ fun GpuControlCard(
 
     // Governor Selection Dialog
     if (showGovernorDialog) {
-        AlertDialog(
-            onDismissRequest = { showGovernorDialog = true },
-            title = {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text("Select GPU Governor")
+        GpuGovernorSelectionDialog(
+            availableGovernors = availableGovernors,
+            currentGovernor = gpuGovernor,
+            onGovernorSelected = { governor ->
+                coroutineScope.launch {
+                    tuningViewModel.setGpuGovernor(governor)
                 }
+                showGovernorDialog = false
             },
-            text = {
-                if (availableGovernors.isEmpty()) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        CircularProgressIndicator(modifier = Modifier.size(32.dp))
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text("Loading governors...")
-                    }
-                } else {
-                    LazyColumn {
-                        items(availableGovernors, key = { it }) { governor ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .selectable(
-                                        selected = governor == gpuGovernor,
-                                        onClick = {
-                                            coroutineScope.launch {
-                                                tuningViewModel.setGpuGovernor(governor)
-                                            }
-                                            showGovernorDialog = false
-                                        }
-                                    )
-                                    .padding(vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButton(
-                                    selected = governor == gpuGovernor,
-                                    onClick = {
-                                        coroutineScope.launch {
-                                            tuningViewModel.setGpuGovernor(governor)
-                                        }
-                                        showGovernorDialog = false
-                                    }
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = governor,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            }
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showGovernorDialog = false }) {
-                    Text("Close")
-                }
-            }
+            onDismiss = { showGovernorDialog = false }
         )
     }
 
@@ -661,140 +617,251 @@ fun GpuControlCard(
 
     // Min Frequency Selection Dialog
     if (showMinFreqDialog) {
-        AlertDialog(
-            onDismissRequest = { showMinFreqDialog = true },
-            title = {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text("Select Minimum GPU Frequency")
+        GpuFrequencySelectionDialog(
+            title = "Set Min Frequency",
+            availableFrequencies = availableGpuFrequencies,
+            currentFrequency = gpuMinFreq,
+            onFrequencySelected = { frequency ->
+                coroutineScope.launch {
+                    tuningViewModel.setGpuMinFrequency(frequency)
                 }
+                showMinFreqDialog = false
             },
-            text = {
-                if (availableGpuFrequencies.isEmpty()) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        CircularProgressIndicator(modifier = Modifier.size(32.dp))
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text("Loading frequencies...")
-                    }
-                } else {
-                    LazyColumn {
-                        items(availableGpuFrequencies.sorted(), key = { it }) { frequency ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .selectable(
-                                        selected = frequency == gpuMinFreq,
-                                        onClick = {
-                                            coroutineScope.launch {
-                                                tuningViewModel.setGpuMinFrequency(frequency)
-                                            }
-                                            showMinFreqDialog = false
-                                        }
-                                    )
-                                    .padding(vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButton(
-                                    selected = frequency == gpuMinFreq,
-                                    onClick = {
-                                        coroutineScope.launch {
-                                            tuningViewModel.setGpuMinFrequency(frequency)
-                                        }
-                                        showMinFreqDialog = false
-                                    }
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = "$frequency MHz",
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            }
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showMinFreqDialog = false }) {
-                    Text("Close")
-                }
-            }
+            onDismiss = { showMinFreqDialog = false }
         )
     }
 
     // Max Frequency Selection Dialog
     if (showMaxFreqDialog) {
-        AlertDialog(
-            onDismissRequest = { showMaxFreqDialog = false },
-            title = {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text("Select Maximum GPU Frequency")
+        GpuFrequencySelectionDialog(
+            title = "Set Max Frequency",
+            availableFrequencies = availableGpuFrequencies,
+            currentFrequency = gpuMaxFreq,
+            onFrequencySelected = { frequency ->
+                coroutineScope.launch {
+                    tuningViewModel.setGpuMaxFrequency(frequency)
                 }
+                showMaxFreqDialog = false
             },
-            text = {
-                if (availableGpuFrequencies.isEmpty()) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        CircularProgressIndicator(modifier = Modifier.size(32.dp))
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text("Loading frequencies...")
-                    }
-                } else {
-                    LazyColumn {
-                        items(availableGpuFrequencies.sorted(), key = { it }) { frequency ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .selectable(
-                                        selected = frequency == gpuMaxFreq,
-                                        onClick = {
-                                            coroutineScope.launch {
-                                                tuningViewModel.setGpuMaxFrequency(frequency)
-                                            }
-                                            showMaxFreqDialog = false
-                                        }
-                                    )
-                                    .padding(vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButton(
-                                    selected = frequency == gpuMaxFreq,
-                                    onClick = {
-                                        coroutineScope.launch {
-                                            tuningViewModel.setGpuMaxFrequency(frequency)
-                                        }
-                                        showMaxFreqDialog = false
-                                    }
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = "$frequency MHz",
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            }
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showMaxFreqDialog = false }) {
-                    Text("Close")
-                }
-            }
+            onDismiss = { showMaxFreqDialog = false }
         )
     }
 }
 
 
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GpuFrequencySelectionDialog(
+    title: String,
+    availableFrequencies: List<Int>,
+    currentFrequency: Int,
+    onFrequencySelected: (Int) -> Unit,
+    onDismiss: () -> Unit
+) {
+    BasicAlertDialog(
+        onDismissRequest = onDismiss,
+        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize().background(Color.Transparent),
+            contentAlignment = Alignment.Center
+        ) {
+            Card(
+                modifier = Modifier.fillMaxWidth(0.9f).heightIn(min = 300.dp, max = 600.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                shape = RoundedCornerShape(24.dp),
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    // Header
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier.size(56.dp).clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.primaryContainer),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Speed,
+                                contentDescription = "GPU Frequency",
+                                modifier = Modifier.size(28.dp),
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    // Options List
+                    if (availableFrequencies.isEmpty()) {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.heightIn(max = 350.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(availableFrequencies.sorted()) { frequency ->
+                                val isSelected = frequency == currentFrequency
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer
+                                    ),
+                                    onClick = { onFrequencySelected(frequency) }
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                    ) {
+                                        RadioButton(
+                                            selected = isSelected,
+                                            onClick = { onFrequencySelected(frequency) },
+                                            colors = RadioButtonDefaults.colors(
+                                                selectedColor = MaterialTheme.colorScheme.primary,
+                                                unselectedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                            )
+                                        )
+                                        Text(
+                                            text = "$frequency MHz",
+                                            style = MaterialTheme.typography.bodyLarge.copy(
+                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                            ),
+                                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Dismiss Button
+                    OutlinedButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text("Close")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GpuGovernorSelectionDialog(
+    availableGovernors: List<String>,
+    currentGovernor: String,
+    onGovernorSelected: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    BasicAlertDialog(
+        onDismissRequest = onDismiss,
+        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize().background(Color.Transparent),
+            contentAlignment = Alignment.Center
+        ) {
+            Card(
+                modifier = Modifier.fillMaxWidth(0.9f).heightIn(min = 300.dp, max = 600.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                shape = RoundedCornerShape(24.dp),
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    // Header
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier.size(56.dp).clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.primaryContainer),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Tune,
+                                contentDescription = "GPU Governor",
+                                modifier = Modifier.size(28.dp),
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                        Text(
+                            text = "Set GPU Governor",
+                            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    // Options List
+                    if (availableGovernors.isEmpty()) {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.heightIn(max = 350.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(availableGovernors.sorted()) { governor ->
+                                val isSelected = governor == currentGovernor
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer
+                                    ),
+                                    onClick = { onGovernorSelected(governor) }
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                    ) {
+                                        RadioButton(
+                                            selected = isSelected,
+                                            onClick = { onGovernorSelected(governor) },
+                                            colors = RadioButtonDefaults.colors(
+                                                selectedColor = MaterialTheme.colorScheme.primary,
+                                                unselectedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                            )
+                                        )
+                                        Text(
+                                            text = governor,
+                                            style = MaterialTheme.typography.bodyLarge.copy(
+                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                            ),
+                                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Dismiss Button
+                    OutlinedButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text("Close")
+                    }
+                }
+            }
+        }
+    }
+}
 
 @Composable
 private fun GPUControlSection(
