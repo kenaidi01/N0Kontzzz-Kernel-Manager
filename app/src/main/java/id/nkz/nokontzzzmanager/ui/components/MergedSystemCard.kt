@@ -260,7 +260,7 @@ private fun MemoryHeaderSection(
 
                 val memoryText = buildString {
                     append("${usedPercentage}% Used • ${totalGb}GB")
-                    if (zramGb > 0) append(" + ${zramGb}GB Zram")
+                    if (zramGb > 0) append(" + ${zramGb}GB ZRAM")
                 }
 
                 Text(
