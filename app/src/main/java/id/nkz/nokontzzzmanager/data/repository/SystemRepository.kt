@@ -507,7 +507,7 @@ class SystemRepository @Inject constructor(
             // Fetch ZRAM and Swap details from TuningRepository
             val zramTotal = tuningRepository.getZramDisksize().firstOrNull() ?: 0L
             val zramUsed = tuningRepository.getZramUsed().firstOrNull() ?: 0L
-            val swapTotal = tuningRepository.getSwapSize().firstOrNull() ?: 0L
+            val swapTotal = tuningRepository.getSwapTotal().firstOrNull() ?: 0L
             val swapUsed = tuningRepository.getSwapUsed().firstOrNull() ?: 0L
 
             MemoryInfo(

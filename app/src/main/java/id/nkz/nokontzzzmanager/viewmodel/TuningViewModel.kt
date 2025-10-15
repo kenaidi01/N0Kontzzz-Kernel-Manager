@@ -483,7 +483,7 @@ class TuningViewModel @Inject constructor(
         launch(Dispatchers.IO) { repo.getDirtyWriteback().collect { _dirtyWriteback.value = it } }
         launch(Dispatchers.IO) { repo.getDirtyExpireCentisecs().collect { _dirtyExpireCentisecs.value = it } }
         launch(Dispatchers.IO) { repo.getMinFreeMemory().collect { _minFreeMemory.value = it } }
-        launch(Dispatchers.IO) { repo.getSwapSize().collect { _swapSize.value = it } }
+        launch(Dispatchers.IO) { repo.getSwapTotal().collect { _swapSize.value = it } }
     }
 
     fun setZramEnabled(enabled: Boolean) = viewModelScope.launch(Dispatchers.IO) {
@@ -591,7 +591,7 @@ class TuningViewModel @Inject constructor(
             delay(500)
         }
 
-        if (repo.setSwapSize(sizeBytes)) {
+        if (repo.setSwapTotal(sizeBytes)) {
             _swapSize.value = sizeBytes
             if (sizeBytes == 0L) {
                 addSwapLog("✅ Swap successfully disabled!")

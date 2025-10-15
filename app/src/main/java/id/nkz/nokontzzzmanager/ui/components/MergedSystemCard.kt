@@ -264,7 +264,6 @@ private fun MemoryHeaderSection(
                 val memoryText = buildString {
                     append("${usedPercentage}% Used • ${totalGb}GB")
                     if (zramGb > 0) append(" + ${zramGb}GB Zram")
-                    if (swapGb > 0) append(" + ${swapGb}GB Swap")
                 }
 
                 Text(
@@ -506,53 +505,7 @@ private fun MemoryProgressSection(
             }
         }
 
-        // Swap Usage Progress Bar (only show if swap is available)
-        if (memoryInfo.swapTotal > 0) {
-            val swapUsedPercentage = ((memoryInfo.swapUsed.toDouble() / memoryInfo.swapTotal.toDouble()) * 100).toInt()
 
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.SwapHoriz,
-                            contentDescription = "Swap",
-                            tint = MaterialTheme.colorScheme.tertiary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Text(
-                            text = "Swap Usage",
-                            style = MaterialTheme.typography.titleSmall.copy(
-                                fontWeight = FontWeight.SemiBold
-                            ),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                    Text(
-                        text = "${swapUsedPercentage}%",
-                        style = MaterialTheme.typography.titleSmall.copy(
-                            fontWeight = FontWeight.Bold
-                        ),
-                        color = MaterialTheme.colorScheme.tertiary
-                    )
-                }
-
-                LinearWavyProgressIndicator(
-                    progress = { swapUsedPercentage / 100f },
-                    modifier = Modifier.fillMaxWidth().height(10.dp),
-                    color = MaterialTheme.colorScheme.tertiary,
-                    trackColor = MaterialTheme.colorScheme.surface
-                )
-            }
-        }
     }
 }
 
@@ -806,29 +759,7 @@ private fun MemoryStatsSection(
                 }
             }
 
-            // Memory Stats Row 4 - Swap Stats (only show if swap is available)
-            if (memoryInfo.swapTotal > 0) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    // Swap Used
-                    SystemStatItem(
-                        icon = Icons.Default.SwapHoriz,
-                        label = "Swap Used",
-                        value = "${memoryInfo.swapUsed / (1024 * 1024)}MB",
-                        modifier = Modifier.weight(1f)
-                    )
 
-                    // Swap Total
-                    SystemStatItem(
-                        icon = Icons.Default.SwapHoriz,
-                        label = "Swap Total",
-                        value = "${memoryInfo.swapTotal / (1024 * 1024)}MB",
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
         }
     }
 }

@@ -232,9 +232,9 @@ class TuningRepository @Inject constructor(
 
     fun getZramUsed(): Flow<Long> = flow {
         val mmStat = readShellCommand("cat /sys/block/zram0/mm_stat").trim()
-        val stats = mmStat.split("\\s+".toRegex())
-        // mem_used_total is the 4th value in mm_stat
-        val usedBytes = if (stats.size >= 4) stats[3].toLongOrNull() ?: 0L else 0L
+        val stats = mmStat.split("[ \t\n\r]+".toRegex())
+        // mem_used_total is the 3rd value in mm_stat
+        val usedBytes = if (stats.size >= 3) stats[2].toLongOrNull() ?: 0L else 0L
         emit(usedBytes)
     }.flowOn(Dispatchers.IO)
 
@@ -242,7 +242,7 @@ class TuningRepository @Inject constructor(
         val swapInfo = readShellCommand("cat /proc/swaps")
         val totalUsedKb = swapInfo.lines()
             .drop(1) // Skip header line
-            .map { it.trim().split("\\s+".toRegex()) }
+            .map { it.trim().split("[ \t\n\r]+".toRegex()) }
             .filter { it.size >= 4 }
             .sumOf { it[3].toLongOrNull() ?: 0L }
         emit(totalUsedKb * 1024) // Convert KB to Bytes
@@ -1260,7 +1260,7 @@ class TuningRepository @Inject constructor(
     }
 
     // Traditional swap size management (not ZRAM)
-    fun setSwapSize(sizeBytes: Long): Boolean {
+    fun setSwapTotal(sizeBytes: Long): Boolean {
         return try {
             if (sizeBytes == 0L) {
                 // Disable swap
@@ -1291,21 +1291,13 @@ class TuningRepository @Inject constructor(
         }
     }
 
-    fun getSwapSize(): Flow<Long> = flow {
+    fun getSwapTotal(): Flow<Long> = flow {
         val swapInfo = readShellCommand("cat /proc/swaps")
-        val swapFile = "/data/swapfile"
-        val lines = swapInfo.split("\n")
-
-        for (line in lines) {
-            if (line.contains(swapFile)) {
-                val parts = line.trim().split("\\s+".toRegex())
-                if (parts.size >= 3) {
-                    val sizeKB = parts[2].toLongOrNull() ?: 0L
-                    emit(sizeKB * 1024) // Convert KB to bytes
-                    return@flow
-                }
-            }
-        }
-        emit(0L) // No swap file found
+        val totalSizeKb = swapInfo.lines()
+            .drop(1) // Skip header line
+            .map { it.trim().split("[ \t\n\r]+".toRegex()) }
+            .filter { it.size >= 3 }
+            .sumOf { it[2].toLongOrNull() ?: 0L }
+        emit(totalSizeKb * 1024) // Convert KB to Bytes
     }.flowOn(Dispatchers.IO)
 }
