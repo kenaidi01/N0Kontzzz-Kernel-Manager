@@ -16,11 +16,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
@@ -32,13 +35,16 @@ import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
@@ -60,6 +66,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import id.nkz.nokontzzzmanager.viewmodel.TuningViewModel
 import kotlin.math.abs
 
@@ -234,8 +241,6 @@ fun CpuGovernorCard(
         MinFrequencySelectionDialog(
             clusterName = showMinFreqDialogForCluster!!,
             currentMinFreq = currentFreqPair.first,
-            minSystemFreq = availableFrequencies.minOrNull() ?: 0,
-            maxSystemFreq = availableFrequencies.maxOrNull() ?: 0,
             allAvailableFrequencies = availableFrequencies,
             onMinFrequencySelected = { minFreq ->
                 val currentMaxFreq = currentFreqPair.second
@@ -253,8 +258,6 @@ fun CpuGovernorCard(
         MaxFrequencySelectionDialog(
             clusterName = showMaxFreqDialogForCluster!!,
             currentMaxFreq = currentFreqPair.second,
-            minSystemFreq = availableFrequencies.minOrNull() ?: 0,
-            maxSystemFreq = availableFrequencies.maxOrNull() ?: 0,
             allAvailableFrequencies = availableFrequencies,
             onMaxFrequencySelected = { maxFreq ->
                 val currentMinFreq = currentFreqPair.first
@@ -277,6 +280,7 @@ fun CpuGovernorCard(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun GovernorSelectionDialog(
     clusterName: String,
@@ -285,259 +289,326 @@ private fun GovernorSelectionDialog(
     onGovernorSelected: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    AlertDialog(
-        shape = RoundedCornerShape(24.dp),
-        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-        onDismissRequest = { /* Tidak melakukan apa-apa agar hanya bisa ditutup dengan tombol */ },
-        title = {
-            Text(
-                "Select Governor for ${clusterName.replaceFirstChar { it.titlecase() }}",
-                style = MaterialTheme.typography.headlineSmall
-            )
-        },
-        text = {
-            Column(modifier = Modifier.padding(top = 8.dp)) {
-                Spacer(modifier = Modifier.height(16.dp))
-                availableGovernors.sorted().forEach { governor -> // Urutkan daftar governor
+    BasicAlertDialog(
+        onDismissRequest = onDismiss,
+        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize().background(Color.Transparent),
+            contentAlignment = Alignment.Center
+        ) {
+            Card(
+                modifier = Modifier.fillMaxWidth(0.9f).heightIn(min = 300.dp, max = 600.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                shape = RoundedCornerShape(24.dp),
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    // Header
                     Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .clip(MaterialTheme.shapes.medium)
-                            .clickable { onGovernorSelected(governor) }
-                            .padding(vertical = 12.dp, horizontal = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        RadioButton(
-                            selected = (governor == currentSelectedGovernor),
-                            onClick = { onGovernorSelected(governor) },
-                            modifier = Modifier.size(20.dp),
-                            colors = RadioButtonDefaults.colors(
-                                selectedColor = MaterialTheme.colorScheme.primary,
-                                unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        Box(
+                            modifier = Modifier.size(56.dp).clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.primaryContainer),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Tune,
+                                contentDescription = "Governor",
+                                modifier = Modifier.size(28.dp),
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
                             )
-                        )
-                        Spacer(Modifier.width(16.dp))
+                        }
                         Text(
-                            governor,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = if (governor == currentSelectedGovernor) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurface
-                            }
+                            text = "Set Governor for ${clusterName.replaceFirstChar { it.titlecase() }}",
+                            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onSurface
                         )
+                    }
+
+                    // Options List
+                    LazyColumn(
+                        modifier = Modifier.heightIn(max = 350.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(availableGovernors.sorted()) { governor ->
+                            val isSelected = governor == currentSelectedGovernor
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer
+                                ),
+                                onClick = { onGovernorSelected(governor) }
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    RadioButton(
+                                        selected = isSelected,
+                                        onClick = { onGovernorSelected(governor) },
+                                        colors = RadioButtonDefaults.colors(
+                                            selectedColor = MaterialTheme.colorScheme.primary,
+                                            unselectedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                        )
+                                    )
+                                    Text(
+                                        text = governor,
+                                        style = MaterialTheme.typography.bodyLarge.copy(
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                        ),
+                                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // Dismiss Button
+                    OutlinedButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text("Close")
                     }
                 }
             }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = onDismiss,
-                colors = ButtonDefaults.textButtonColors(
-                    contentColor = MaterialTheme.colorScheme.primary
-                )
-            ) {
-                Text("Close", fontWeight = FontWeight.SemiBold)
-            }
-        },
-        dismissButton = null // Tidak perlu dismiss button eksplisit, onDismissRequest sudah cukup
-    )
+        }
+    }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MinFrequencySelectionDialog(
     clusterName: String,
     currentMinFreq: Int,
-    minSystemFreq: Int,
-    maxSystemFreq: Int,
     allAvailableFrequencies: List<Int>,
     onMinFrequencySelected: (min: Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    var selectedMinFreq by remember(currentMinFreq, allAvailableFrequencies) {
-        if (allAvailableFrequencies.isEmpty()) {
-            mutableIntStateOf(currentMinFreq)
-        } else {
-            mutableIntStateOf(findClosestFrequency(currentMinFreq.coerceIn(minSystemFreq, maxSystemFreq), allAvailableFrequencies))
-        }
-    }
-
-    // Update selected frequency when values change
-    LaunchedEffect(currentMinFreq, allAvailableFrequencies) {
-        if (allAvailableFrequencies.isNotEmpty()) {
-            selectedMinFreq = findClosestFrequency(currentMinFreq.coerceIn(minSystemFreq, maxSystemFreq), allAvailableFrequencies)
-        }
-    }
-
-    AlertDialog(
-        onDismissRequest = { /* Tidak melakukan apa-apa agar hanya bisa ditutup dengan tombol */ },
-        title = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+    BasicAlertDialog(
+        onDismissRequest = onDismiss,
+        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize().background(Color.Transparent),
+            contentAlignment = Alignment.Center
+        ) {
+            Card(
+                modifier = Modifier.fillMaxWidth(0.9f).heightIn(min = 300.dp, max = 600.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                shape = RoundedCornerShape(24.dp),
             ) {
-                Text("Select Minimum CPU Frequency")
-            }
-        },
-        shape = RoundedCornerShape(24.dp),
-        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-        text = {
-            Column {
-                Text(
-                    clusterName.replaceFirstChar { it.titlecase() },
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 16.dp, top = 4.dp)
-                )
-
-                if (allAvailableFrequencies.isEmpty()) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    // Header
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        CircularProgressIndicator(modifier = Modifier.size(32.dp))
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text("Loading frequencies...")
+                        Box(
+                            modifier = Modifier.size(56.dp).clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.primaryContainer),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Speed,
+                                contentDescription = "Frequency",
+                                modifier = Modifier.size(28.dp),
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                        Column {
+                            Text(
+                                text = "Set Min Frequency",
+                                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = clusterName.replaceFirstChar { it.titlecase() },
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
-                } else {
-                    LazyColumn {
-                        items(allAvailableFrequencies.sorted()) { frequency ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .selectable(
-                                        selected = frequency == selectedMinFreq,
-                                        onClick = { selectedMinFreq = frequency }
-                                    )
-                                    .padding(vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButton(
-                                    selected = frequency == selectedMinFreq,
-                                    onClick = { selectedMinFreq = frequency }
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = "${frequency / 1000} MHz",
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
+
+                    // Options List
+                    if (allAvailableFrequencies.isEmpty()) {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.heightIn(max = 350.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(allAvailableFrequencies.sorted()) { frequency ->
+                                val isSelected = frequency == currentMinFreq
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer
+                                    ),
+                                    onClick = { onMinFrequencySelected(frequency) }
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                    ) {
+                                        RadioButton(
+                                            selected = isSelected,
+                                            onClick = { onMinFrequencySelected(frequency) },
+                                            colors = RadioButtonDefaults.colors(
+                                                selectedColor = MaterialTheme.colorScheme.primary,
+                                                unselectedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                            )
+                                        )
+                                        Text(
+                                            text = "${frequency / 1000} MHz",
+                                            style = MaterialTheme.typography.bodyLarge.copy(
+                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                            ),
+                                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
+
+                    // Dismiss Button
+                    OutlinedButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text("Close")
+                    }
                 }
             }
-        },
-        confirmButton = {
-            // Only show dismiss button when loading
-            TextButton(
-                onClick = onDismiss,
-                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.primary)
-            ) {
-                Text("Close", fontWeight = FontWeight.Medium)
-            }
-        },
-        dismissButton = {
-            // Kosong karena sudah diimplementasikan di confirmButton
         }
-    )
+    }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MaxFrequencySelectionDialog(
     clusterName: String,
     currentMaxFreq: Int,
-    minSystemFreq: Int,
-    maxSystemFreq: Int,
     allAvailableFrequencies: List<Int>,
     onMaxFrequencySelected: (max: Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    var selectedMaxFreq by remember(currentMaxFreq, allAvailableFrequencies) {
-        if (allAvailableFrequencies.isEmpty()) {
-            mutableIntStateOf(currentMaxFreq)
-        } else {
-            mutableIntStateOf(findClosestFrequency(currentMaxFreq.coerceIn(minSystemFreq, maxSystemFreq), allAvailableFrequencies))
-        }
-    }
-
-    // Update selected frequency when values change
-    LaunchedEffect(currentMaxFreq, allAvailableFrequencies) {
-        if (allAvailableFrequencies.isNotEmpty()) {
-            selectedMaxFreq = findClosestFrequency(currentMaxFreq.coerceIn(minSystemFreq, maxSystemFreq), allAvailableFrequencies)
-        }
-    }
-
-    AlertDialog(
-        onDismissRequest = { /* Tidak melakukan apa-apa agar hanya bisa ditutup dengan tombol */ },
-        title = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+    BasicAlertDialog(
+        onDismissRequest = onDismiss,
+        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize().background(Color.Transparent),
+            contentAlignment = Alignment.Center
+        ) {
+            Card(
+                modifier = Modifier.fillMaxWidth(0.9f).heightIn(min = 300.dp, max = 600.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                shape = RoundedCornerShape(24.dp),
             ) {
-                Text("Select Maximum CPU Frequency")
-            }
-        },
-        shape = RoundedCornerShape(24.dp),
-        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-        text = {
-            Column {
-                Text(
-                    clusterName.replaceFirstChar { it.titlecase() },
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 16.dp, top = 4.dp)
-                )
-
-                if (allAvailableFrequencies.isEmpty()) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    // Header
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        CircularProgressIndicator(modifier = Modifier.size(32.dp))
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text("Loading frequencies...")
+                        Box(
+                            modifier = Modifier.size(56.dp).clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.primaryContainer),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Speed,
+                                contentDescription = "Frequency",
+                                modifier = Modifier.size(28.dp),
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                        Column {
+                            Text(
+                                text = "Set Max Frequency",
+                                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = clusterName.replaceFirstChar { it.titlecase() },
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
-                } else {
-                    LazyColumn {
-                        items(allAvailableFrequencies.sorted()) { frequency ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .selectable(
-                                        selected = frequency == selectedMaxFreq,
-                                        onClick = { selectedMaxFreq = frequency }
-                                    )
-                                    .padding(vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButton(
-                                    selected = frequency == selectedMaxFreq,
-                                    onClick = { selectedMaxFreq = frequency }
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = "${frequency / 1000} MHz",
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
+
+                    // Options List
+                    if (allAvailableFrequencies.isEmpty()) {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.heightIn(max = 350.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(allAvailableFrequencies.sorted()) { frequency ->
+                                val isSelected = frequency == currentMaxFreq
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer
+                                    ),
+                                    onClick = { onMaxFrequencySelected(frequency) }
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                    ) {
+                                        RadioButton(
+                                            selected = isSelected,
+                                            onClick = { onMaxFrequencySelected(frequency) },
+                                            colors = RadioButtonDefaults.colors(
+                                                selectedColor = MaterialTheme.colorScheme.primary,
+                                                unselectedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                            )
+                                        )
+                                        Text(
+                                            text = "${frequency / 1000} MHz",
+                                            style = MaterialTheme.typography.bodyLarge.copy(
+                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                            ),
+                                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
+
+                    // Dismiss Button
+                    OutlinedButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text("Close")
+                    }
                 }
             }
-        },
-        confirmButton = {
-            // Only show dismiss button when loading
-            TextButton(
-                onClick = onDismiss,
-                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.primary)
-            ) {
-                Text("Close", fontWeight = FontWeight.Medium)
-            }
-        },
-        dismissButton = {
-            // Kosong karena sudah diimplementasikan di confirmButton
         }
-    )
+    }
 }
 
 @Composable
@@ -608,7 +679,14 @@ private fun CoreStatusDialog(
                 onClick = onDismiss,
                 colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.primary)
             ) {
-                Text("Done", fontWeight = FontWeight.Medium)
+                // Dismiss Button
+                OutlinedButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text("Close")
+                }
             }
         }
     )
