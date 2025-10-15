@@ -1259,37 +1259,7 @@ class TuningRepository @Inject constructor(
         }
     }
 
-    // Traditional swap size management (not ZRAM)
-    fun setSwapTotal(sizeBytes: Long): Boolean {
-        return try {
-            if (sizeBytes == 0L) {
-                // Disable swap
-                executeShellCommand("swapoff -a")
-            } else {
-                // Create or resize swap file
-                val swapFile = "/data/swapfile"
-                val sizeMB = sizeBytes / 1024 / 1024
 
-                // Remove existing swap file
-                executeShellCommand("swapoff $swapFile 2>/dev/null || true")
-                executeShellCommand("rm -f $swapFile")
-
-                if (sizeMB > 0) {
-                    // Create new swap file
-                    val success = executeShellCommand("dd if=/dev/zero of=$swapFile bs=1M count=$sizeMB") &&
-                                 executeShellCommand("chmod 600 $swapFile") &&
-                                 executeShellCommand("mkswap $swapFile") &&
-                                 executeShellCommand("swapon $swapFile")
-                    success
-                } else {
-                    true
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error setting swap size: ${e.message}")
-            false
-        }
-    }
 
     fun getSwapTotal(): Flow<Long> = flow {
         val swapInfo = readShellCommand("cat /proc/swaps")

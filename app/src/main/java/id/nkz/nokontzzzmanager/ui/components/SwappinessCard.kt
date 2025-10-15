@@ -51,10 +51,7 @@ fun SwappinessCard(
     val dirtyWriteback by vm.dirtyWriteback.collectAsState()
     val dirtyExpireCentisecs by vm.dirtyExpireCentisecs.collectAsState()
     val minFreeMemory by vm.minFreeMemory.collectAsState()
-    val swapSize by vm.swapSize.collectAsState()
-    val maxSwapSize by vm.maxSwapSize.collectAsState()
-    val isSwapLoading by vm.isSwapLoading.collectAsState()
-    val swapLogs by vm.swapLogs.collectAsState()
+
 
     var isExpanded by remember { mutableStateOf(false) }
 
@@ -67,7 +64,7 @@ fun SwappinessCard(
     var showDirtyWritebackDialog by remember { mutableStateOf(false) }
     var showDirtyExpireDialog by remember { mutableStateOf(false) }
     var showMinFreeMemoryDialog by remember { mutableStateOf(false) }
-    var showAdjustSwapSizeDialog by remember { mutableStateOf(false) }
+
 
     Card(
         modifier = Modifier,
@@ -162,7 +159,7 @@ fun SwappinessCard(
                             description = "Memory swap aggressiveness",
                             color = MaterialTheme.colorScheme.primary,
                             onClick = { showSwappinessDialog = true },
-                            shape = getRoundedCornerShape(0, 7) // First card in group of 7
+                            shape = getRoundedCornerShape(0, 6) // First card in group of 6
                         )
 
                         RamSettingItem(
@@ -172,7 +169,7 @@ fun SwappinessCard(
                             description = "Page cache dirty data threshold",
                             color = MaterialTheme.colorScheme.primary,
                             onClick = { showDirtyRatioDialog = true },
-                            shape = getRoundedCornerShape(1, 7) // Second card in group of 7
+                            shape = getRoundedCornerShape(1, 6) // Second card in group of 6
                         )
 
                         RamSettingItem(
@@ -182,7 +179,7 @@ fun SwappinessCard(
                             description = "Background writeback threshold",
                             color = MaterialTheme.colorScheme.primary,
                             onClick = { showDirtyBgRatioDialog = true },
-                            shape = getRoundedCornerShape(2, 7) // Third card in group of 7
+                            shape = getRoundedCornerShape(2, 6) // Third card in group of 6
                         )
 
                         RamSettingItem(
@@ -192,7 +189,7 @@ fun SwappinessCard(
                             description = "Writeback interval time",
                             color = MaterialTheme.colorScheme.primary,
                             onClick = { showDirtyWritebackDialog = true },
-                            shape = getRoundedCornerShape(3, 7) // Fourth card in group of 7
+                            shape = getRoundedCornerShape(3, 6) // Fourth card in group of 6
                         )
 
                         RamSettingItem(
@@ -202,7 +199,7 @@ fun SwappinessCard(
                             description = "Page expiration time",
                             color = MaterialTheme.colorScheme.primary,
                             onClick = { showDirtyExpireDialog = true },
-                            shape = getRoundedCornerShape(4, 7) // Fifth card in group of 7
+                            shape = getRoundedCornerShape(4, 6) // Fifth card in group of 6
                         )
 
                         RamSettingItem(
@@ -212,17 +209,7 @@ fun SwappinessCard(
                             description = "Minimum free memory reserve",
                             color = MaterialTheme.colorScheme.primary,
                             onClick = { showMinFreeMemoryDialog = true },
-                            shape = getRoundedCornerShape(5, 7) // Sixth card in group of 7
-                        )
-
-                        RamSettingItem(
-                            icon = Icons.Default.SwapHoriz,
-                            title = "Swap Size",
-                            value = if (swapSize == 0L) "Disabled" else "${swapSize / (1024 * 1024)}MB",
-                            description = "Virtual memory swap file size",
-                            color = MaterialTheme.colorScheme.primary,
-                            onClick = { showAdjustSwapSizeDialog = true },
-                            shape = getRoundedCornerShape(6, 7) // Seventh card in group of 7
+                            shape = getRoundedCornerShape(5, 6) // Sixth card in group of 6
                         )
                     }
                 }
@@ -353,25 +340,7 @@ fun SwappinessCard(
         )
     }
 
-    if (showAdjustSwapSizeDialog) {
-        SwapSizeDialog(
-            currentSize = swapSize,
-            maxSize = maxSwapSize,
-            onDismiss = { showAdjustSwapSizeDialog = false },
-            onConfirm = { newSizeInBytes: Long ->
-                vm.setSwapSize(newSizeInBytes)
-                showAdjustSwapSizeDialog = false
-            }
-        )
-    }
 
-    // Show loading dialog when swap operation is in progress
-    if (isSwapLoading) {
-        SwapLoadingDialog(
-            logs = swapLogs,
-            onDismissRequest = { } // Cannot dismiss while loading
-        )
-    }
 }
 
 @Composable
@@ -1113,284 +1082,7 @@ fun CompressionAlgorithmDialog(
         })
 }
 
-@Composable
-fun SwapSizeDialog(
-    currentSize: Long,
-    maxSize: Long,
-    onDismiss: () -> Unit,
-    onConfirm: (Long) -> Unit
-) {
-    SliderSettingDialog(
-        showDialog = true,
-        title = "Set Swap Size",
-        currentValue = if (currentSize == 0L) 0 else (currentSize / (1024 * 1024)).toInt(),
-        valueSuffix = " MB",
-        valueRange = 0f..(maxSize / (1024 * 1024)).toFloat(),
-        steps = (maxSize / (1024 * 1024)).toInt() / 128,
-        onDismissRequest = onDismiss,
-        onApplyClicked = { newValue ->
-            onConfirm(if (newValue == 0) 0L else newValue * 1024L * 1024L)
-        }
-    )
-}
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SwapLoadingDialog(
-    logs: List<String>,
-    onDismissRequest: () -> Unit
-) {
-    BasicAlertDialog(
-        onDismissRequest = { }, // Cannot dismiss while loading
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
-        properties = DialogProperties(
-            dismissOnBackPress = false,
-            dismissOnClickOutside = false,
-            usePlatformDefaultWidth = false
-        ),
-        content = {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Transparent),
-                contentAlignment = Alignment.Center
-            ) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth(0.9f)
-                        .heightIn(min = 300.dp, max = 600.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-                    ),
-                    shape = RoundedCornerShape(24.dp),
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .padding(24.dp)
-                            .heightIn(max = 550.dp),
-                        verticalArrangement = Arrangement.spacedBy(20.dp)
-                    ) {
-                        // Enhanced header with animated progress indicator
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .clip(RoundedCornerShape(24.dp))
-                                    .background(
-                                        Brush.radialGradient(
-                                            colors = listOf(
-                                                MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
-                                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
-                                                Color.Transparent
-                                            ),
-                                            radius = 60f
-                                        )
-                                    )
-                                    .border(
-                                        1.dp,
-                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
-                                        RoundedCornerShape(24.dp)
-                                    ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(24.dp),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    strokeWidth = 3.dp
-                                )
-                            }
-
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = "Processing Swap File...",
-                                    style = MaterialTheme.typography.headlineSmall.copy(
-                                        fontWeight = FontWeight.Bold
-                                    ),
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Text(
-                                    text = "Configuring Virtual Memory",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        }
-
-                        // Enhanced explanation card
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-                            ),
-                            shape = RoundedCornerShape(24.dp),
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Info,
-                                        contentDescription = "Info",
-                                        modifier = Modifier.size(16.dp),
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                    Text(
-                                        text = "Process in Progress",
-                                        style = MaterialTheme.typography.labelLarge.copy(
-                                            fontWeight = FontWeight.SemiBold
-                                        ),
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                }
-                                Text(
-                                    text = "The system is configuring the swap file to increase virtual memory capacity. This process may take a while depending on the size of the file being configured.",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    lineHeight = 18.sp
-                                )
-                            }
-                        }
-
-                        // Enhanced logs section with better styling - Always visible to prevent flickering
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f, false),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-                            ),
-                            shape = RoundedCornerShape(24.dp),
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Terminal,
-                                        contentDescription = "Logs",
-                                        modifier = Modifier.size(16.dp),
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                    Text(
-                                        text = "Real-time Process Log",
-                                        style = MaterialTheme.typography.labelLarge.copy(
-                                            fontWeight = FontWeight.SemiBold
-                                        ),
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                }
-
-                                // Scrollable logs with better formatting
-                                val listState = rememberLazyListState()
-
-                                // Auto-scroll to bottom when new logs are added
-                                LaunchedEffect(logs.size) {
-                                    if (logs.isNotEmpty()) {
-                                        listState.animateScrollToItem(logs.size - 1)
-                                    }
-                                }
-
-                                LazyColumn(
-                                    state = listState,
-                                    modifier = Modifier.heightIn(min = 80.dp, max = 250.dp),
-                                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                                ) {
-                                    if (logs.isEmpty()) {
-                                        item {
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(8.dp),
-                                                horizontalArrangement = Arrangement.Center,
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Text(
-                                                    text = "Initializing process...",
-                                                    style = MaterialTheme.typography.bodySmall.copy(
-                                                        fontWeight = FontWeight.Normal
-                                                    ),
-                                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                                                    lineHeight = 16.sp
-                                                )
-                                            }
-                                        }
-                                    } else {
-                                        items(logs.takeLast(50)) { log -> // Limit to last 50 logs for performance
-                                            Row(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                                verticalAlignment = Alignment.Top
-                                            ) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .size(4.dp)
-                                                        .clip(CircleShape)
-                                                        .background(MaterialTheme.colorScheme.primary)
-                                                        .offset(y = 6.dp)
-                                                )
-
-                                                Text(
-                                                    text = log,
-                                                    style = MaterialTheme.typography.bodySmall.copy(
-                                                        fontWeight = FontWeight.Normal
-                                                    ),
-                                                    color = MaterialTheme.colorScheme.onSurface,
-                                                    lineHeight = 16.sp,
-                                                    modifier = Modifier.weight(1f)
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        // Progress indicator section
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-                            ),
-                            shape = RoundedCornerShape(24.dp),
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(16.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(16.dp),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    strokeWidth = 2.dp
-                                )
-                                Text(
-                                    text = "Please wait, do not close the application...",
-                                    style = MaterialTheme.typography.bodySmall.copy(
-                                        fontWeight = FontWeight.Medium
-                                    ),
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    )
-}
 
 private fun getRoundedCornerShape(index: Int, totalItems: Int): RoundedCornerShape {
     return when (totalItems) {
