@@ -764,8 +764,7 @@ class SystemRepository @Inject constructor(
             screenResolution = displayInfo.resolution,
             displayTechnology = displayInfo.technology,
             refreshRate = displayInfo.refreshRate,
-            screenDpi = displayInfo.dpi,
-            gpuRenderer = getGpuRenderer()
+            screenDpi = displayInfo.dpi
         )
     }
 
@@ -830,22 +829,7 @@ class SystemRepository @Inject constructor(
         }
     }
 
-    private fun getGpuRenderer(): String {
-        return try {
-            // Try to get GPU info from system properties
-            val gpuInfo = getSystemProperty("ro.hardware.gpu")
-                ?: getSystemProperty("ro.opengles.version")
-                ?: getSystemProperty("ro.gpu.driver")
 
-            when {
-                gpuInfo?.contains("adreno", ignoreCase = true) == true -> "Qualcomm Adreno"
-                else -> gpuInfo ?: VALUE_UNKNOWN
-            }
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to get GPU renderer", e)
-            VALUE_UNKNOWN
-        }
-    }
 
     private fun getChargingTypeFromStatus(statusString: String?): String {
         return when {

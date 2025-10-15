@@ -12,7 +12,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.VideogameAsset
@@ -22,8 +21,6 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.Monitor
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -39,7 +36,6 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -70,7 +66,6 @@ fun GpuControlCard(
     // State variables
     var isExpanded by remember { mutableStateOf(false) }
     var showGovernorDialog by remember { mutableStateOf(false) }
-    var showRendererDialog by remember { mutableStateOf(false) }
     var showMinFreqDialog by remember { mutableStateOf(false) }
     var showMaxFreqDialog by remember { mutableStateOf(false) }
 
@@ -82,8 +77,6 @@ fun GpuControlCard(
     val availableGpuFrequencies by tuningViewModel.availableGpuFrequencies.collectAsState()
     val gpuPowerLevelRange by tuningViewModel.gpuPowerLevelRange.collectAsState()
     val currentGpuPowerLevel by tuningViewModel.currentGpuPowerLevel.collectAsState()
-    val currentRenderer by tuningViewModel.currentGpuRenderer.collectAsState()
-    val availableRenderers = tuningViewModel.availableGpuRenderers
     
     // State for power level that updates during dragging but only applies when released
     var tempPowerLevel by remember { mutableFloatStateOf(currentGpuPowerLevel) }
@@ -322,54 +315,7 @@ fun GpuControlCard(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
 
-                    // GPU Renderer Control
-                    GPUControlSection(
-                        title = "GPU Renderer",
-                        description = "Select graphics rendering backend",
-                        icon = Icons.Default.Monitor
-                    ) {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { showRendererDialog = true },
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surface
-                            ),
-                            shape = getRoundedCornerShape(0, 1) // Only one item
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = "Current Renderer",
-                                        fontSize = 12.sp,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                                    )
-                                    Text(
-                                        text = currentRenderer.takeIf { it != "Loading..." && it.isNotBlank() } ?: "Default",
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-                                }
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                    contentDescription = "Change Renderer",
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-                        }
-                    }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -534,86 +480,7 @@ fun GpuControlCard(
         )
     }
 
-    // Renderer Selection Dialog
-    if (showRendererDialog) {
-        AlertDialog(
-            onDismissRequest = { showRendererDialog = true },
-            title = {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text("Select GPU Renderer")
-                }
-            },
-            text = {
-                LazyColumn {
-                    items(availableRenderers, key = { it }) { renderer ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .selectable(
-                                    selected = renderer == currentRenderer,
-                                    onClick = {
-                                        coroutineScope.launch {
-                                            tuningViewModel.userSelectedGpuRenderer(renderer)
-                                        }
-                                        showRendererDialog = false
-                                    }
-                                )
-                                .padding(vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(
-                                selected = renderer == currentRenderer,
-                                onClick = {
-                                    coroutineScope.launch {
-                                        tuningViewModel.userSelectedGpuRenderer(renderer)
-                                    }
-                                    showRendererDialog = false
-                                }
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column {
-                                Text(
-                                    text = renderer,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Medium
-                                )
-                                when (renderer) {
-                                    "OpenGL" -> Text(
-                                        text = "Traditional rendering",
-                                        fontSize = 10.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    "Vulkan" -> Text(
-                                        text = "Modern low-overhead API",
-                                        fontSize = 10.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    "ANGLE" -> Text(
-                                        text = "OpenGL ES on Direct3D",
-                                        fontSize = 10.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    "Default" -> Text(
-                                        text = "System default",
-                                        fontSize = 10.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showRendererDialog = false }) {
-                    Text("Close")
-                }
-            }
-        )
-    }
+
 
     // Min Frequency Selection Dialog
     if (showMinFreqDialog) {

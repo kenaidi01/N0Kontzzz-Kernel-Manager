@@ -87,15 +87,8 @@ class TuningViewModel @Inject constructor(
     private val _currentOpenGlesDriver = MutableStateFlow("Loading...")
     val currentOpenGlesDriver: StateFlow<String> = _currentOpenGlesDriver.asStateFlow()
 
-    private val _currentGpuRenderer = MutableStateFlow("Loading...")
-    val currentGpuRenderer: StateFlow<String> = _currentGpuRenderer.asStateFlow()
-
     private val _vulkanApiVersion = MutableStateFlow("Loading...")
     val vulkanApiVersion: StateFlow<String> = _vulkanApiVersion.asStateFlow()
-
-    val availableGpuRenderers = listOf(
-        "Default", "OpenGL", "Vulkan", "ANGLE", "OpenGL (SKIA)", "Vulkan (SKIA)"
-    )
 
     /* ---------------- Reboot dialog ---------------- */
     private val _showRebootConfirmationDialog = MutableStateFlow(false)
@@ -203,7 +196,6 @@ class TuningViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             launch { fetchGpuData() }
             launch { fetchOpenGlesDriver() }
-            launch { fetchCurrentGpuRenderer() }
             launch { fetchVulkanApiVersion() }
         }
     }
@@ -442,26 +434,9 @@ class TuningViewModel @Inject constructor(
         repo.getOpenGlesDriver().collect { _currentOpenGlesDriver.value = it }
     }
 
-    private fun fetchCurrentGpuRenderer() = viewModelScope.launch(Dispatchers.IO) {
-        repo.getGpuRenderer().collect { renderer ->
-            _currentGpuRenderer.value = renderer
-        }
-    }
-
     private fun fetchVulkanApiVersion() = viewModelScope.launch(Dispatchers.IO) {
         repo.getVulkanApiVersion().collect { version ->
             _vulkanApiVersion.value = version
-        }
-    }
-
-    fun userSelectedGpuRenderer(renderer: String) = viewModelScope.launch(Dispatchers.IO) {
-        repo.setGpuRenderer(renderer).collect { success ->
-            if (success) {
-                _currentGpuRenderer.value = renderer
-                _showRebootConfirmationDialog.value = true
-            } else {
-                _rebootCommandFeedback.emit("Gagal mengatur GPU Renderer.")
-            }
         }
     }
 

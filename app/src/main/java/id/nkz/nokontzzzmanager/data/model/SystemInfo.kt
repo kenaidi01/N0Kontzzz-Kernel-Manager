@@ -13,6 +13,5 @@ data class SystemInfo(
     val screenResolution: String,
     val displayTechnology: String,
     val refreshRate: String,
-    val screenDpi: String,
-    val gpuRenderer: String
+    val screenDpi: String
 )

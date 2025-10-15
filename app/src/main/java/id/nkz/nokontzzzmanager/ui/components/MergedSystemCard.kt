@@ -997,21 +997,7 @@ private fun DeviceInfoCard(
                         )
                     }
 
-                    // Device Info Row 6 - GPU Renderer
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        SystemStatItem(
-                            icon = Icons.Default.Videocam,
-                            label = "GPU Renderer",
-                            value = systemInfo.gpuRenderer,
-                            modifier = Modifier.weight(1f)
-                        )
 
-                        // Empty placeholder to maintain layout balance
-                        Box(modifier = Modifier.weight(1f))
-                    }
                 }
             }
         }
