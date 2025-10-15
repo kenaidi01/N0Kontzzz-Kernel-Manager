@@ -840,6 +840,27 @@ fun getFeatureIcon(title: String): ImageVector {
 }
 
 // Placeholder dialog composables - these need to be implemented based on your existing dialogs
+// Helper function to generate ZRAM size options in bytes
+private fun generateZramOptions(maxSize: Long): List<Long> {
+    val options = mutableListOf<Long>()
+    var currentSizeMb = 512L
+
+    // Add options in 512MB increments
+    while (currentSizeMb * 1024 * 1024 <= maxSize) {
+        options.add(currentSizeMb * 1024 * 1024)
+        currentSizeMb += 512
+    }
+
+    // Ensure the maximum size is always an option if it's not already included
+    if (options.lastOrNull() != maxSize && maxSize > 0) {
+        options.add(maxSize)
+    }
+    
+    // Return a distinct and sorted list
+    return options.distinct().sorted()
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ZramSizeDialog(
     currentSize: Long,
@@ -847,18 +868,120 @@ fun ZramSizeDialog(
     onDismiss: () -> Unit,
     onConfirm: (Long) -> Unit
 ) {
-    SliderSettingDialog(
-        showDialog = true,
-        title = "Set ZRAM Size",
-        currentValue = (currentSize / (1024 * 1024)).toInt(),
-        valueSuffix = " MB",
-        valueRange = 128f..(maxSize / (1024 * 1024)).toFloat(),
-        steps = ((maxSize / (1024 * 1024)) - 128).toInt() / 128,
+    val zramOptions = remember(maxSize) { generateZramOptions(maxSize) }
+
+    BasicAlertDialog(
         onDismissRequest = onDismiss,
-        onApplyClicked = { newValue ->
-            onConfirm(newValue * 1024L * 1024L)
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true,
+            usePlatformDefaultWidth = false
+        )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Transparent),
+            contentAlignment = Alignment.Center
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .heightIn(min = 300.dp, max = 600.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                ),
+                shape = RoundedCornerShape(24.dp),
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    // Header
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(56.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(MaterialTheme.colorScheme.primaryContainer),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Storage,
+                                contentDescription = "ZRAM Size",
+                                modifier = Modifier.size(28.dp),
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                        Text(
+                            text = "Set ZRAM Size",
+                            style = MaterialTheme.typography.headlineSmall.copy(
+                                fontWeight = FontWeight.Bold
+                            ),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    // Options List
+                    LazyColumn(
+                        modifier = Modifier.heightIn(max = 350.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(zramOptions) { sizeBytes ->
+                            val isSelected = sizeBytes == currentSize
+                            val sizeMb = sizeBytes / (1024 * 1024)
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer
+                                ),
+                                onClick = { onConfirm(sizeBytes) }
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    RadioButton(
+                                        selected = isSelected,
+                                        onClick = { onConfirm(sizeBytes) },
+                                        colors = RadioButtonDefaults.colors(
+                                            selectedColor = MaterialTheme.colorScheme.primary,
+                                            unselectedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                        )
+                                    )
+                                    Text(
+                                        text = "$sizeMb MB",
+                                        style = MaterialTheme.typography.bodyLarge.copy(
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                        ),
+                                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // Dismiss Button
+                    OutlinedButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text("Close")
+                    }
+                }
+            }
         }
-    )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
