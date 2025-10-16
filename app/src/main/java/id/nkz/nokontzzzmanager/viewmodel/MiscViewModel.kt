@@ -25,6 +25,12 @@ class MiscViewModel @Inject constructor(
     private val _isKgslFeatureAvailable = MutableStateFlow<Boolean?>(null)
     val isKgslFeatureAvailable: StateFlow<Boolean?> = _isKgslFeatureAvailable.asStateFlow()
 
+    private val _bypassChargingEnabled = MutableStateFlow(false)
+    val bypassChargingEnabled: StateFlow<Boolean> = _bypassChargingEnabled.asStateFlow()
+
+    private val _isBypassChargingAvailable = MutableStateFlow<Boolean?>(null)
+    val isBypassChargingAvailable: StateFlow<Boolean?> = _isBypassChargingAvailable.asStateFlow()
+
     private val _tcpCongestionAlgorithm = MutableStateFlow<String?>(null)
     val tcpCongestionAlgorithm: StateFlow<String?> = _tcpCongestionAlgorithm.asStateFlow()
 
@@ -51,6 +57,10 @@ class MiscViewModel @Inject constructor(
         
         // Check if KGSL feature is available
         _isKgslFeatureAvailable.value = systemRepository.isKgslFeatureAvailable()
+
+        // Load bypass charging state
+        _bypassChargingEnabled.value = preferenceManager.getBypassCharging()
+        _isBypassChargingAvailable.value = systemRepository.isBypassChargingAvailable()
         
         // Load TCP congestion algorithm
         loadTcpCongestionAlgorithm()
@@ -72,6 +82,19 @@ class MiscViewModel @Inject constructor(
                 // If failed, revert the state to the actual value
                 _kgslSkipZeroingEnabled.value = systemRepository.getKgslSkipZeroing()
                 preferenceManager.setKgslSkipZeroing(_kgslSkipZeroingEnabled.value)
+            }
+        }
+    }
+
+    fun toggleBypassCharging(enabled: Boolean) {
+        viewModelScope.launch {
+            val success = systemRepository.setBypassCharging(enabled)
+            if (success) {
+                _bypassChargingEnabled.value = enabled
+                preferenceManager.setBypassCharging(enabled)
+            } else {
+                _bypassChargingEnabled.value = systemRepository.getBypassCharging()
+                preferenceManager.setBypassCharging(_bypassChargingEnabled.value)
             }
         }
     }

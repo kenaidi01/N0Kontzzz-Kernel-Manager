@@ -17,6 +17,7 @@ class PreferenceManager @Inject constructor(
     companion object {
         private const val KEY_TARGET_GAME_PACKAGES = "target_game_packages"
         private const val KEY_KGSL_SKIP_ZEROING = "kgsl_skip_zeroing"
+        private const val KEY_BYPASS_CHARGING = "bypass_charging"
     }
 
     fun setTargetGamePackages(packages: Set<String>) {
@@ -37,5 +38,15 @@ class PreferenceManager @Inject constructor(
 
     fun getKgslSkipZeroing(): Boolean {
         return sharedPreferences.getBoolean(KEY_KGSL_SKIP_ZEROING, false)
+    }
+
+    fun setBypassCharging(enabled: Boolean) {
+        sharedPreferences.edit {
+            putBoolean(KEY_BYPASS_CHARGING, enabled)
+        }
+    }
+
+    fun getBypassCharging(): Boolean {
+        return sharedPreferences.getBoolean(KEY_BYPASS_CHARGING, false)
     }
 }

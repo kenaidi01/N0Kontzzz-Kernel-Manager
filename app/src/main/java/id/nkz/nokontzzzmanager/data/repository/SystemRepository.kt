@@ -1209,6 +1209,28 @@ class SystemRepository @Inject constructor(
         return value?.toIntOrNull() == 1
     }
 
+    private val bypassChargingPath = "/sys/class/power_supply/battery/input_suspend"
+
+    fun isBypassChargingAvailable(): Boolean {
+        val file = File(bypassChargingPath)
+        if (file.exists()) {
+            return true
+        }
+        // If the file doesn't exist directly, try reading it with root.
+        // readFileToString will return null if the file doesn't exist even with root.
+        return readFileToString(bypassChargingPath, "Bypass Charging Status Check") != null
+    }
+
+    fun getBypassCharging(): Boolean {
+        val value = readFileToString(bypassChargingPath, "Bypass Charging Status")
+        return value?.trim() == "1"
+    }
+
+    fun setBypassCharging(enabled: Boolean): Boolean {
+        val value = if (enabled) "1" else "0"
+        return writeStringToFile(bypassChargingPath, value, "Bypass Charging")
+    }
+
     // TCP Congestion Control Algorithm functions
 
     private fun getCurrentTcpCongestionAlgorithm(): String? {

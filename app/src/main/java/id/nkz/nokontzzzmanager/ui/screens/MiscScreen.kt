@@ -52,6 +52,8 @@ fun MiscScreen(
 
     val kgslSkipZeroingEnabled by viewModel.kgslSkipZeroingEnabled.collectAsState()
     val isKgslFeatureAvailable by viewModel.isKgslFeatureAvailable.collectAsState()
+    val bypassChargingEnabled by viewModel.bypassChargingEnabled.collectAsState()
+    val isBypassChargingAvailable by viewModel.isBypassChargingAvailable.collectAsState()
 
     LazyColumn(
         state = lazyListState,
@@ -67,6 +69,17 @@ fun MiscScreen(
                 isKgslFeatureAvailable = isKgslFeatureAvailable,
                 onToggleKgslSkipZeroing = { enabled ->
                     viewModel.toggleKgslSkipZeroing(enabled)
+                }
+            )
+        }
+
+        // Bypass Charging feature
+        item {
+            BypassChargingCard(
+                bypassChargingEnabled = bypassChargingEnabled,
+                isBypassChargingAvailable = isBypassChargingAvailable,
+                onToggleBypassCharging = { enabled ->
+                    viewModel.toggleBypassCharging(enabled)
                 }
             )
         }
@@ -333,5 +346,117 @@ fun IoSchedulerCard(
             },
             onDismiss = { showDialog = false }
         )
+    }
+}
+
+@Composable
+fun BypassChargingCard(
+    bypassChargingEnabled: Boolean,
+    isBypassChargingAvailable: Boolean?,
+    onToggleBypassCharging: (Boolean) -> Unit
+) {
+    // Treat null as false for UI purposes, preventing flicker during initial load
+    val featureAvailable = isBypassChargingAvailable == true
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp, 8.dp, 8.dp, 8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Bypass Charging",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = if (featureAvailable) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(
+                            alpha = 0.5f
+                        )
+                    )
+                    Text(
+                        text = if (featureAvailable) {
+                            "Charge the device without charging the battery. May preserve battery health. Make sure the kernel is supported."
+                        } else {
+                            "Feature not available in your kernel version."
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (featureAvailable) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(
+                            alpha = 0.5f
+                        )
+                    )
+                }
+
+                Switch(
+                    checked = bypassChargingEnabled && featureAvailable,
+                    onCheckedChange = { if (featureAvailable) onToggleBypassCharging(!bypassChargingEnabled) },
+                    enabled = featureAvailable,
+                    thumbContent = if (bypassChargingEnabled && featureAvailable) {
+                        {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(SwitchDefaults.IconSize),
+                            )
+                        }
+                    } else {
+                        {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.inverseOnSurface,
+                                modifier = Modifier.size(SwitchDefaults.IconSize),
+                            )
+                        }
+                    }
+                )
+            }
+
+            if (bypassChargingEnabled && featureAvailable) {
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = "Bypass Charging Activated",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                        Text(
+                            text = "Bypass charging is active. The battery is not charging.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                }
+            }
+        }
     }
 }
