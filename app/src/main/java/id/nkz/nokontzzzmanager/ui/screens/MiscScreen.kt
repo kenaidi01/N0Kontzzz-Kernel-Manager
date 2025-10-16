@@ -62,6 +62,11 @@ fun MiscScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
+        // Group 1: GPU & Power
+        item {
+            Text("GPU & Power", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
         // KGSL Skip Pool Zeroing feature
         item {
             KgslSkipZeroingCard(
@@ -82,6 +87,17 @@ fun MiscScreen(
                     viewModel.toggleBypassCharging(enabled)
                 }
             )
+        }
+
+        // Spacer between groups
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        // Group 2: Network & Storage
+        item {
+            Text("Network & Storage", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+            Spacer(modifier = Modifier.height(8.dp))
         }
         
         // TCP Congestion Control Algorithm feature
@@ -121,7 +137,7 @@ fun KgslSkipZeroingCard(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp, 24.dp, 8.dp, 8.dp),
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp, bottomStart = 8.dp, bottomEnd = 8.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         )
@@ -232,7 +248,7 @@ fun TcpCongestionControlCard(
     
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(8.dp, 8.dp, 8.dp, 8.dp),
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp, bottomStart = 8.dp, bottomEnd = 8.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),
@@ -296,7 +312,7 @@ fun IoSchedulerCard(
     
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(8.dp, 8.dp, 24.dp, 24.dp),
+        shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp, bottomStart = 24.dp, bottomEnd = 24.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),
@@ -360,7 +376,7 @@ fun BypassChargingCard(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(8.dp, 8.dp, 8.dp, 8.dp),
+        shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp, bottomStart = 24.dp, bottomEnd = 24.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         )
