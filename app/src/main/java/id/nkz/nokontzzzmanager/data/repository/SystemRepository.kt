@@ -1128,7 +1128,8 @@ class SystemRepository @Inject constructor(
     private fun getAvailableKgslPath(): String? {
         val paths = listOf(
             "/sys/kernel/n0kz_attributes/kgsl_skip_zeroing",
-            "/sys/kernel/n0kz_attributes/n0kz_kgsl_skip_zeroing"
+            "/sys/kernel/n0kz_attributes/n0kz_kgsl_skip_zeroing",
+            "/sys/kernel/fusionx_attributes/fusionx_kgsl_skip_zeroing"
         )
         
         for (path in paths) {
@@ -1188,7 +1189,8 @@ class SystemRepository @Inject constructor(
         try {
             val paths = listOf(
                 "/sys/kernel/n0kz_attributes/kgsl_skip_zeroing",
-                "/sys/kernel/n0kz_attributes/n0kz_kgsl_skip_zeroing"
+                "/sys/kernel/n0kz_attributes/n0kz_kgsl_skip_zeroing",
+                "/sys/kernel/fusionx_attributes/fusionx_kgsl_skip_zeroing"
             )
             
             for (path in paths) {
