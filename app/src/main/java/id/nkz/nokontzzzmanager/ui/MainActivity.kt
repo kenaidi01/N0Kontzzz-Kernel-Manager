@@ -297,15 +297,21 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun isKernelSupported(): Boolean {
-        // Check if the kernel has one of the supported signatures
-        // This approach focuses on checking /proc/version which is more reliable
         val supportedSignatures = listOf(
-            "bimoalfarrabi@github.com",
-            "N0Kontzzz"
+            "N0Kontzzz",
+            "FusionX"
         )
-        
+
+        val fusionXSupportedHosts = listOf(
+            "Kenskuyy@Github",
+            "andriann@ServerHive"
+        )
+
+        val n0KontzzzSupportedHosts = listOf(
+            "bimoalfarrabi@github.com"
+        )
+
         try {
-            // Try to read /proc/version with root access
             var versionLine: String?
 
             try {
@@ -315,23 +321,28 @@ class MainActivity : ComponentActivity() {
                 versionReader.close()
                 versionProcess.waitFor()
             } catch (e: Exception) {
-                // If we can't read the file, assume kernel is not supported
                 return false
             }
-            
-            // Check if the version string contains any supported signature
+
             if (versionLine != null) {
                 for (signature in supportedSignatures) {
                     if (versionLine.contains(signature, ignoreCase = true)) {
-                        return true
+                        return when (signature.lowercase()) {
+                            "fusionx" -> {
+                                fusionXSupportedHosts.any { versionLine.contains(it, ignoreCase = true) }
+                            }
+
+                            "n0kontzzz" -> {
+                                n0KontzzzSupportedHosts.any { versionLine.contains(it, ignoreCase = true) }
+                            }
+
+                            else -> true
+                        }
                     }
                 }
             }
-            
-            // If no supported signature is found, kernel is not supported
             return false
         } catch (e: Exception) {
-            // If we can't determine, assume it's not supported for security
             return false
         }
     }
