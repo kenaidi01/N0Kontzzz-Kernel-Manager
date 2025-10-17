@@ -72,7 +72,7 @@ class RootActionService : Service() {
     private fun createNotification(): Notification {
         val channelId = "root_action_service_channel"
         val channelName = "Root Action Service"
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
         val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW)
         notificationManager.createNotificationChannel(channel)
