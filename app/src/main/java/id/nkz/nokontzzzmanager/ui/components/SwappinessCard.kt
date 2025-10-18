@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -99,7 +100,7 @@ fun SwappinessCard(
                         ) {
                             // ZRAM Settings title
                             Text(
-                                text = "ZRAM Settings",
+                                text = stringResource(id = R.string.zram_settings),
                                 style = MaterialTheme.typography.titleMedium.copy(
                                     fontWeight = FontWeight.Bold
                                 ),
@@ -112,9 +113,9 @@ fun SwappinessCard(
                             // ZRAM Settings - 2 items
                             RamSettingItem(
                                 icon = Icons.Default.Storage,
-                                title = "ZRAM Size",
+                                title = stringResource(id = R.string.zram_size),
                                 value = "${zramDisksize / (1024 * 1024)}MB",
-                                description = "Adjust compressed RAM size",
+                                description = stringResource(id = R.string.zram_size_desc),
                                 color = MaterialTheme.colorScheme.primary,
                                 onClick = { showZramSizeDialog = true },
                                 shape = getRoundedCornerShape(0, 2) // First card in group of 2
@@ -122,9 +123,9 @@ fun SwappinessCard(
 
                             RamSettingItem(
                                 icon = Icons.Default.Compress,
-                                title = "Compression",
+                                title = stringResource(id = R.string.compression),
                                 value = currentCompression,
-                                description = "Compression algorithm",
+                                description = stringResource(id = R.string.compression_algorithm),
                                 color = MaterialTheme.colorScheme.primary,
                                 onClick = { showCompressionDialog = true },
                                 shape = getRoundedCornerShape(1, 2) // Second card in group of 2
@@ -134,7 +135,7 @@ fun SwappinessCard(
 
                     // Memory Settings title
                     Text(
-                        text = "Memory Settings",
+                        text = stringResource(id = R.string.memory_settings),
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),
@@ -150,9 +151,9 @@ fun SwappinessCard(
                     ) {
                         RamSettingItem(
                             icon = Icons.Default.Speed,
-                            title = "Swappiness",
+                            title = stringResource(id = R.string.tuning_feature_swappiness_title),
                             value = "$swappiness%",
-                            description = "Memory swap aggressiveness",
+                            description = stringResource(id = R.string.swappiness_desc),
                             color = MaterialTheme.colorScheme.primary,
                             onClick = { showSwappinessDialog = true },
                             shape = getRoundedCornerShape(0, 6) // First card in group of 6
@@ -160,9 +161,9 @@ fun SwappinessCard(
 
                         RamSettingItem(
                             icon = Icons.Default.DataUsage,
-                            title = "Dirty Ratio",
+                            title = stringResource(id = R.string.dirty_ratio),
                             value = "$dirtyRatio%",
-                            description = "Page cache dirty data threshold",
+                            description = stringResource(id = R.string.dirty_ratio_desc),
                             color = MaterialTheme.colorScheme.primary,
                             onClick = { showDirtyRatioDialog = true },
                             shape = getRoundedCornerShape(1, 6) // Second card in group of 6
@@ -170,9 +171,9 @@ fun SwappinessCard(
 
                         RamSettingItem(
                             icon = Icons.Default.Analytics,
-                            title = "Dirty Background Ratio",
+                            title = stringResource(id = R.string.dirty_background_ratio),
                             value = "$dirtyBackgroundRatio%",
-                            description = "Background writeback threshold",
+                            description = stringResource(id = R.string.dirty_background_ratio_desc),
                             color = MaterialTheme.colorScheme.primary,
                             onClick = { showDirtyBgRatioDialog = true },
                             shape = getRoundedCornerShape(2, 6) // Third card in group of 6
@@ -180,9 +181,9 @@ fun SwappinessCard(
 
                         RamSettingItem(
                             icon = Icons.Default.Timer,
-                            title = "Dirty Writeback",
+                            title = stringResource(id = R.string.dirty_writeback),
                             value = "${dirtyWriteback}s",
-                            description = "Writeback interval time",
+                            description = stringResource(id = R.string.dirty_writeback_desc),
                             color = MaterialTheme.colorScheme.primary,
                             onClick = { showDirtyWritebackDialog = true },
                             shape = getRoundedCornerShape(3, 6) // Fourth card in group of 6
@@ -190,9 +191,9 @@ fun SwappinessCard(
 
                         RamSettingItem(
                             icon = Icons.Default.Schedule,
-                            title = "Dirty Expire",
+                            title = stringResource(id = R.string.dirty_expire),
                             value = "${dirtyExpireCentisecs}cs",
-                            description = "Page expiration time",
+                            description = stringResource(id = R.string.dirty_expire_desc),
                             color = MaterialTheme.colorScheme.primary,
                             onClick = { showDirtyExpireDialog = true },
                             shape = getRoundedCornerShape(4, 6) // Fifth card in group of 6
@@ -200,9 +201,9 @@ fun SwappinessCard(
 
                         RamSettingItem(
                             icon = Icons.Default.Memory,
-                            title = "Min Free Memory",
+                            title = stringResource(id = R.string.min_free_memory),
                             value = "${minFreeMemory}MB",
-                            description = "Minimum free memory reserve",
+                            description = stringResource(id = R.string.min_free_memory_desc),
                             color = MaterialTheme.colorScheme.primary,
                             onClick = { showMinFreeMemoryDialog = true },
                             shape = getRoundedCornerShape(5, 6) // Sixth card in group of 6
@@ -243,7 +244,7 @@ fun SwappinessCard(
     if (showSwappinessDialog) {
         SliderSettingDialog(
             showDialog = showSwappinessDialog,
-            title = "Set Swappiness",
+            title = stringResource(id = R.string.set_swappiness),
             currentValue = swappiness,
             valueSuffix = "%",
             valueRange = 0f..100f,
@@ -259,7 +260,7 @@ fun SwappinessCard(
     if (showDirtyRatioDialog) {
         SliderSettingDialog(
             showDialog = showDirtyRatioDialog,
-            title = "Set Dirty Ratio",
+            title = stringResource(id = R.string.set_dirty_ratio),
             currentValue = dirtyRatio,
             valueSuffix = "%",
             valueRange = 0f..100f,
@@ -275,7 +276,7 @@ fun SwappinessCard(
     if (showDirtyBgRatioDialog) {
         SliderSettingDialog(
             showDialog = showDirtyBgRatioDialog,
-            title = "Set Dirty Background Ratio",
+            title = stringResource(id = R.string.set_dirty_background_ratio),
             currentValue = dirtyBackgroundRatio,
             valueSuffix = "%",
             valueRange = 0f..100f,
@@ -291,7 +292,7 @@ fun SwappinessCard(
     if (showDirtyWritebackDialog) {
         SliderSettingDialog(
             showDialog = showDirtyWritebackDialog,
-            title = "Set Dirty Writeback",
+            title = stringResource(id = R.string.set_dirty_writeback),
             currentValue = dirtyWriteback,
             valueSuffix = " sec",
             valueRange = 0f..300f,
@@ -307,7 +308,7 @@ fun SwappinessCard(
     if (showDirtyExpireDialog) {
         SliderSettingDialog(
             showDialog = showDirtyExpireDialog,
-            title = "Set Dirty Expire",
+            title = stringResource(id = R.string.set_dirty_expire),
             currentValue = dirtyExpireCentisecs,
             valueSuffix = " cs",
             valueRange = 0f..30000f,
@@ -323,7 +324,7 @@ fun SwappinessCard(
     if (showMinFreeMemoryDialog) {
         SliderSettingDialog(
             showDialog = showMinFreeMemoryDialog,
-            title = "Set Min Free Memory",
+            title = stringResource(id = R.string.set_min_free_memory),
             currentValue = minFreeMemory,
             valueSuffix = " MB",
             valueRange = 0f..1024f,
@@ -355,7 +356,7 @@ fun RamControlHeaderSection(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "RAM Control",
+                text = stringResource(id = R.string.ram_control),
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
@@ -371,7 +372,7 @@ fun RamControlHeaderSection(
                     .padding(horizontal = 12.dp, vertical = 6.dp)
             ) {
                 Text(
-                    text = if (zramEnabled) "ZRAM: ${zramDisksize / (1024 * 1024)}MB Active" else "ZRAM: Disabled",
+                    text = if (zramEnabled) stringResource(id = R.string.zram_active_template, zramDisksize / (1024 * 1024)) else stringResource(id = R.string.zram_disabled),
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium)
                 )
@@ -392,7 +393,7 @@ fun RamControlHeaderSection(
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.memory_alt_24),
-                    contentDescription = "Memory",
+                    contentDescription = stringResource(id = R.string.memory_status),
                     modifier = Modifier.size(28.dp),
                     tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
@@ -400,7 +401,7 @@ fun RamControlHeaderSection(
 
             Icon(
                 imageVector = if (isExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                contentDescription = if (isExpanded) "Collapse" else "Expand",
+                contentDescription = if (isExpanded) stringResource(id = R.string.collapse) else stringResource(id = R.string.expand),
                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                 modifier = Modifier.size(24.dp)
             )
@@ -432,7 +433,7 @@ fun RamZramToggleSection(
             modifier = Modifier.weight(1f)
         ) {
             Text(
-                text = "ZRAM State",
+                text = stringResource(id = R.string.zram_state),
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Normal
                 ),
@@ -440,14 +441,14 @@ fun RamZramToggleSection(
             )
 
             Text(
-                text = if (zramEnabled) "Compressed RAM enabled (controlled by kernel)" else "Compressed RAM disabled (controlled by kernel)",
+                text = if (zramEnabled) stringResource(id = R.string.zram_enabled_desc) else stringResource(id = R.string.zram_disabled_desc),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface
             )
         }
 
         Text(
-            text = if (zramEnabled) "ON" else "OFF",
+            text = if (zramEnabled) stringResource(id = R.string.on) else stringResource(id = R.string.off),
             style = MaterialTheme.typography.labelLarge.copy(
                 fontWeight = FontWeight.Bold
             ),
@@ -529,7 +530,7 @@ fun RamSettingItem(
                 )
                 Icon(
                     imageVector = Icons.Default.ChevronRight,
-                    contentDescription = "Configure",
+                    contentDescription = stringResource(id = R.string.configure),
                     modifier = Modifier.size(16.dp),
                     tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 )
@@ -609,7 +610,7 @@ fun SliderSettingDialog(
                                 ) {
                                     Icon(
                                         imageVector = getFeatureIcon(title),
-                                        contentDescription = "Settings",
+                                        contentDescription = stringResource(id = R.string.settings),
                                         modifier = Modifier.size(28.dp),
                                         tint = MaterialTheme.colorScheme.onPrimaryContainer
                                     )
@@ -624,7 +625,7 @@ fun SliderSettingDialog(
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
                                     Text(
-                                        text = "RAM & Performance Control",
+                                        text = stringResource(id = R.string.ram_performance_control),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                                     )
@@ -648,12 +649,12 @@ fun SliderSettingDialog(
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Info,
-                                            contentDescription = "Info",
+                                            contentDescription = stringResource(id = R.string.info),
                                             modifier = Modifier.size(16.dp),
                                             tint = MaterialTheme.colorScheme.primary
                                         )
                                         Text(
-                                            text = "About This Feature",
+                                            text = stringResource(id = R.string.about_this_feature),
                                             style = MaterialTheme.typography.labelLarge.copy(
                                                 fontWeight = FontWeight.SemiBold
                                             ),
@@ -698,7 +699,7 @@ fun SliderSettingDialog(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     Text(
-                                        text = "Current Value",
+                                        text = stringResource(id = R.string.current_value),
                                         style = MaterialTheme.typography.labelMedium,
                                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                                     )
@@ -765,11 +766,11 @@ fun SliderSettingDialog(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Close,
-                                        contentDescription = "Cancel",
+                                        contentDescription = stringResource(id = R.string.cancel),
                                         modifier = Modifier.size(18.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Cancel", fontWeight = FontWeight.Medium)
+                                    Text(stringResource(id = R.string.cancel), fontWeight = FontWeight.Medium)
                                 }
 
                                 FilledTonalButton(
@@ -785,11 +786,11 @@ fun SliderSettingDialog(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Check,
-                                        contentDescription = "Apply",
+                                        contentDescription = stringResource(id = R.string.apply),
                                         modifier = Modifier.size(18.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Apply", fontWeight = FontWeight.Bold)
+                                    Text(stringResource(id = R.string.apply), fontWeight = FontWeight.Bold)
                                 }
                             }
                         }

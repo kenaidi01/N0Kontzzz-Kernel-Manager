@@ -122,7 +122,7 @@ private fun GpuHeaderSection(info: RealtimeGpuInfo) {
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.gpu_card),
-                contentDescription = "GPU Icon",
+                contentDescription = stringResource(id = R.string.gpu_icon_desc),
                 modifier = Modifier.size(28.dp),
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
             )
@@ -161,7 +161,7 @@ private fun GpuStatsSection(
                     modifier = Modifier.weight(1f),
                     icon = Icons.Default.Speed,
                     label = stringResource(R.string.gpu_current_freq),
-                    value = if (info.currentFreq > 0) "${info.currentFreq} MHz" else "N/A",
+                    value = if (info.currentFreq > 0) stringResource(id = R.string.cpu_freq_mhz, info.currentFreq) else stringResource(id = R.string.common_na),
                     iconColor = MaterialTheme.colorScheme.primary
                 )
 
@@ -169,7 +169,7 @@ private fun GpuStatsSection(
                     modifier = Modifier.weight(1f),
                     icon = Icons.Default.Memory,
                     label = stringResource(R.string.gpu_max_freq),
-                    value = if (info.maxFreq > 0) "${info.maxFreq} MHz" else "N/A",
+                    value = if (info.maxFreq > 0) stringResource(id = R.string.cpu_freq_mhz, info.maxFreq) else stringResource(id = R.string.common_na),
                     iconColor = MaterialTheme.colorScheme.primary
                 )
 
@@ -177,7 +177,7 @@ private fun GpuStatsSection(
                     modifier = Modifier.weight(1f),
                     icon = Icons.Default.BarChart,
                     label = stringResource(R.string.gpu_usage),
-                    value = if (info.usagePercentage != null) "${info.usagePercentage.toInt()}%" else "N/A",
+                    value = if (info.usagePercentage != null) stringResource(id = R.string.gpu_usage_format, info.usagePercentage.toInt()) else stringResource(id = R.string.common_na),
                     iconColor = when {
                         (info.usagePercentage?.toInt() ?: 0) > 80 -> MaterialTheme.colorScheme.error
                         (info.usagePercentage?.toInt() ?: 0) > 60 -> MaterialTheme.colorScheme.tertiary

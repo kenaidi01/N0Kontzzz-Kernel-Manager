@@ -26,6 +26,8 @@ import id.nkz.nokontzzzmanager.data.model.StorageInfo
 import id.nkz.nokontzzzmanager.data.model.SystemInfo
 import java.util.Locale
 
+import androidx.compose.ui.res.stringResource
+
 // Helper function to format time duration with seconds
 private fun formatTimeWithSeconds(timeInMillis: Long): String {
     val totalSeconds = timeInMillis / 1000
@@ -36,6 +38,7 @@ private fun formatTimeWithSeconds(timeInMillis: Long): String {
 }
 
 // Helper function to format storage size
+@Composable
 private fun formatStorageSize(bytes: Long): String {
     val tb = 1024L * 1024L * 1024L * 1024L
     val gb = 1024L * 1024L * 1024L
@@ -43,11 +46,11 @@ private fun formatStorageSize(bytes: Long): String {
     val kb = 1024L
 
     return when {
-        bytes >= tb -> String.format(Locale.getDefault(), "%.1f TB", bytes.toDouble() / tb)
-        bytes >= gb -> String.format(Locale.getDefault(), "%.1f GB", bytes.toDouble() / gb)
-        bytes >= mb -> String.format(Locale.getDefault(), "%.1f MB", bytes.toDouble() / mb)
-        bytes >= kb -> String.format(Locale.getDefault(), "%.1f KB", bytes.toDouble() / kb)
-        else -> "$bytes B"
+        bytes >= tb -> stringResource(id = R.string.storage_tb, bytes.toDouble() / tb)
+        bytes >= gb -> stringResource(id = R.string.storage_gb, bytes.toDouble() / gb)
+        bytes >= mb -> stringResource(id = R.string.storage_mb, bytes.toDouble() / mb)
+        bytes >= kb -> stringResource(id = R.string.storage_kb, bytes.toDouble() / kb)
+        else -> stringResource(id = R.string.storage_b, bytes)
     }
 }
 
@@ -187,7 +190,7 @@ private fun BatteryHeaderSection(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "Battery Status",
+                text = stringResource(id = R.string.battery_status),
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
@@ -203,7 +206,7 @@ private fun BatteryHeaderSection(
                     .padding(horizontal = 12.dp, vertical = 6.dp)
             ) {
                 Text(
-                    text = "${batteryInfo.level}% • ${String.format(Locale.getDefault(), "%.1f", batteryInfo.temp)}°C • ${if (batteryInfo.isCharging) "Charging" else "Discharging"}",
+                    text = stringResource(id = R.string.battery_status_template, batteryInfo.level, batteryInfo.temp, if (batteryInfo.isCharging) stringResource(id = R.string.charging) else stringResource(id = R.string.discharging)),
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium)
                 )
@@ -220,7 +223,7 @@ private fun BatteryHeaderSection(
         ) {
             Icon(
                 imageVector = if (batteryInfo.isCharging) Icons.Default.BatteryChargingFull else Icons.Default.BatteryFull,
-                contentDescription = "Battery",
+                contentDescription = stringResource(id = R.string.battery_toggle),
                 modifier = Modifier.size(28.dp),
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
             )
@@ -240,7 +243,7 @@ private fun MemoryHeaderSection(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "Memory Status",
+                text = stringResource(id = R.string.memory_status),
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
@@ -258,9 +261,10 @@ private fun MemoryHeaderSection(
                 val totalGb = (memoryInfo.total / (1024 * 1024 * 1024))
                 val zramGb = (memoryInfo.zramTotal / (1024 * 1024 * 1024))
 
-                val memoryText = buildString {
-                    append("${usedPercentage}% Used • ${totalGb}GB")
-                    if (zramGb > 0) append(" + ${zramGb}GB ZRAM")
+                val memoryText = if (zramGb > 0) {
+                    stringResource(id = R.string.memory_status_template_with_zram, usedPercentage, totalGb, zramGb)
+                } else {
+                    stringResource(id = R.string.memory_status_template, usedPercentage, totalGb)
                 }
 
                 Text(
@@ -281,7 +285,7 @@ private fun MemoryHeaderSection(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.memory_alt_24),
-                contentDescription = "Memory",
+                contentDescription = stringResource(id = R.string.memory_status),
                 modifier = Modifier.size(28.dp),
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
             )
@@ -301,7 +305,7 @@ private fun StorageHeaderSection(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "Storage Status",
+                text = stringResource(id = R.string.storage_status),
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
@@ -317,7 +321,7 @@ private fun StorageHeaderSection(
                     .padding(horizontal = 12.dp, vertical = 6.dp)
             ) {
                 Text(
-                    text = "${usedPercentage}% Used • ${formatStorageSize(storageInfo.totalSpace)} Total",
+                    text = stringResource(id = R.string.storage_status_template, usedPercentage, formatStorageSize(storageInfo.totalSpace)),
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium)
                 )
@@ -334,7 +338,7 @@ private fun StorageHeaderSection(
         ) {
             Icon(
                 imageVector = Icons.Default.Storage,
-                contentDescription = "Storage",
+                contentDescription = stringResource(id = R.string.storage_status),
                 modifier = Modifier.size(28.dp),
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
             )
@@ -361,12 +365,12 @@ private fun BatteryProgressSection(
             ) {
                 Icon(
                     imageVector = Icons.Default.BatteryFull,
-                    contentDescription = "Battery",
+                    contentDescription = stringResource(id = R.string.battery_toggle),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(20.dp)
                 )
                 Text(
-                    text = "Charge Level",
+                    text = stringResource(id = R.string.charge_level),
                     style = MaterialTheme.typography.titleSmall.copy(
                         fontWeight = FontWeight.SemiBold
                     ),
@@ -374,7 +378,7 @@ private fun BatteryProgressSection(
                 )
             }
             Text(
-                text = "${batteryInfo.level}%",
+                text = stringResource(id = R.string.usage_percentage, batteryInfo.level),
                 style = MaterialTheme.typography.titleSmall.copy(
                     fontWeight = FontWeight.Bold
                 ),
@@ -420,12 +424,12 @@ private fun MemoryProgressSection(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Memory,
-                        contentDescription = "Memory",
+                        contentDescription = stringResource(id = R.string.memory_status),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp)
                     )
                     Text(
-                        text = "RAM Usage",
+                        text = stringResource(id = R.string.ram_usage),
                         style = MaterialTheme.typography.titleSmall.copy(
                             fontWeight = FontWeight.SemiBold
                         ),
@@ -433,7 +437,7 @@ private fun MemoryProgressSection(
                     )
                 }
                 Text(
-                    text = "${usedPercentage}%",
+                    text = stringResource(id = R.string.usage_percentage, usedPercentage),
                     style = MaterialTheme.typography.titleSmall.copy(
                         fontWeight = FontWeight.Bold
                     ),
@@ -472,12 +476,12 @@ private fun MemoryProgressSection(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Compress,
-                            contentDescription = "Zram",
+                            contentDescription = stringResource(id = R.string.zram),
                             tint = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.size(20.dp)
                         )
                         Text(
-                            text = "ZRAM Usage",
+                            text = stringResource(id = R.string.zram_usage),
                             style = MaterialTheme.typography.titleSmall.copy(
                                 fontWeight = FontWeight.SemiBold
                             ),
@@ -485,7 +489,7 @@ private fun MemoryProgressSection(
                         )
                     }
                     Text(
-                        text = "${zramUsedPercentage}%",
+                        text = stringResource(id = R.string.usage_percentage, zramUsedPercentage),
                         style = MaterialTheme.typography.titleSmall.copy(
                             fontWeight = FontWeight.Bold
                         ),
@@ -529,7 +533,7 @@ private fun BatteryStatsSection(
                 // Voltage
                 SystemStatItem(
                     icon = Icons.Default.ElectricBolt,
-                    label = "Voltage",
+                    label = stringResource(id = R.string.voltage),
                     value = run {
                         val formattedVoltage = if (batteryInfo.voltage > 0) {
                             val voltageInVolts = when {
@@ -539,7 +543,7 @@ private fun BatteryStatsSection(
                             }
                             String.format(Locale.getDefault(), "%.2f", voltageInVolts).trimEnd('0').trimEnd('.')
                         } else "0"
-                        "${formattedVoltage}V"
+                        stringResource(id = R.string.v, formattedVoltage)
                     },
                     modifier = Modifier.weight(1f)
                 )
@@ -547,8 +551,8 @@ private fun BatteryStatsSection(
                 // Uptime
                 SystemStatItem(
                     icon = Icons.Default.AccessTime,
-                    label = "Uptime",
-                    value = deepSleepInfo?.let { formatTimeWithSeconds(it.uptime) } ?: "N/A",
+                    label = stringResource(id = R.string.uptime),
+                    value = deepSleepInfo?.let { formatTimeWithSeconds(it.uptime) } ?: stringResource(id = R.string.common_na),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -561,16 +565,16 @@ private fun BatteryStatsSection(
                 // Battery Health
                 SystemStatItem(
                     icon = Icons.Default.HealthAndSafety,
-                    label = "Health",
-                    value = if (batteryInfo.healthPercentage > 0) "${batteryInfo.healthPercentage}%" else batteryInfo.health,
+                    label = stringResource(id = R.string.health),
+                    value = if (batteryInfo.healthPercentage > 0) stringResource(id = R.string.usage_percentage, batteryInfo.healthPercentage) else batteryInfo.health,
                     modifier = Modifier.weight(1f)
                 )
 
                 // Battery Cycles
                 SystemStatItem(
                     icon = Icons.Default.Autorenew,
-                    label = "Cycles",
-                    value = if (batteryInfo.cycleCount > 0) "${batteryInfo.cycleCount}" else "N/A",
+                    label = stringResource(id = R.string.cycles),
+                    value = if (batteryInfo.cycleCount > 0) "${batteryInfo.cycleCount}" else stringResource(id = R.string.common_na),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -583,7 +587,7 @@ private fun BatteryStatsSection(
                 // Battery Technology
                 SystemStatItem(
                     icon = Icons.Default.Science,
-                    label = "Technology",
+                    label = stringResource(id = R.string.technology),
                     value = batteryInfo.technology,
                     modifier = Modifier.weight(1f)
                 )
@@ -591,8 +595,8 @@ private fun BatteryStatsSection(
                 // Battery Status
                 SystemStatItem(
                     icon = if (batteryInfo.isCharging) Icons.Default.BatteryChargingFull else Icons.Default.BatteryStd,
-                    label = "Status",
-                    value = if (batteryInfo.isCharging) "Charging" else "Discharging",
+                    label = stringResource(id = R.string.status),
+                    value = if (batteryInfo.isCharging) stringResource(id = R.string.charging) else stringResource(id = R.string.discharging),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -605,16 +609,16 @@ private fun BatteryStatsSection(
                 // Current Capacity
                 SystemStatItem(
                     icon = Icons.Default.Battery6Bar,
-                    label = "Current Cap",
-                    value = if (batteryInfo.currentCapacity > 0) "${batteryInfo.currentCapacity}mAh" else "N/A",
+                    label = stringResource(id = R.string.current_cap),
+                    value = if (batteryInfo.currentCapacity > 0) stringResource(id = R.string.mah, batteryInfo.currentCapacity) else stringResource(id = R.string.common_na),
                     modifier = Modifier.weight(1f)
                 )
 
                 // Design Capacity (moved to same row to utilize space efficiently)
                 SystemStatItem(
                     icon = Icons.Default.BatterySaver,
-                    label = "Design Cap",
-                    value = if (batteryInfo.capacity > 0) "${batteryInfo.capacity}mAh" else "N/A",
+                    label = stringResource(id = R.string.design_cap),
+                    value = if (batteryInfo.capacity > 0) stringResource(id = R.string.mah, batteryInfo.capacity) else stringResource(id = R.string.common_na),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -627,27 +631,27 @@ private fun BatteryStatsSection(
                 // Deep Sleep
                 SystemStatItem(
                     icon = Icons.Default.NightsStay,
-                    label = "Deep Sleep",
+                    label = stringResource(id = R.string.deep_sleep),
                     value = deepSleepInfo?.let { 
                         if (it.uptime > 0) {
                             val percentage = (it.deepSleep.toFloat() / it.uptime.toFloat()) * 100
-                            "%.1f%%".format(percentage)
-                        } else "0.0%"
-                    } ?: "N/A",
+                            stringResource(id = R.string.deep_sleep_percentage, percentage)
+                        } else stringResource(id = R.string.deep_sleep_default)
+                    } ?: stringResource(id = R.string.common_na),
                     modifier = Modifier.weight(1f)
                 )
 
                 // Screen On Time
                 SystemStatItem(
                     icon = Icons.Default.ScreenLockRotation,
-                    label = "Screen On",
+                    label = stringResource(id = R.string.screen_on),
                     value = deepSleepInfo?.let { 
                         if (it.uptime > 0) {
                             val awakeTime = it.uptime - it.deepSleep  // Time the device has been awake
                             val awakeDurationFormatted = formatTimeWithSeconds(awakeTime)
                             awakeDurationFormatted
-                        } else "N/A"
-                    } ?: "N/A",
+                        } else stringResource(id = R.string.common_na)
+                    } ?: stringResource(id = R.string.common_na),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -662,8 +666,8 @@ private fun BatteryStatsSection(
                 ) {
                     SystemStatItem(
                         icon = if (batteryInfo.isCharging) Icons.Default.BatteryChargingFull else Icons.Default.BatteryAlert,
-                        label = "Current",
-                        value = "${String.format(Locale.getDefault(), "%.0f", displayCurrent)}mA",
+                        label = stringResource(id = R.string.current),
+                        value = stringResource(id = R.string.ma, displayCurrent),
                         modifier = Modifier.weight(1f)
                     )
                     // Empty placeholder to maintain layout balance
@@ -696,16 +700,16 @@ private fun MemoryStatsSection(
                 // Used RAM
                 SystemStatItem(
                     icon = Icons.Default.Memory,
-                    label = "Used RAM",
-                    value = "${memoryInfo.used / (1024 * 1024)}MB",
+                    label = stringResource(id = R.string.used_ram),
+                    value = stringResource(id = R.string.mb, memoryInfo.used / (1024 * 1024)),
                     modifier = Modifier.weight(1f)
                 )
 
                 // Free RAM
                 SystemStatItem(
                     icon = Icons.Default.Storage,
-                    label = "Free RAM",
-                    value = "${memoryInfo.free / (1024 * 1024)}MB",
+                    label = stringResource(id = R.string.free_ram),
+                    value = stringResource(id = R.string.mb, memoryInfo.free / (1024 * 1024)),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -718,16 +722,16 @@ private fun MemoryStatsSection(
                 // Total RAM
                 SystemStatItem(
                     icon = Icons.Default.Widgets,
-                    label = "Total RAM",
-                    value = "${memoryInfo.total / (1024 * 1024)}MB",
+                    label = stringResource(id = R.string.total_ram),
+                    value = stringResource(id = R.string.mb, memoryInfo.total / (1024 * 1024)),
                     modifier = Modifier.weight(1f)
                 )
 
                 // Usage Percentage
                 SystemStatItem(
                     icon = Icons.Default.Analytics,
-                    label = "Usage %",
-                    value = "${((memoryInfo.used.toDouble() / memoryInfo.total.toDouble()) * 100).toInt()}%",
+                    label = stringResource(id = R.string.usage_percentage_label),
+                    value = stringResource(id = R.string.usage_percentage, ((memoryInfo.used.toDouble() / memoryInfo.total.toDouble()) * 100).toInt()),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -741,16 +745,16 @@ private fun MemoryStatsSection(
                     // ZRAM Used
                     SystemStatItem(
                         icon = Icons.Default.Compress,
-                        label = "ZRAM Used",
-                        value = "${memoryInfo.zramUsed / (1024 * 1024)}MB",
+                        label = stringResource(id = R.string.zram_used),
+                        value = stringResource(id = R.string.mb, memoryInfo.zramUsed / (1024 * 1024)),
                         modifier = Modifier.weight(1f)
                     )
 
                     // ZRAM Total
                     SystemStatItem(
                         icon = Icons.Default.Compress,
-                        label = "ZRAM Total",
-                        value = "${memoryInfo.zramTotal / (1024 * 1024)}MB",
+                        label = stringResource(id = R.string.zram_total),
+                        value = stringResource(id = R.string.mb, memoryInfo.zramTotal / (1024 * 1024)),
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -825,7 +829,7 @@ private fun DeviceInfoCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Device Information",
+                        text = stringResource(id = R.string.device_information),
                         style = MaterialTheme.typography.headlineSmall.copy(
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
@@ -847,7 +851,7 @@ private fun DeviceInfoCard(
                                 .padding(horizontal = 12.dp, vertical = 6.dp)
                         ) {
                             Text(
-                                text = if (rooted) "Rooted" else "Not Rooted",
+                                text = if (rooted) stringResource(id = R.string.rooted) else stringResource(id = R.string.not_rooted),
                                 color = if (rooted) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onErrorContainer,
                                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium)
                             )
@@ -861,7 +865,7 @@ private fun DeviceInfoCard(
                                 .padding(horizontal = 12.dp, vertical = 6.dp)
                         ) {
                             Text(
-                                text = "v$version",
+                                text = stringResource(id = R.string.version_template, version),
                                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium)
                             )
@@ -879,7 +883,7 @@ private fun DeviceInfoCard(
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Smartphone,
-                        contentDescription = "Device",
+                        contentDescription = stringResource(id = R.string.device),
                         modifier = Modifier.size(28.dp),
                         tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
@@ -904,14 +908,14 @@ private fun DeviceInfoCard(
                     ) {
                         SystemStatItem(
                             icon = Icons.Default.PhoneAndroid,
-                            label = "Model",
+                            label = stringResource(id = R.string.model),
                             value = systemInfo.model,
                             modifier = Modifier.weight(1f)
                         )
 
                         SystemStatItem(
                             icon = Icons.Default.Code,
-                            label = "Codename",
+                            label = stringResource(id = R.string.codename),
                             value = systemInfo.codename,
                             modifier = Modifier.weight(1f)
                         )
@@ -924,14 +928,14 @@ private fun DeviceInfoCard(
                     ) {
                         SystemStatItem(
                             icon = Icons.Default.Android,
-                            label = "Android",
+                            label = stringResource(id = R.string.android),
                             value = systemInfo.androidVersion,
                             modifier = Modifier.weight(1f)
                         )
 
                         SystemStatItem(
                             icon = Icons.Default.Build,
-                            label = "SDK",
+                            label = stringResource(id = R.string.sdk),
                             value = systemInfo.sdk.toString(),
                             modifier = Modifier.weight(1f)
                         )
@@ -944,14 +948,14 @@ private fun DeviceInfoCard(
                     ) {
                         SystemStatItem(
                             icon = Icons.Default.DeveloperBoard,
-                            label = "SoC",
+                            label = stringResource(id = R.string.cpu_soc_label),
                             value = systemInfo.soc,
                             modifier = Modifier.weight(1f)
                         )
 
                         SystemStatItem(
                             icon = Icons.Default.Fingerprint,
-                            label = "Fingerprint",
+                            label = stringResource(id = R.string.fingerprint),
                             value = systemInfo.fingerprint.substringAfterLast("/").substringBefore(":"),
                             modifier = Modifier.weight(1f)
                         )
@@ -964,14 +968,14 @@ private fun DeviceInfoCard(
                     ) {
                         SystemStatItem(
                             icon = Icons.Default.AspectRatio,
-                            label = "Resolution",
+                            label = stringResource(id = R.string.resolution),
                             value = systemInfo.screenResolution,
                             modifier = Modifier.weight(1f)
                         )
 
                         SystemStatItem(
                             icon = Icons.Default.DisplaySettings,
-                            label = "Technology",
+                            label = stringResource(id = R.string.technology),
                             value = systemInfo.displayTechnology,
                             modifier = Modifier.weight(1f)
                         )
@@ -984,14 +988,14 @@ private fun DeviceInfoCard(
                     ) {
                         SystemStatItem(
                             icon = Icons.Default.Speed,
-                            label = "Refresh Rate",
+                            label = stringResource(id = R.string.refresh_rate),
                             value = systemInfo.refreshRate,
                             modifier = Modifier.weight(1f)
                         )
 
                         SystemStatItem(
                             icon = Icons.Default.PhotoSizeSelectSmall,
-                            label = "DPI",
+                            label = stringResource(id = R.string.dpi),
                             value = systemInfo.screenDpi,
                             modifier = Modifier.weight(1f)
                         )
@@ -1027,12 +1031,12 @@ private fun StorageProgressSection(
             ) {
                 Icon(
                     imageVector = Icons.Default.Storage,
-                    contentDescription = "Storage",
+                    contentDescription = stringResource(id = R.string.internal_storage),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(20.dp)
                 )
                 Text(
-                    text = "Internal Storage",
+                    text = stringResource(id = R.string.internal_storage),
                     style = MaterialTheme.typography.titleSmall.copy(
                         fontWeight = FontWeight.SemiBold
                     ),
@@ -1040,7 +1044,7 @@ private fun StorageProgressSection(
                 )
             }
             Text(
-                text = "${formatStorageSize(storageInfo.usedSpace)} / ${formatStorageSize(storageInfo.totalSpace)}",
+                text = stringResource(id = R.string.storage_usage_template, formatStorageSize(storageInfo.usedSpace), formatStorageSize(storageInfo.totalSpace)),
                 style = MaterialTheme.typography.titleSmall.copy(
                     fontWeight = FontWeight.Bold
                 ),
@@ -1066,12 +1070,12 @@ private fun StorageProgressSection(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Used: ${formatStorageSize(storageInfo.usedSpace)}",
+                text = stringResource(id = R.string.used_template, formatStorageSize(storageInfo.usedSpace)),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "Free: ${formatStorageSize(storageInfo.totalSpace - storageInfo.usedSpace)}",
+                text = stringResource(id = R.string.free_template, formatStorageSize(storageInfo.totalSpace - storageInfo.usedSpace)),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -1101,16 +1105,16 @@ private fun StorageStatsSection(
                 // Used Storage
                 SystemStatItem(
                     icon = Icons.Default.Storage,
-                    label = "Used Storage",
-                    value = "${formatStorageSize(storageInfo.usedSpace)}",
+                    label = stringResource(id = R.string.used_storage),
+                    value = formatStorageSize(storageInfo.usedSpace),
                     modifier = Modifier.weight(1f)
                 )
 
                 // Free Storage
                 SystemStatItem(
                     icon = Icons.Default.Storage,
-                    label = "Free Storage",
-                    value = "${formatStorageSize(storageInfo.totalSpace - storageInfo.usedSpace)}",
+                    label = stringResource(id = R.string.free_storage),
+                    value = formatStorageSize(storageInfo.totalSpace - storageInfo.usedSpace),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -1123,16 +1127,16 @@ private fun StorageStatsSection(
                 // Total Storage
                 SystemStatItem(
                     icon = Icons.Default.Storage,
-                    label = "Total Storage",
-                    value = "${formatStorageSize(storageInfo.totalSpace)}",
+                    label = stringResource(id = R.string.total_storage),
+                    value = formatStorageSize(storageInfo.totalSpace),
                     modifier = Modifier.weight(1f)
                 )
 
                 // Usage Percentage
                 SystemStatItem(
                     icon = Icons.Default.Analytics,
-                    label = "Usage %",
-                    value = "${((storageInfo.usedSpace.toDouble() / storageInfo.totalSpace.toDouble()) * 100).toInt()}%",
+                    label = stringResource(id = R.string.usage_percentage_label),
+                    value = stringResource(id = R.string.usage_percentage, ((storageInfo.usedSpace.toDouble() / storageInfo.totalSpace.toDouble()) * 100).toInt()),
                     modifier = Modifier.weight(1f)
                 )
             }

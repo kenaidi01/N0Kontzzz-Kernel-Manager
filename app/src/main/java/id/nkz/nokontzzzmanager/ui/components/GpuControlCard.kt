@@ -45,6 +45,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -123,14 +124,14 @@ fun GpuControlCard(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.gpu_card),
-                        contentDescription = "GPU Icon",
+                        contentDescription = stringResource(id = R.string.gpu_icon_desc),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(24.dp)
                     )
 
                     Column {
                         Text(
-                            text = "GPU Control",
+                            text = stringResource(id = R.string.gpu_control_title),
                             style = MaterialTheme.typography.headlineSmall.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 18.sp
@@ -142,7 +143,7 @@ fun GpuControlCard(
 
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = if (isExpanded) "Collapse" else "Expand",
+                    contentDescription = if (isExpanded) stringResource(id = R.string.collapse) else stringResource(id = R.string.expand),
                     modifier = Modifier
                         .size(24.dp)
                         .rotate(rotationAngle),
@@ -151,7 +152,7 @@ fun GpuControlCard(
             }
 
             Text(
-                text = "Configure GPU governor, frequency, and renderer settings",
+                text = stringResource(id = R.string.gpu_control_desc),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -173,8 +174,8 @@ fun GpuControlCard(
                 Column {
                     // GPU Governor Control
                     GPUControlSection(
-                        title = "GPU Governor",
-                        description = "Controls GPU frequency scaling behavior",
+                        title = stringResource(id = R.string.gpu_governor),
+                        description = stringResource(id = R.string.gpu_governor_desc),
                         icon = Icons.Default.Tune
                     ) {
                         Card(
@@ -195,12 +196,12 @@ fun GpuControlCard(
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = "Current Governor",
+                                        text = stringResource(id = R.string.current_governor),
                                         fontSize = 12.sp,
                                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                                     )
                                     Text(
-                                        text = gpuGovernor.takeIf { it != "..." && it.isNotBlank() } ?: "Unknown",
+                                        text = gpuGovernor.takeIf { it != "..." && it.isNotBlank() } ?: stringResource(id = R.string.common_unknown_value),
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Medium,
                                         color = MaterialTheme.colorScheme.primary,
@@ -210,7 +211,7 @@ fun GpuControlCard(
                                 }
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                    contentDescription = "Change Governor",
+                                    contentDescription = stringResource(id = R.string.change_governor),
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -222,8 +223,8 @@ fun GpuControlCard(
 
                     // GPU Frequency Control
                     GPUControlSection(
-                        title = "GPU Frequency",
-                        description = "Minimum and maximum GPU frequencies",
+                        title = stringResource(id = R.string.gpu_frequency),
+                        description = stringResource(id = R.string.gpu_frequency_desc),
                         icon = Icons.Default.Speed
                     ) {
                         // Cards for GPU frequency control with dialogs
@@ -250,12 +251,12 @@ fun GpuControlCard(
                                 ) {
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
-                                            text = "Minimum Frequency",
+                                            text = stringResource(id = R.string.min_frequency_label),
                                             fontSize = 12.sp,
                                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                                         )
                                         Text(
-                                            text = "$gpuMinFreq MHz",
+                                            text = stringResource(id = R.string.cpu_freq_mhz, gpuMinFreq),
                                             fontSize = 16.sp,
                                             fontWeight = FontWeight.Medium,
                                             color = MaterialTheme.colorScheme.primary,
@@ -265,7 +266,7 @@ fun GpuControlCard(
                                     }
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                        contentDescription = "Change Min Frequency",
+                                        contentDescription = stringResource(id = R.string.change_min_frequency),
                                         tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(20.dp)
                                     )
@@ -291,12 +292,12 @@ fun GpuControlCard(
                                 ) {
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
-                                            text = "Maximum Frequency",
+                                            text = stringResource(id = R.string.max_frequency_label),
                                             fontSize = 12.sp,
                                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                                         )
                                         Text(
-                                            text = "$gpuMaxFreq MHz",
+                                            text = stringResource(id = R.string.cpu_freq_mhz, gpuMaxFreq),
                                             fontSize = 16.sp,
                                             fontWeight = FontWeight.Medium,
                                             color = MaterialTheme.colorScheme.primary,
@@ -306,7 +307,7 @@ fun GpuControlCard(
                                     }
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                        contentDescription = "Change Max Frequency",
+                                        contentDescription = stringResource(id = R.string.change_max_frequency),
                                         tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(20.dp)
                                     )
@@ -321,8 +322,8 @@ fun GpuControlCard(
 
                     // GPU Power Level and Throttling Control
                     GPUControlSection(
-                        title = "GPU Power Level",
-                        description = "Adjust GPU power and throttling settings",
+                        title = stringResource(id = R.string.gpu_power_level),
+                        description = stringResource(id = R.string.gpu_power_level_desc),
                         icon = Icons.Default.VideogameAsset
                     ) {
                         // Determine min and max values for GPU power level at this scope
@@ -352,7 +353,7 @@ fun GpuControlCard(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
-                                            text = "Power Level",
+                                            text = stringResource(id = R.string.power_level),
                                             fontSize = 12.sp,
                                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                                         )
@@ -420,13 +421,13 @@ fun GpuControlCard(
                                 ) {
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
-                                            text = "GPU Throttling",
+                                            text = stringResource(id = R.string.gpu_throttling),
                                             style = MaterialTheme.typography.titleMedium,
                                             fontWeight = FontWeight.Medium,
                                             color = MaterialTheme.colorScheme.onSurface
                                         )
                                         Text(
-                                            text = "Reduce performance to save power",
+                                            text = stringResource(id = R.string.gpu_throttling_desc),
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -555,7 +556,7 @@ private fun GpuFrequencySelectionDialog(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Speed,
-                                contentDescription = "GPU Frequency",
+                                contentDescription = stringResource(id = R.string.gpu_frequency),
                                 modifier = Modifier.size(28.dp),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer
                             )
@@ -600,7 +601,7 @@ private fun GpuFrequencySelectionDialog(
                                             )
                                         )
                                         Text(
-                                            text = "$frequency MHz",
+                                            text = stringResource(id = R.string.cpu_freq_mhz, frequency),
                                             style = MaterialTheme.typography.bodyLarge.copy(
                                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                                             ),
@@ -618,7 +619,7 @@ private fun GpuFrequencySelectionDialog(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp)
                     ) {
-                        Text("Close")
+                        Text(stringResource(id = R.string.close))
                     }
                 }
             }
@@ -663,13 +664,13 @@ private fun GpuGovernorSelectionDialog(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Tune,
-                                contentDescription = "GPU Governor",
+                                contentDescription = stringResource(id = R.string.gpu_governor),
                                 modifier = Modifier.size(28.dp),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
                         Text(
-                            text = "Set GPU Governor",
+                            text = stringResource(id = R.string.set_gpu_governor),
                             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -726,7 +727,7 @@ private fun GpuGovernorSelectionDialog(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp)
                     ) {
-                        Text("Close")
+                        Text(stringResource(id = R.string.close))
                     }
                 }
             }

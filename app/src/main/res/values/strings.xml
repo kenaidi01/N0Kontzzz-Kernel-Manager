@@ -14,7 +14,6 @@
     <string name="kernel_type">Kernel Type</string>
     <string name="sched">I/O Scheduler</string>
     <string name="abi" translatable="false">ABI: %1$s</string>
-    <string name="architecture" translatable="false">Arch: %1$s</string>
     <string name="kernel_information">Kernel Information</string>
     <string name="kernel_version">Kernel Version: %1$s</string>
     <string name="n0kz_kernel_manager">N0Kontzzz Kernel Manager</string>
@@ -124,7 +123,7 @@
     <string name="tuning_feature_info_title">Tuning Feature Information</string>
     <string name="tuning_feature_info_close">CLOSE</string>
     <string name="tuning_feature_performance_mode_title">Performance Mode</string>
-    <string name="tuning_feature_performance_mode_desc">Provides configuration presets to optimize the system based on needs: Battery Saver (powersave governor), Balanced (schedutil governor), and Performance (performance governor).</string>
+    <string name="tuning_feature_performance_mode_desc">Provides configuration presets to optimize the system based on needs: Balanced (schedutil governor) and Performance (performance governor).</string>
     <string name="tuning_feature_cpu_governor_title">CPU Governor</string>
     <string name="tuning_feature_cpu_governor_desc">Controls how CPU frequency scales up or down based on workload. Different governors can affect performance and power consumption.</string>
     <string name="tuning_feature_gpu_control_title">GPU Control</string>
@@ -139,4 +138,282 @@
     <string name="root_required">Root Required</string>
     <string name="root_required_desc">This application requires root access to function properly. Please grant root access.</string>
     <string name="exit_app">Exit</string>
+
+    <!-- Tuning Screen -->
+    <string name="performance_mode_performance">Performance</string>
+    <string name="quick_presets_desc">Quick presets to optimize system performance and power consumption</string>
+    <string name="balanced_performance_desc">%s governor for balanced performance</string>
+    <string name="maximum_speed_desc">%s governor for maximum speed</string>
+    <string name="default_governor_desc">%s governor</string>
+    <string name="common_selected">Selected</string>
+    <string name="performance_mode_applied">Performance Mode Applied</string>
+    <string name="changed_cpu_governor_desc">Changed CPU governor to %s on all clusters</string>
+    <string name="system_tuning">System Tuning</string>
+    <string name="system_tuning_desc">Optimize your device performance and power efficiency with advanced kernel controls</string>
+    <string name="tap_for_more_info">Tap for more information</string>
+
+    <!-- CpuGovernorCard -->
+    <string name="cpu_control">CPU Control</string>
+    <string name="collapse">Collapse</string>
+    <string name="expand">Expand</string>
+    <string name="configure_cpu_governor_desc">Configure CPU governor and frequency settings for each cluster</string>
+    <string name="loading_cpu_data">Loading CPU data…</string>
+    <string name="set_governor_for_cluster">Set Governor for %s</string>
+    <string name="frequency">Frequency</string>
+    <string name="set_min_frequency">Set Min Frequency</string>
+    <string name="set_max_frequency">Set Max Frequency</string>
+    <string name="core_status">Core Status</string>
+    <string name="core_x">Core %d</string>
+    <string name="little_cluster">Little Cluster</string>
+    <string name="big_cluster">Big Cluster</string>
+    <string name="prime_cluster">Prime Cluster</string>
+    <string name="cluster_control">Cluster Control</string>
+    <string name="active">ACTIVE</string>
+    <string name="loading">LOADING</string>
+    <string name="error">Error</string>
+    <string name="min_frequency">Min Frequency</string>
+    <string name="loading_ellipsis">Loading…</string>
+    <string name="max_frequency">Max Frequency</string>
+    <string name="cores_online">%d/%d Online</string>
+
+    <!-- IoSchedulerDialog -->
+    <string name="io_scheduler">I/O Scheduler</string>
+
+    <!-- TcpCongestionDialog -->
+    <string name="tcp_congestion_control">TCP Congestion Control</string>
+    <string name="tcp_congestion">TCP Congestion</string>
+
+    <!-- MiscScreen -->
+    <string name="gpu_power">GPU &amp; Power</string>
+    <string name="network_storage">Network &amp; Storage</string>
+    <string name="kgsl_skip_pool_zeroing">KGSL Skip Pool Zeroing</string>
+    <string name="kgsl_skip_pool_zeroing_desc">Improve FPS in emulators, Unity &amp; Unreal games. May cause UI glitches.</string>
+    <string name="feature_not_available">Feature not available in your kernel version.</string>
+    <string name="performance_mode_active">Performance Mode Active</string>
+    <string name="kgsl_warning">This feature may cause UI glitches or visual artifacts. If you experience issues, disable this feature.</string>
+    <string name="change_algorithm">Change algorithm</string>
+    <string name="change_scheduler">Change scheduler</string>
+    <string name="bypass_charging">Bypass Charging</string>
+    <string name="bypass_charging_desc">Charge the device without charging the battery. May preserve battery health. Make sure the kernel is supported.</string>
+    <string name="bypass_charging_activated">Bypass Charging Activated</string>
+    <string name="bypass_charging_active_desc">Bypass charging is active. The battery is not charging.</string>
+
+    <!-- SettingsScreen -->
+    <string name="coming_soon">Coming Soon</string>
+    <string name="theme_and_display">Theme &amp; Display</string>
+    <string name="amoled_mode">AMOLED Mode</string>
+    <string name="amoled_mode_desc">Use a pure black background in dark mode</string>
+    <string name="version_format">Version %1$s (%2$d)</string>
+    <string name="version_na">Version N/A</string>
+
+    <!-- HomeScreen -->
+    <string name="unknown_soc">Unknown SoC</string>
+
+    <!-- GpuCard -->
+    <string name="gpu_icon_desc">GPU Icon</string>
+    <string name="gpu_usage_format">%d%%</string>
+
+    <!-- MergedSystemCard -->
+    <string name="storage_tb">%.1f TB</string>
+    <string name="storage_gb">%.1f GB</string>
+    <string name="storage_mb">%.1f MB</string>
+    <string name="storage_kb">%.1f KB</string>
+    <string name="storage_b">%d B</string>
+    <string name="battery_status">Battery Status</string>
+    <string name="battery_status_template">%d%% • %.1f°C • %s</string>
+    <string name="charging">Charging</string>
+    <string name="discharging">Discharging</string>
+
+    <!-- MergedSystemCard Batch 2 -->
+    <string name="memory_status">Memory Status</string>
+    <string name="memory_status_template">%d%% Used • %dGB</string>
+    <string name="memory_status_template_with_zram">%d%% Used • %dGB + %dGB ZRAM</string>
+    <string name="storage_status">Storage Status</string>
+    <string name="storage_status_template">%d%% Used • %s Total</string>
+
+    <!-- MergedSystemCard Batch 3 -->
+    <string name="charge_level">Charge Level</string>
+    <string name="ram_usage">RAM Usage</string>
+    <string name="zram">Zram</string>
+    <string name="zram_usage">ZRAM Usage</string>
+    <string name="usage_percentage">%d%%</string>
+
+    <!-- MergedSystemCard Batch 4 -->
+    <string name="voltage">Voltage</string>
+    <string name="uptime">Uptime</string>
+    <string name="health">Health</string>
+    <string name="cycles">Cycles</string>
+    <string name="technology">Technology</string>
+    <string name="status">Status</string>
+    <string name="current_cap">Current Cap</string>
+    <string name="design_cap">Design Cap</string>
+    <string name="deep_sleep">Deep Sleep</string>
+    <string name="deep_sleep_percentage">%.1f%%</string>
+    <string name="deep_sleep_default">0.0%</string>
+    <string name="screen_on">Screen On</string>
+    <string name="current">Current</string>
+    <string name="mah">%dmAh</string>
+    <string name="ma">%.0fmA</string>
+    <string name="v">%sV</string>
+
+    <!-- MergedSystemCard Batch 5 -->
+    <string name="used_ram">Used RAM</string>
+    <string name="free_ram">Free RAM</string>
+    <string name="total_ram">Total RAM</string>
+    <string name="usage_percentage_label">Usage %</string>
+    <string name="zram_used">ZRAM Used</string>
+    <string name="zram_total">ZRAM Total</string>
+    <string name="mb">%dMB</string>
+
+    <!-- MergedSystemCard Batch 6 -->
+    <string name="device_information">Device Information</string>
+    <string name="rooted">Rooted</string>
+    <string name="not_rooted">Not Rooted</string>
+    <string name="version_template">v%s</string>
+    <string name="device">Device</string>
+    <string name="model">Model</string>
+    <string name="codename">Codename</string>
+    <string name="android">Android</string>
+    <string name="sdk">SDK</string>
+    <string name="fingerprint">Fingerprint</string>
+    <string name="resolution">Resolution</string>
+    <string name="refresh_rate">Refresh Rate</string>
+    <string name="dpi">DPI</string>
+
+    <!-- MergedSystemCard Batch 7 -->
+    <string name="internal_storage">Internal Storage</string>
+    <string name="storage_usage_template">%s / %s</string>
+    <string name="used_template">Used: %s</string>
+    <string name="free_template">Free: %s</string>
+    <string name="used_storage">Used Storage</string>
+    <string name="free_storage">Free Storage</string>
+    <string name="total_storage">Total Storage</string>
+
+    <!-- KernelCard -->
+    <string name="system_information">System Information</string>
+    <string name="build">Build</string>
+    <string name="build_fingerprint">Build Fingerprint</string>
+    <string name="architecture">Architecture</string>
+    <string name="selinux">SELinux</string>
+    <string name="kernelsu">KernelSU</string>
+    <string name="ksu_active">✓ Active</string>
+    <string name="ksu_detected">✓ Detected</string>
+    <string name="ksu_not_found">✗ Not Found</string>
+    <string name="legacy">Legacy</string>
+    <string name="gki1">GKI 1</string>
+    <string name="gki2">GKI 2</string>
+
+    <!-- AboutCard -->
+    <string name="viasco">Viasco</string>
+    <string name="nkm_developer">NKM developer</string>
+    <string name="gustyx_power">Gustyx-Power</string>
+    <string name="xkm_developer">XKM developer</string>
+    <string name="radika">Radika</string>
+    <string name="rvkm_developer">RvKM developer</string>
+    <string name="danda">Danda</string>
+    <string name="help_and_support">Help and support</string>
+    <string name="xtra_kernel_manager_repo">Xtra Kernel Manager Repository</string>
+    <string name="original_project_repo">Original project repository</string>
+    <string name="rvkernel_manager_repo">RvKernel Manager Repository</string>
+    <string name="feature_and_code_reference">Feature and code reference from this repository</string>
+    <string name="developer_profile_picture">%s\'s profile picture</string>
+
+    <!-- AboutCard Batch 2 -->
+    <string name="follow_us">Follow us:</string>
+    <string name="developer">Developer</string>
+    <string name="individual_contributors">Individual Contributors</string>
+    <string name="repository_contributors">Repository Contributors</string>
+    <string name="at_github">@%s</string>
+
+    <!-- MainActivity -->
+    <string name="toggle_fab_menu">Toggle FAB Menu</string>
+
+    <!-- GpuControlCard -->
+    <string name="gpu_control_title">GPU Control</string>
+    <string name="gpu_control_desc">Configure GPU governor, frequency, and renderer settings</string>
+    <string name="gpu_governor">GPU Governor</string>
+    <string name="gpu_governor_desc">Controls GPU frequency scaling behavior</string>
+    <string name="current_governor">Current Governor</string>
+    <string name="change_governor">Change Governor</string>
+    <string name="gpu_frequency">GPU Frequency</string>
+    <string name="gpu_frequency_desc">Minimum and maximum GPU frequencies</string>
+    <string name="min_frequency_label">Minimum Frequency</string>
+    <string name="change_min_frequency">Change Min Frequency</string>
+    <string name="max_frequency_label">Maximum Frequency</string>
+    <string name="change_max_frequency">Change Max Frequency</string>
+    <string name="gpu_power_level">GPU Power Level</string>
+    <string name="gpu_power_level_desc">Adjust GPU power and throttling settings</string>
+    <string name="power_level">Power Level</string>
+    <string name="gpu_throttling">GPU Throttling</string>
+    <string name="gpu_throttling_desc">Reduce performance to save power</string>
+    <string name="set_gpu_governor">Set GPU Governor</string>
+
+    <!-- ThermalCard -->
+    <string name="thermal_control">Thermal Control</string>
+    <string name="active_profile_template">Active: %s</string>
+    <string name="loading_thermal_profiles">Loading thermal profiles…</string>
+    <string name="warning">Warning</string>
+    <string name="no_thermal_profiles">No thermal profiles defined.</string>
+    <string name="active_profile">Active Profile</string>
+    <string name="manage_thermal_profile">Manage thermal profile</string>
+    <string name="change_profile">Change Profile</string>
+    <string name="select_thermal_profile">Select Thermal Profile</string>
+
+    <!-- SwappinessCard -->
+    <string name="zram_settings">ZRAM Settings</string>
+    <string name="zram_size">ZRAM Size</string>
+    <string name="zram_size_desc">Adjust compressed RAM size</string>
+    <string name="compression">Compression</string>
+    <string name="compression_algorithm">Compression algorithm</string>
+    <string name="memory_settings">Memory Settings</string>
+    <string name="swappiness_desc">Memory swap aggressiveness</string>
+    <string name="dirty_ratio">Dirty Ratio</string>
+    <string name="dirty_ratio_desc">Page cache dirty data threshold</string>
+    <string name="dirty_background_ratio">Dirty Background Ratio</string>
+    <string name="dirty_background_ratio_desc">Background writeback threshold</string>
+    <string name="dirty_writeback">Dirty Writeback</string>
+    <string name="dirty_writeback_desc">Writeback interval time</string>
+    <string name="dirty_expire">Dirty Expire</string>
+    <string name="dirty_expire_desc">Page expiration time</string>
+    <string name="min_free_memory">Min Free Memory</string>
+    <string name="min_free_memory_desc">Minimum free memory reserve</string>
+
+    <!-- SwappinessCard Batch 2 -->
+    <string name="set_swappiness">Set Swappiness</string>
+    <string name="set_dirty_ratio">Set Dirty Ratio</string>
+    <string name="set_dirty_background_ratio">Set Dirty Background Ratio</string>
+    <string name="set_dirty_writeback">Set Dirty Writeback</string>
+    <string name="set_dirty_expire">Set Dirty Expire</string>
+    <string name="set_min_free_memory">Set Min Free Memory</string>
+
+    <!-- SwappinessCard Batch 3 -->
+    <string name="ram_control">RAM Control</string>
+    <string name="zram_active_template">ZRAM: %dMB Active</string>
+    <string name="zram_disabled">ZRAM: Disabled</string>
+    <string name="zram_state">ZRAM State</string>
+    <string name="zram_enabled_desc">Compressed RAM enabled (controlled by kernel)</string>
+    <string name="zram_disabled_desc">Compressed RAM disabled (controlled by kernel)</string>
+    <string name="on">ON</string>
+    <string name="off">OFF</string>
+
+    <!-- SwappinessCard Batch 4 -->
+    <string name="configure">Configure</string>
+    <string name="ram_performance_control">RAM &amp; Performance Control</string>
+    <string name="about_this_feature">About This Feature</string>
+    <string name="current_value">Current Value</string>
+    <string name="cancel">Cancel</string>
+    <string name="apply">Apply</string>
+    <string name="swappiness_explanation">Controls how aggressively the kernel moves data from RAM to storage. Low values (0–10) make the system focus more on using RAM, high values (60–100) use swap more frequently to save RAM.</string>
+    <string name="zram_explanation">Sets the size of compressed RAM to increase virtual memory capacity. ZRAM compresses data in RAM to store more applications without using slower storage. (ZRAM state is controlled by your kernel and cannot be changed)</string>
+    <string name="dirty_ratio_explanation">Sets the percentage of RAM used for write cache before forcing writes to storage. Higher values = better performance but risk of data loss during crashes.</string>
+    <string name="dirty_background_ratio_explanation">Sets when the kernel starts gradually writing cache to storage in the background. Helps maintain stable performance by reducing lag during large writes.</string>
+    <string name="min_free_memory_explanation">Sets the minimum amount of RAM that must always remain free. Higher values make the system more responsive but reduce RAM available for applications.</string>
+    <string name="dirty_expire_explanation">Sets how long cache data can persist before being forced to write to storage. Lower values = safer data but reduced performance.</string>
+    <string name="dirty_writeback_explanation">Sets the time interval for the kernel to check and write expired cache. Affects how often the system performs automatic cache cleanup.</string>
+    <string name="default_explanation">This setting affects how the system manages memory and performance. Adjust according to your device usage needs for optimal results.</string>
+
+    <!-- Thermal Service -->
+    <string name="thermal_service_channel_name">Thermal Service Channel</string>
+    <string name="thermal_service_notification_title">Thermal Service</string>
+    <string name="thermal_service_notification_text">Monitoring thermal settings in the background.</string>
 </resources>

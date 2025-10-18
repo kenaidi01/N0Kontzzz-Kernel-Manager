@@ -67,7 +67,7 @@ fun SettingsScreen(
         ) {
             // Language Setting
             Text(
-                text = "Language",
+                text = stringResource(id = R.string.language),
                 style = MaterialTheme.typography.titleSmall.copy(
                     fontWeight = FontWeight.Normal
                 ),
@@ -89,7 +89,7 @@ fun SettingsScreen(
                 },
                 shape = getRoundedCornerShape(0, 1), // First (and only) item in group of 1
                 onClick = {
-                    Toast.makeText(context, "Coming Soon", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.coming_soon, Toast.LENGTH_SHORT).show()
                 }
             )
             
@@ -97,7 +97,7 @@ fun SettingsScreen(
             
             // Theme and Display Settings
             Text(
-                text = "Theme & Display",
+                text = stringResource(id = R.string.theme_and_display),
                 style = MaterialTheme.typography.titleSmall.copy(
                     fontWeight = FontWeight.Normal
                 ),
@@ -134,8 +134,8 @@ fun SettingsScreen(
 
             // AMOLED Mode Setting Item - Last item (index 1) in group of 2
             SettingItemCard(
-                headlineText = "AMOLED Mode",
-                supportingText = "Use a pure black background in dark mode",
+                headlineText = stringResource(id = R.string.amoled_mode),
+                supportingText = stringResource(id = R.string.amoled_mode_desc),
                 icon = {
                     Icon(
                         imageVector = Icons.Default.DarkMode,
@@ -182,13 +182,15 @@ fun SettingsScreen(
                 .padding(vertical = 16.dp),
             contentAlignment = Alignment.Center
         ) {
-            val versionInfo = try {
-                val pInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-                val versionName = pInfo.versionName
-                val versionCode = androidx.core.content.pm.PackageInfoCompat.getLongVersionCode(pInfo)
-                "Version $versionName ($versionCode)"
-            } catch (e: Exception) {
-                "Version N/A"
+            val versionInfo = remember(context) {
+                try {
+                    val pInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+                    val versionName = pInfo.versionName
+                    val versionCode = androidx.core.content.pm.PackageInfoCompat.getLongVersionCode(pInfo)
+                    context.getString(R.string.version_format, versionName, versionCode)
+                } catch (e: Exception) {
+                    context.getString(R.string.version_na)
+                }
             }
             Text(
                 text = versionInfo,
@@ -246,7 +248,7 @@ private fun ThemeSelectionDialog(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Contrast,
-                                contentDescription = "Theme",
+                                contentDescription = stringResource(id = R.string.theme),
                                 modifier = Modifier.size(28.dp),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer
                             )

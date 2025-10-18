@@ -36,6 +36,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 
+import androidx.compose.ui.res.stringResource
+import id.nkz.nokontzzzmanager.R
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TcpCongestionDialog(
@@ -82,13 +85,13 @@ fun TcpCongestionDialog(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Router,
-                                contentDescription = "TCP Congestion Control",
+                                contentDescription = stringResource(id = R.string.tcp_congestion_control),
                                 modifier = Modifier.size(28.dp),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
                         Text(
-                            text = "TCP Congestion",
+                            text = stringResource(id = R.string.tcp_congestion),
                             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -151,7 +154,7 @@ fun TcpCongestionDialog(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp)
                     ) {
-                        Text("Close")
+                        Text(stringResource(id = R.string.close))
                     }
                 }
             }

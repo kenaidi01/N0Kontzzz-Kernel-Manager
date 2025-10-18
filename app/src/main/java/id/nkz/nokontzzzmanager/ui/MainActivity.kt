@@ -118,7 +118,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             RvKernelManagerTheme(themeManager = themeManager) {
                 val navController = rememberNavController()
-                val items = listOf("Home", "Tuning", "Misc")
+                val items = listOf(stringResource(id = R.string.home), stringResource(id = R.string.tuning), stringResource(id = R.string.misc))
                 val topAppBarState = rememberTopAppBarState()
                 val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -133,7 +133,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 val title = when (currentRoute) {
-                    "settings" -> "Settings"
+                    "settings" -> stringResource(id = R.string.settings)
                     else -> stringResource(id = R.string.n0kz_kernel_manager) // Default title for home, tuning, misc
                 }
 
@@ -181,7 +181,7 @@ class MainActivity : ComponentActivity() {
                                         }
                                         Icon(
                                             painter = rememberVectorPainter(imageVector),
-                                            contentDescription = "Toggle FAB Menu",
+                                            contentDescription = stringResource(id = R.string.toggle_fab_menu),
                                             modifier = Modifier.animateIcon ({ checkedProgress })
                                         )
                                     }

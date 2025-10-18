@@ -48,21 +48,21 @@ import androidx.compose.ui.unit.dp
 
 import id.nkz.nokontzzzmanager.R
 
-data class Developer(val name: String, val role: String, val githubUsername: String, val drawableResId: Int)
-data class RepositoryContributor(val name: String, val url: String, val description: String, val drawableResId: Int)
+data class Developer(val name: Int, val role: Int, val githubUsername: String, val drawableResId: Int)
+data class RepositoryContributor(val name: Int, val url: String, val description: Int, val drawableResId: Int)
 
 // Special recognition for the main developer who led this rebrand
-val leadDeveloper = Developer("Viasco", "NKM developer", "bimoalfarrabi", R.drawable.viasco)
+val leadDeveloper = Developer(R.string.viasco, R.string.nkm_developer, "bimoalfarrabi", R.drawable.viasco)
 
 val individualContributors = listOf(
-    Developer("Gustyx-Power", "XKM developer", "Gustyx-Power", R.drawable.gustyx_power),
-    Developer("Radika", "RvKM developer", "Rve27", R.drawable.radika),
-    Developer("Danda", "Help and support", "Danda420", R.drawable.danda)
+    Developer(R.string.gustyx_power, R.string.xkm_developer, "Gustyx-Power", R.drawable.gustyx_power),
+    Developer(R.string.radika, R.string.rvkm_developer, "Rve27", R.drawable.radika),
+    Developer(R.string.danda, R.string.help_and_support, "Danda420", R.drawable.danda)
 )
 
 val repositoryContributors = listOf(
-    RepositoryContributor("Xtra Kernel Manager Repository", "https://github.com/Gustyx-Power/Xtra-Kernel-Manager", "Original project repository", R.drawable.xkm),
-    RepositoryContributor("RvKernel Manager Repository", "https://github.com/Rve27/RvKernel-Manager", "Feature and code reference from this repository", R.drawable.rv)
+    RepositoryContributor(R.string.xtra_kernel_manager_repo, "https://github.com/Gustyx-Power/Xtra-Kernel-Manager", R.string.original_project_repo, R.drawable.xkm),
+    RepositoryContributor(R.string.rvkernel_manager_repo, "https://github.com/Rve27/RvKernel-Manager", R.string.feature_and_code_reference, R.drawable.rv)
 )
 
 @Composable
@@ -131,7 +131,7 @@ fun AboutCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Follow us:",
+                        text = stringResource(id = R.string.follow_us),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Medium
@@ -231,7 +231,7 @@ fun AboutCard(
                         ) {
                             // Lead Developer Section
                             Text(
-                                text = "Developer",
+                                text = stringResource(id = R.string.developer),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
@@ -245,7 +245,7 @@ fun AboutCard(
                             
                             // Individual Contributors Section
                             Text(
-                                text = "Individual Contributors",
+                                text = stringResource(id = R.string.individual_contributors),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
@@ -263,7 +263,7 @@ fun AboutCard(
                             Spacer(modifier = Modifier.height(16.dp)) // Reduce spacing before section title
                             
                             Text(
-                                text = "Repository Contributors",
+                                text = stringResource(id = R.string.repository_contributors),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
@@ -359,6 +359,7 @@ fun AboutCard(
 fun DeveloperCreditItem(developer: Developer, position: Int, totalItems: Int) {
     val uriHandler = LocalUriHandler.current
     val githubProfileUrl = "https://github.com/${developer.githubUsername}"
+    val developerName = stringResource(id = developer.name)
     
     // Determine rounded corners based on position
     val shape = when {
@@ -384,7 +385,7 @@ fun DeveloperCreditItem(developer: Developer, position: Int, totalItems: Int) {
         ) {
             Image(
                 painter = painterResource(id = developer.drawableResId),
-                contentDescription = "${developer.name}'s profile picture",
+                contentDescription = stringResource(id = R.string.developer_profile_picture, developerName),
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)
@@ -392,17 +393,17 @@ fun DeveloperCreditItem(developer: Developer, position: Int, totalItems: Int) {
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = developer.name,
+                    text = developerName,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = developer.role,
+                    text = stringResource(id = developer.role),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "@${developer.githubUsername}",
+                    text = stringResource(id = R.string.at_github, developer.githubUsername),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Medium
@@ -455,17 +456,17 @@ fun RepositoryCreditItem(repository: RepositoryContributor, position: Int, total
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = repository.name,
+                    text = stringResource(id = repository.name),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = repository.description,
+                    text = stringResource(id = repository.description),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "GitHub",
+                    text = stringResource(id = R.string.github),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Medium

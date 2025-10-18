@@ -66,6 +66,9 @@ import androidx.compose.ui.window.DialogProperties
 import id.nkz.nokontzzzmanager.viewmodel.TuningViewModel
 import kotlin.math.abs
 
+import androidx.compose.ui.res.stringResource
+import id.nkz.nokontzzzmanager.R
+
 @Composable
 fun CpuGovernorCard(
     vm: TuningViewModel,
@@ -117,7 +120,7 @@ fun CpuGovernorCard(
                         modifier = Modifier.size(28.dp)
                     )
                     Text(
-                        text = "CPU Control",
+                        text = stringResource(id = R.string.cpu_control),
                         style = MaterialTheme.typography.headlineSmall.copy(
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
@@ -127,14 +130,14 @@ fun CpuGovernorCard(
                 }
                 Icon(
                     imageVector = Icons.Default.ExpandMore,
-                    contentDescription = if (isExpanded) "Collapse" else "Expand",
+                    contentDescription = if (isExpanded) stringResource(id = R.string.collapse) else stringResource(id = R.string.expand),
                     modifier = Modifier.rotate(rotationAngle),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
 
             Text(
-                text = "Configure CPU governor and frequency settings for each cluster",
+                text = stringResource(id = R.string.configure_cpu_governor_desc),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -170,7 +173,7 @@ fun CpuGovernorCard(
                                 )
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Text(
-                                    "Loading CPU data...",
+                                    stringResource(id = R.string.loading_cpu_data),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -314,13 +317,13 @@ private fun GovernorSelectionDialog(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Tune,
-                                contentDescription = "Governor",
+                                contentDescription = stringResource(id = R.string.cpu_governor_label),
                                 modifier = Modifier.size(28.dp),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
                         Text(
-                            text = "Set Governor for ${clusterName.replaceFirstChar { it.titlecase() }}",
+                            text = stringResource(id = R.string.set_governor_for_cluster, clusterName.replaceFirstChar { it.titlecase() }),
                             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -373,7 +376,7 @@ private fun GovernorSelectionDialog(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp)
                     ) {
-                        Text("Close")
+                        Text(stringResource(id = R.string.close))
                     }
                 }
             }
@@ -419,14 +422,14 @@ private fun MinFrequencySelectionDialog(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Speed,
-                                contentDescription = "Frequency",
+                                contentDescription = stringResource(id = R.string.frequency),
                                 modifier = Modifier.size(28.dp),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
                         Column {
                             Text(
-                                text = "Set Min Frequency",
+                                text = stringResource(id = R.string.set_min_frequency),
                                 style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -471,7 +474,7 @@ private fun MinFrequencySelectionDialog(
                                             )
                                         )
                                         Text(
-                                            text = "${frequency / 1000} MHz",
+                                            text = stringResource(id = R.string.cpu_freq_mhz, frequency / 1000),
                                             style = MaterialTheme.typography.bodyLarge.copy(
                                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                                             ),
@@ -489,7 +492,7 @@ private fun MinFrequencySelectionDialog(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp)
                     ) {
-                        Text("Close")
+                        Text(stringResource(id = R.string.close))
                     }
                 }
             }
@@ -535,14 +538,14 @@ private fun MaxFrequencySelectionDialog(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Speed,
-                                contentDescription = "Frequency",
+                                contentDescription = stringResource(id = R.string.frequency),
                                 modifier = Modifier.size(28.dp),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
                         Column {
                             Text(
-                                text = "Set Max Frequency",
+                                text = stringResource(id = R.string.set_max_frequency),
                                 style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -587,7 +590,7 @@ private fun MaxFrequencySelectionDialog(
                                             )
                                         )
                                         Text(
-                                            text = "${frequency / 1000} MHz",
+                                            text = stringResource(id = R.string.cpu_freq_mhz, frequency / 1000),
                                             style = MaterialTheme.typography.bodyLarge.copy(
                                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                                             ),
@@ -605,7 +608,7 @@ private fun MaxFrequencySelectionDialog(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp)
                     ) {
-                        Text("Close")
+                        Text(stringResource(id = R.string.close))
                     }
                 }
             }
@@ -650,14 +653,14 @@ private fun CoreStatusDialog(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Memory,
-                                contentDescription = "Core Status",
+                                contentDescription = stringResource(id = R.string.core_status),
                                 modifier = Modifier.size(28.dp),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
                         Column {
                             Text(
-                                text = "Core Status",
+                                text = stringResource(id = R.string.core_status),
                                 style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -689,7 +692,7 @@ private fun CoreStatusDialog(
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
                                     Text(
-                                        text = "Core $index",
+                                        text = stringResource(id = R.string.core_x, index),
                                         style = MaterialTheme.typography.bodyLarge.copy(
                                             fontWeight = FontWeight.Normal
                                         ),
@@ -727,7 +730,7 @@ private fun CoreStatusDialog(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp)
                     ) {
-                        Text("Close")
+                        Text(stringResource(id = R.string.close))
                     }
                 }
             }
@@ -758,9 +761,9 @@ fun CpuClusterCard(
     
     // Map cluster identifiers to display names
     val displayClusterName = when (clusterName) {
-        "cpu0" -> "Little Cluster"
-        "cpu4" -> "Big Cluster"
-        "cpu7" -> "Prime Cluster"
+        "cpu0" -> stringResource(id = R.string.little_cluster)
+        "cpu4" -> stringResource(id = R.string.big_cluster)
+        "cpu7" -> stringResource(id = R.string.prime_cluster)
         else -> clusterName.uppercase()
     }
 
@@ -814,7 +817,7 @@ fun CpuClusterCard(
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = "Cluster Control",
+                            text = stringResource(id = R.string.cluster_control),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -829,7 +832,7 @@ fun CpuClusterCard(
                     ),
                 ) {
                     Text(
-                        text = if (currentGovernor != "..." && currentGovernor != "Error") "ACTIVE" else "LOADING",
+                        text = if (currentGovernor != "..." && currentGovernor != "Error") stringResource(id = R.string.active) else stringResource(id = R.string.loading),
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontWeight = FontWeight.Bold
                         ),
@@ -848,7 +851,7 @@ fun CpuClusterCard(
                 // Governor Section (first card - 12dp top, 4dp bottom)
                 ControlSection(
                     icon = Icons.Default.Tune,
-                    title = "Governor",
+                    title = stringResource(id = R.string.cpu_governor_label),
                     value = if (currentGovernor == "..." || currentGovernor == "Error") currentGovernor else currentGovernor,
                     isLoading = currentGovernor == "..." || currentGovernor == "Error",
                     themeColor = MaterialTheme.colorScheme.primary,
@@ -865,46 +868,46 @@ fun CpuClusterCard(
                 // Min Frequency Section (middle card - 8dp all sides)
                 val minFreqText = when {
                     currentGovernor == "..." || currentGovernor == "Error" -> currentGovernor
-                    currentFreqPair.first == 0 && currentFreqPair.second == 0 && availableFrequenciesForCluster.isEmpty() -> "Loading..."
-                    currentFreqPair.first == 0 && currentFreqPair.second == -1 -> "Error"
-                    else -> "${currentFreqPair.first / 1000} MHz"
+                    currentFreqPair.first == 0 && currentFreqPair.second == 0 && availableFrequenciesForCluster.isEmpty() -> stringResource(id = R.string.loading_ellipsis)
+                    currentFreqPair.first == 0 && currentFreqPair.second == -1 -> stringResource(id = R.string.error)
+                    else -> stringResource(id = R.string.cpu_freq_mhz, currentFreqPair.first / 1000)
                 }
 
                 ControlSection(
                     icon = Icons.Default.Speed,
-                    title = "Min Frequency",
+                    title = stringResource(id = R.string.min_frequency),
                     value = minFreqText,
-                    isLoading = minFreqText == "Loading..." || minFreqText == "Error",
+                    isLoading = minFreqText == stringResource(id = R.string.loading_ellipsis) || minFreqText == stringResource(id = R.string.error),
                     themeColor = MaterialTheme.colorScheme.primary,
                     onClick = onMinFrequencyClick,
-                    enabled = availableFrequenciesForCluster.isNotEmpty() || minFreqText == "Loading..." || minFreqText == "Error",
+                    enabled = availableFrequenciesForCluster.isNotEmpty() || minFreqText == stringResource(id = R.string.loading_ellipsis) || minFreqText == stringResource(id = R.string.error),
                     cornerShape = RoundedCornerShape(4.dp)
                 )
 
                 // Max Frequency Section (middle card - 8dp all sides)
                 val maxFreqText = when {
                     currentGovernor == "..." || currentGovernor == "Error" -> currentGovernor
-                    currentFreqPair.first == 0 && currentFreqPair.second == 0 && availableFrequenciesForCluster.isEmpty() -> "Loading..."
-                    currentFreqPair.first == 0 && currentFreqPair.second == -1 -> "Error"
-                    else -> "${currentFreqPair.second / 1000} MHz"
+                    currentFreqPair.first == 0 && currentFreqPair.second == 0 && availableFrequenciesForCluster.isEmpty() -> stringResource(id = R.string.loading_ellipsis)
+                    currentFreqPair.first == 0 && currentFreqPair.second == -1 -> stringResource(id = R.string.error)
+                    else -> stringResource(id = R.string.cpu_freq_mhz, currentFreqPair.second / 1000)
                 }
 
                 ControlSection(
                     icon = Icons.Default.Speed,
-                    title = "Max Frequency",
+                    title = stringResource(id = R.string.max_frequency),
                     value = maxFreqText,
-                    isLoading = maxFreqText == "Loading..." || maxFreqText == "Error",
+                    isLoading = maxFreqText == stringResource(id = R.string.loading_ellipsis) || maxFreqText == stringResource(id = R.string.error),
                     themeColor = MaterialTheme.colorScheme.primary,
                     onClick = onMaxFrequencyClick,
-                    enabled = availableFrequenciesForCluster.isNotEmpty() || maxFreqText == "Loading..." || maxFreqText == "Error",
+                    enabled = availableFrequenciesForCluster.isNotEmpty() || maxFreqText == stringResource(id = R.string.loading_ellipsis) || maxFreqText == stringResource(id = R.string.error),
                     cornerShape = RoundedCornerShape(4.dp)
                 )
 
                 // Core Status Section (last card - 8dp top, 12dp bottom)
                 ControlSection(
                     icon = Icons.Default.Memory,
-                    title = "Core Status",
-                    value = "${coreStates.count { it }}/${coreStates.size} Online",
+                    title = stringResource(id = R.string.core_status),
+                    value = stringResource(id = R.string.cores_online, coreStates.count { it }, coreStates.size),
                     isLoading = false,
                     themeColor = MaterialTheme.colorScheme.primary,
                     onClick = onCoreClick,
@@ -1011,7 +1014,7 @@ private fun ControlSection(
             if (enabled) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = "Expand",
+                    contentDescription = stringResource(id = R.string.expand),
                     tint = themeColor,
                     modifier = Modifier.size(24.dp)
                 )

@@ -36,6 +36,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 
+import androidx.compose.ui.res.stringResource
+import id.nkz.nokontzzzmanager.R
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IoSchedulerDialog(
@@ -82,13 +85,13 @@ fun IoSchedulerDialog(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Storage,
-                                contentDescription = "I/O Scheduler",
+                                contentDescription = stringResource(id = R.string.io_scheduler),
                                 modifier = Modifier.size(28.dp),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
                         Text(
-                            text = "I/O Scheduler",
+                            text = stringResource(id = R.string.io_scheduler),
                             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -151,7 +154,7 @@ fun IoSchedulerDialog(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp)
                     ) {
-                        Text("Close")
+                        Text(stringResource(id = R.string.close))
                     }
                 }
             }

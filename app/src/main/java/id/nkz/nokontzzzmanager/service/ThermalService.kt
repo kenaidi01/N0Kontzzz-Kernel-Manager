@@ -123,7 +123,7 @@ class ThermalService : Service() {
     private fun createNotificationChannel() {
         val serviceChannel = NotificationChannel(
             CHANNEL_ID,
-            "Thermal Service Channel",
+            getString(R.string.thermal_service_channel_name),
             NotificationManager.IMPORTANCE_LOW
         )
         val manager = getSystemService(NotificationManager::class.java)
@@ -137,8 +137,8 @@ class ThermalService : Service() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Thermal Service")
-            .setContentText("Monitoring thermal settings in the background.")
+            .setContentTitle(getString(R.string.thermal_service_notification_title))
+            .setContentText(getString(R.string.thermal_service_notification_text))
             .setSmallIcon(R.drawable.ic_notification)
             .setContentIntent(pendingIntent)
             .build()

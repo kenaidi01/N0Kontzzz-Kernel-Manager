@@ -18,6 +18,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -35,34 +36,15 @@ import id.nkz.nokontzzzmanager.viewmodel.TuningViewModel
 import kotlinx.coroutines.launch
 
 
-data class FeatureText(
-    val titleEn: String,
-    val descriptionEn: String
-)
+import id.nkz.nokontzzzmanager.R
 
 // Daftar fitur dengan terjemahannya
 val tuningFeatures = listOf(
-    FeatureText(
-        titleEn = "Performance Mode",
-        descriptionEn = "Provides configuration presets to optimize the system based on needs: Balanced (schedutil governor) and Performance (performance governor)."
-    ),
-    FeatureText(
-        titleEn = "CPU Governor",
-        descriptionEn = "Controls how CPU frequency scales up or down based on workload. Different governors can affect performance and power consumption."
-    ),
-    FeatureText(
-        titleEn = "GPU Control",
-        descriptionEn = "Adjusts various GPU-related parameters like maximum frequency, GPU governor, and others to optimize graphics performance or power efficiency."
-    ),
-    FeatureText(
-        titleEn = "Thermal",
-        descriptionEn = "Manages device temperature limits. Adjustments here can help prevent throttling (performance reduction due to overheating) or, conversely, allow higher performance at the risk of higher temperatures."
-    ),
-    FeatureText(
-        titleEn = "Swappiness",
-        descriptionEn = "Controls how aggressively the kernel moves data from RAM to zRAM/swap. A higher value means more aggressive swapping (can save active RAM but is slower), a lower value keeps data in RAM longer."
-    )
-    // Tambahkan fitur lainnya di sini jika ada
+    R.string.tuning_feature_performance_mode_title to R.string.tuning_feature_performance_mode_desc,
+    R.string.tuning_feature_cpu_governor_title to R.string.tuning_feature_cpu_governor_desc,
+    R.string.tuning_feature_gpu_control_title to R.string.tuning_feature_gpu_control_desc,
+    R.string.tuning_feature_thermal_title to R.string.tuning_feature_thermal_desc,
+    R.string.tuning_feature_swappiness_title to R.string.tuning_feature_swappiness_desc
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -157,7 +139,7 @@ fun TuningScreen(
 @Composable
 fun FeatureInfoDialog(
     onDismissRequest: () -> Unit,
-    features: List<FeatureText>
+    features: List<Pair<Int, Int>>
 ) {
     // Full-screen dialog implementation according to MD3 guidelines with animation
     Dialog(
@@ -182,7 +164,7 @@ fun FeatureInfoDialog(
                     CenterAlignedTopAppBar(
                         title = {
                             Text(
-                                text = "Tuning Feature Information",
+                                text = stringResource(id = R.string.tuning_feature_info_title),
                                 fontWeight = FontWeight.Bold,
                                 style = MaterialTheme.typography.headlineSmall
                             )
@@ -191,7 +173,7 @@ fun FeatureInfoDialog(
                             IconButton(onClick = onDismissRequest) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
-                                    contentDescription = "Close"
+                                    contentDescription = stringResource(id = R.string.close)
                                 )
                             }
                         },
@@ -212,8 +194,8 @@ fun FeatureInfoDialog(
                         // Feature descriptions
                         features.forEachIndexed { index, feature ->
                             FeatureDescription(
-                                title = feature.titleEn,
-                                description = feature.descriptionEn
+                                title = stringResource(id = feature.first),
+                                description = stringResource(id = feature.second)
                             )
                             if (index < features.lastIndex) {
                                 HorizontalDivider(
@@ -298,7 +280,7 @@ fun PerformanceModeCard(
                     tint = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = "Performance Mode",
+                    text = stringResource(id = R.string.tuning_feature_performance_mode_title),
                     style = MaterialTheme.typography.headlineSmall.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
@@ -307,7 +289,7 @@ fun PerformanceModeCard(
             }
 
             Text(
-                text = "Quick presets to optimize system performance and power consumption",
+                text = stringResource(id = R.string.quick_presets_desc),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -386,15 +368,15 @@ fun PerformanceModeCard(
                                     text = when (mode) {
                                         "Balanced" -> {
                                             val gov = governorMappings[mode] ?: "schedutil"
-                                            "$gov governor for balanced performance"
+                                            stringResource(id = R.string.balanced_performance_desc, gov)
                                         }
                                         "Performance" -> {
                                             val gov = governorMappings[mode] ?: "performance"
-                                            "$gov governor for maximum speed"
+                                            stringResource(id = R.string.maximum_speed_desc, gov)
                                         }
                                         else -> {
                                             val gov = governorMappings[mode] ?: "default"
-                                            "$gov governor"
+                                            stringResource(id = R.string.default_governor_desc, gov)
                                         }
                                     },
                                     style = MaterialTheme.typography.bodySmall,
@@ -406,7 +388,7 @@ fun PerformanceModeCard(
                             if (performanceMode == mode) {
                                 Icon(
                                     imageVector = Icons.Default.CheckCircle,
-                                    contentDescription = "Selected",
+                                    contentDescription = stringResource(id = R.string.common_selected),
                                     modifier = Modifier.size(20.dp),
                                     tint = when (mode) {
                                         "Balanced" -> balancedGreen
@@ -445,14 +427,14 @@ fun PerformanceModeCard(
                                 tint = MaterialTheme.colorScheme.primary
                             )
                             Text(
-                                text = "Performance Mode Applied",
+                                text = stringResource(id = R.string.performance_mode_applied),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary
                             )
                         }
                         Text(
-                            text = "Changed CPU governor to ${governorMappings[performanceMode] ?: "schedutil"} on all clusters",
+                            text = stringResource(id = R.string.changed_cpu_governor_desc, governorMappings[performanceMode] ?: "schedutil"),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
@@ -505,7 +487,7 @@ fun HeroHeader(
             
             // Title
             Text(
-                text = "System Tuning",
+                text = stringResource(id = R.string.system_tuning),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -513,7 +495,7 @@ fun HeroHeader(
             
             // Description
             Text(
-                text = "Optimize your device performance and power efficiency with advanced kernel controls",
+                text = stringResource(id = R.string.system_tuning_desc),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
@@ -521,7 +503,7 @@ fun HeroHeader(
             
             // Info text
             Text(
-                text = "Tap for more information",
+                text = stringResource(id = R.string.tap_for_more_info),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Medium

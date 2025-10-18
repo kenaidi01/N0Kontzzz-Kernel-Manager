@@ -22,6 +22,9 @@ import id.nkz.nokontzzzmanager.ui.dialog.IoSchedulerDialog
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import kotlinx.coroutines.launch
 
+import androidx.compose.ui.res.stringResource
+import id.nkz.nokontzzzmanager.R
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MiscScreen(
@@ -64,7 +67,7 @@ fun MiscScreen(
     ) {
         // Group 1: GPU & Power
         item {
-            Text("GPU & Power", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+            Text(stringResource(id = R.string.gpu_power), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
             Spacer(modifier = Modifier.height(8.dp))
         }
         // KGSL Skip Pool Zeroing feature
@@ -96,7 +99,7 @@ fun MiscScreen(
 
         // Group 2: Network & Storage
         item {
-            Text("Network & Storage", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+            Text(stringResource(id = R.string.network_storage), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
             Spacer(modifier = Modifier.height(8.dp))
         }
         
@@ -159,7 +162,7 @@ fun KgslSkipZeroingCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "KGSL Skip Pool Zeroing",
+                        text = stringResource(id = R.string.kgsl_skip_pool_zeroing),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Medium,
                         color = if (featureAvailable) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(
@@ -168,9 +171,9 @@ fun KgslSkipZeroingCard(
                     )
                     Text(
                         text = if (featureAvailable) {
-                            "Improve FPS in emulators, Unity & Unreal games. May cause UI glitches."
+                            stringResource(id = R.string.kgsl_skip_pool_zeroing_desc)
                         } else {
-                            "Feature not available in your kernel version."
+                            stringResource(id = R.string.feature_not_available)
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = if (featureAvailable) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(
@@ -226,14 +229,14 @@ fun KgslSkipZeroingCard(
                                 tint = MaterialTheme.colorScheme.primary
                             )
                             Text(
-                                text = "Performance Mode Active",
+                                text = stringResource(id = R.string.performance_mode_active),
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
                         Text(
-                            text = "This feature may cause UI glitches or visual artifacts. If you experience issues, disable this feature.",
+                            text = stringResource(id = R.string.kgsl_warning),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
@@ -275,7 +278,7 @@ fun TcpCongestionControlCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "TCP Congestion Control",
+                        text = stringResource(id = R.string.tcp_congestion_control),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurface
@@ -288,7 +291,7 @@ fun TcpCongestionControlCard(
                 }
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = "Change algorithm",
+                    contentDescription = stringResource(id = R.string.change_algorithm),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -339,7 +342,7 @@ fun IoSchedulerCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "I/O Scheduler",
+                        text = stringResource(id = R.string.io_scheduler),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurface
@@ -352,7 +355,7 @@ fun IoSchedulerCard(
                 }
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = "Change scheduler",
+                    contentDescription = stringResource(id = R.string.change_scheduler),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -405,7 +408,7 @@ fun BypassChargingCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Bypass Charging",
+                        text = stringResource(id = R.string.bypass_charging),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Medium,
                         color = if (featureAvailable) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(
@@ -414,9 +417,9 @@ fun BypassChargingCard(
                     )
                     Text(
                         text = if (featureAvailable) {
-                            "Charge the device without charging the battery. May preserve battery health. Make sure the kernel is supported."
+                            stringResource(id = R.string.bypass_charging_desc)
                         } else {
-                            "Feature not available in your kernel version."
+                            stringResource(id = R.string.feature_not_available)
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = if (featureAvailable) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(
@@ -472,14 +475,14 @@ fun BypassChargingCard(
                                 tint = MaterialTheme.colorScheme.primary
                             )
                             Text(
-                                text = "Bypass Charging Activated",
+                                text = stringResource(id = R.string.bypass_charging_activated),
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
                         Text(
-                            text = "Bypass charging is active. The battery is not charging.",
+                            text = stringResource(id = R.string.bypass_charging_active_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )

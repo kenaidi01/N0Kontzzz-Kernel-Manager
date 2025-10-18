@@ -19,10 +19,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import id.nkz.nokontzzzmanager.R
 import id.nkz.nokontzzzmanager.data.repository.ThermalRepository
 import id.nkz.nokontzzzmanager.viewmodel.TuningViewModel
 
@@ -111,7 +113,7 @@ private fun ThermalHeaderSection(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "Thermal Control",
+                text = stringResource(id = R.string.thermal_control),
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
@@ -127,7 +129,7 @@ private fun ThermalHeaderSection(
                     .padding(horizontal = 12.dp, vertical = 6.dp)
             ) {
                 Text(
-                    text = "Active: $currentProfileName",
+                    text = stringResource(id = R.string.active_profile_template, currentProfileName),
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium)
                 )
@@ -148,7 +150,7 @@ private fun ThermalHeaderSection(
             ) {
                 Icon(
                     imageVector = Icons.Default.Thermostat,
-                    contentDescription = "Thermal",
+                    contentDescription = stringResource(id = R.string.thermal_control),
                     modifier = Modifier.size(28.dp),
                     tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
@@ -156,7 +158,7 @@ private fun ThermalHeaderSection(
 
             Icon(
                 imageVector = if (isExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                contentDescription = if (isExpanded) "Collapse" else "Expand",
+                contentDescription = if (isExpanded) stringResource(id = R.string.collapse) else stringResource(id = R.string.expand),
                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                 modifier = Modifier.size(24.dp)
             )
@@ -195,7 +197,7 @@ private fun ThermalLoadingSection() {
         Spacer(modifier = Modifier.width(12.dp))
 
         Text(
-            text = "Loading thermal profiles...",
+            text = stringResource(id = R.string.loading_thermal_profiles),
             style = MaterialTheme.typography.bodyMedium.copy(
                 fontWeight = FontWeight.Medium
             ),
@@ -221,7 +223,7 @@ private fun ThermalNoProfilesSection() {
         ) {
             Icon(
                 imageVector = Icons.Default.Warning,
-                contentDescription = "Warning",
+                contentDescription = stringResource(id = R.string.warning),
                 modifier = Modifier.size(20.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -230,7 +232,7 @@ private fun ThermalNoProfilesSection() {
         Spacer(modifier = Modifier.width(12.dp))
 
         Text(
-            "No thermal profiles defined.",
+            stringResource(id = R.string.no_thermal_profiles),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
         )
@@ -248,7 +250,7 @@ private fun ThermalActiveProfileSection(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "Active Profile",
+                text = stringResource(id = R.string.active_profile),
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.SemiBold
                 ),
@@ -256,7 +258,7 @@ private fun ThermalActiveProfileSection(
             )
 
             Text(
-                text = "Manage thermal profile",
+                text = stringResource(id = R.string.manage_thermal_profile),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
@@ -272,7 +274,7 @@ private fun ThermalActiveProfileSection(
         ) {
             Icon(
                 imageVector = Icons.Default.Tune,
-                contentDescription = "Change Profile",
+                contentDescription = stringResource(id = R.string.change_profile),
                 modifier = Modifier.size(16.dp)
             )
             Spacer(Modifier.width(8.dp))
@@ -326,7 +328,7 @@ private fun ThermalProfileSelectionDialog(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Text(
-                            text = "Select Thermal Profile",
+                            text = stringResource(id = R.string.select_thermal_profile),
                             style = MaterialTheme.typography.headlineSmall,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -398,7 +400,7 @@ private fun ThermalProfileSelectionDialog(
                             contentColor = MaterialTheme.colorScheme.onSurface
                         )
                     ) {
-                        Text("Close")
+                        Text(stringResource(id = R.string.close))
                     }
                 }
             }
