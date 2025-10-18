@@ -126,6 +126,7 @@ fun MiscScreen(
 
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun KgslSkipZeroingCard(
     kgslSkipZeroingEnabled: Boolean,
@@ -140,7 +141,12 @@ fun KgslSkipZeroingCard(
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp, bottomStart = 8.dp, bottomEnd = 8.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-        )
+        ),
+        onClick = {
+            if (featureAvailable) {
+                onToggleKgslSkipZeroing(!kgslSkipZeroingEnabled)
+            }
+        }
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -175,7 +181,7 @@ fun KgslSkipZeroingCard(
 
                 Switch(
                     checked = kgslSkipZeroingEnabled && featureAvailable,
-                    onCheckedChange = { if (featureAvailable) onToggleKgslSkipZeroing(!kgslSkipZeroingEnabled) },
+                    onCheckedChange = null,
                     enabled = featureAvailable,
                     thumbContent = if (kgslSkipZeroingEnabled && featureAvailable) {
                         {
@@ -365,6 +371,7 @@ fun IoSchedulerCard(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BypassChargingCard(
     bypassChargingEnabled: Boolean,
@@ -379,7 +386,12 @@ fun BypassChargingCard(
         shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp, bottomStart = 24.dp, bottomEnd = 24.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-        )
+        ),
+        onClick = {
+            if (featureAvailable) {
+                onToggleBypassCharging(!bypassChargingEnabled)
+            }
+        }
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -414,7 +426,7 @@ fun BypassChargingCard(
 
                 Switch(
                     checked = bypassChargingEnabled && featureAvailable,
-                    onCheckedChange = { if (featureAvailable) onToggleBypassCharging(!bypassChargingEnabled) },
+                    onCheckedChange = null,
                     enabled = featureAvailable,
                     thumbContent = if (bypassChargingEnabled && featureAvailable) {
                         {
