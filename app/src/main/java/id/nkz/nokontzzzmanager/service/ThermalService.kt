@@ -49,6 +49,7 @@ class ThermalService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        createNotificationChannel()
         checkRootAccess()
         
         // For Android 15+, create a minimal overlay window before starting foreground service
@@ -56,7 +57,7 @@ class ThermalService : Service() {
             createMinimalOverlayWindow()
         }
         
-        startForegroundWithoutNotification()
+        startForeground(NOTIFICATION_ID, createNotification())
     }
 
     private fun checkRootAccess() {
@@ -126,21 +127,29 @@ class ThermalService : Service() {
         }
     }
 
-    private fun startForegroundWithoutNotification() {
-        try {
-            // Start foreground service without notification
-            startForeground(NOTIFICATION_ID, createEmptyNotification())
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to start foreground service", e)
-            stopSelf()
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val serviceChannel = NotificationChannel(
+                CHANNEL_ID,
+                "Thermal Service Channel",
+                NotificationManager.IMPORTANCE_LOW
+            )
+            val manager = getSystemService(NotificationManager::class.java)
+            manager.createNotificationChannel(serviceChannel)
         }
     }
 
-    private fun createEmptyNotification(): Notification {
-        return Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle("")
-            .setContentText("")
+    private fun createNotification(): Notification {
+        val notificationIntent = Intent(this, id.nkz.nokontzzzmanager.ui.MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE
+        )
+
+        return NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("Thermal Service")
+            .setContentText("Monitoring thermal settings in the background.")
             .setSmallIcon(R.drawable.ic_notification)
+            .setContentIntent(pendingIntent)
             .build()
     }
 
