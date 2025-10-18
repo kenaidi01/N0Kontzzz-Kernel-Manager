@@ -11,7 +11,6 @@ import android.view.WindowManager
 import android.view.View
 import android.graphics.PixelFormat
 import android.view.Gravity
-import android.widget.TextView
 import androidx.core.app.NotificationCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -73,11 +72,10 @@ class ThermalService : Service() {
      * a foreground service from the background.
      */
     private fun createMinimalOverlayWindow() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return
-        
+
         try {
             if (Settings.canDrawOverlays(this)) {
-                windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+                windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
                 
                 // Create a minimal 1x1 pixel view
                 val overlayView = View(this).apply {
@@ -87,11 +85,7 @@ class ThermalService : Service() {
                 
                 val params = WindowManager.LayoutParams(
                     1, 1, // 1x1 pixel
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) 
-                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-                    else 
-                        @Suppress("DEPRECATION")
-                        WindowManager.LayoutParams.TYPE_PHONE,
+                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or 
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
@@ -128,15 +122,13 @@ class ThermalService : Service() {
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val serviceChannel = NotificationChannel(
-                CHANNEL_ID,
-                "Thermal Service Channel",
-                NotificationManager.IMPORTANCE_LOW
-            )
-            val manager = getSystemService(NotificationManager::class.java)
-            manager.createNotificationChannel(serviceChannel)
-        }
+        val serviceChannel = NotificationChannel(
+            CHANNEL_ID,
+            "Thermal Service Channel",
+            NotificationManager.IMPORTANCE_LOW
+        )
+        val manager = getSystemService(NotificationManager::class.java)
+        manager.createNotificationChannel(serviceChannel)
     }
 
     private fun createNotification(): Notification {
@@ -243,7 +235,7 @@ class ThermalService : Service() {
             val restartServicePendingIntent = PendingIntent.getService(
                 applicationContext, 1, restartServiceIntent, PendingIntent.FLAG_IMMUTABLE
             )
-            val alarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val alarmManager = applicationContext.getSystemService(ALARM_SERVICE) as AlarmManager
             alarmManager.set(AlarmManager.ELAPSED_REALTIME, 1000, restartServicePendingIntent)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to schedule service restart", e)
