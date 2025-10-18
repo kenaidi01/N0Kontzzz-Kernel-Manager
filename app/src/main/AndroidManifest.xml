@@ -95,6 +95,36 @@
                 android:value="androidx.startup"
                 tools:node="remove" />
         </provider>
+        <!-- Root Action Service -->
+        <service
+            android:name=".service.RootActionService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <!-- KGSL Tile Service -->
+        <service
+            android:name=".tile.KgslTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_speed"
+            android:label="KGSL Zeroing"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <!-- Bypass Charging Tile Service -->
+        <service
+            android:name=".tile.BypassChargingTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_battery_saver"
+            android:label="Bypass Charging"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>
