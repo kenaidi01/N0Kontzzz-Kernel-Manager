@@ -36,50 +36,34 @@ import kotlinx.coroutines.launch
 
 
 data class FeatureText(
-    val titleId: String,
     val titleEn: String,
-    val descriptionId: String,
     val descriptionEn: String
 )
 
 // Daftar fitur dengan terjemahannya
 val tuningFeatures = listOf(
     FeatureText(
-        titleId = "Mode Performa",
         titleEn = "Performance Mode",
-        descriptionId = "Menyediakan preset konfigurasi untuk mengoptimalkan sistem berdasarkan kebutuhan: Balanced (schedutil governor) dan Performance (performance governor).",
         descriptionEn = "Provides configuration presets to optimize the system based on needs: Balanced (schedutil governor) and Performance (performance governor)."
     ),
     FeatureText(
-        titleId = "CPU Governor",
         titleEn = "CPU Governor",
-        descriptionId = "Mengatur bagaimana frekuensi CPU naik atau turun berdasarkan beban kerja. Pilihan governor yang berbeda dapat mempengaruhi performa dan konsumsi daya.",
         descriptionEn = "Controls how CPU frequency scales up or down based on workload. Different governors can affect performance and power consumption."
     ),
     FeatureText(
-        titleId = "Kontrol GPU",
         titleEn = "GPU Control",
-        descriptionId = "Menyesuaikan berbagai parameter terkait GPU seperti frekuensi maksimum, governor GPU, dan lainnya untuk mengoptimalkan performa grafis atau efisiensi daya.",
         descriptionEn = "Adjusts various GPU-related parameters like maximum frequency, GPU governor, and others to optimize graphics performance or power efficiency."
     ),
     FeatureText(
-        titleId = "Thermal",
         titleEn = "Thermal",
-        descriptionId = "Mengelola batas suhu perangkat. Penyesuaian di sini dapat membantu mencegah throttling (penurunan performa akibat panas berlebih) atau sebaliknya, memungkinkan performa lebih tinggi dengan risiko suhu lebih tinggi.",
         descriptionEn = "Manages device temperature limits. Adjustments here can help prevent throttling (performance reduction due to overheating) or, conversely, allow higher performance at the risk of higher temperatures."
     ),
     FeatureText(
-        titleId = "Swappiness",
         titleEn = "Swappiness",
-        descriptionId = "Mengontrol seberapa agresif kernel memindahkan data dari RAM ke zRAM/swap. Nilai yang lebih tinggi berarti lebih agresif memindahkan ke swap (bisa menghemat RAM aktif tapi lebih lambat), nilai lebih rendah mempertahankan data di RAM lebih lama.",
         descriptionEn = "Controls how aggressively the kernel moves data from RAM to zRAM/swap. A higher value means more aggressive swapping (can save active RAM but is slower), a lower value keeps data in RAM longer."
     )
     // Tambahkan fitur lainnya di sini jika ada
 )
-
-enum class Language {
-    ID, EN
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -145,6 +129,8 @@ fun TuningScreen(
                 CpuGovernorCard(vm = viewModel)
             }
 
+
+
             item {
                 GpuControlCard(tuningViewModel = viewModel)
             }
@@ -173,8 +159,6 @@ fun FeatureInfoDialog(
     onDismissRequest: () -> Unit,
     features: List<FeatureText>
 ) {
-    var selectedLanguage by remember { mutableStateOf(Language.EN) }
-
     // Full-screen dialog implementation according to MD3 guidelines with animation
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -198,7 +182,7 @@ fun FeatureInfoDialog(
                     CenterAlignedTopAppBar(
                         title = {
                             Text(
-                                text = if (selectedLanguage == Language.ID) "Informasi Fitur Tuning" else "Tuning Feature Information",
+                                text = "Tuning Feature Information",
                                 fontWeight = FontWeight.Bold,
                                 style = MaterialTheme.typography.headlineSmall
                             )
@@ -207,7 +191,7 @@ fun FeatureInfoDialog(
                             IconButton(onClick = onDismissRequest) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
-                                    contentDescription = if (selectedLanguage == Language.ID) "Tutup" else "Close"
+                                    contentDescription = "Close"
                                 )
                             }
                         },
@@ -225,65 +209,11 @@ fun FeatureInfoDialog(
                             .padding(horizontal = 16.dp)
                             .verticalScroll(rememberScrollState())
                     ) {
-                        // Tab row for language selection
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-                            ),
-                            shape = RoundedCornerShape(16.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(4.dp),
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                FilterChip(
-                                    selected = selectedLanguage == Language.ID,
-                                    onClick = { selectedLanguage = Language.ID },
-                                    label = { Text("ID") },
-                                    colors = FilterChipDefaults.filterChipColors(
-                                        containerColor = if (selectedLanguage == Language.ID) {
-                                            MaterialTheme.colorScheme.primary
-                                        } else {
-                                            MaterialTheme.colorScheme.surfaceVariant
-                                        },
-                                        labelColor = if (selectedLanguage == Language.ID) {
-                                            MaterialTheme.colorScheme.onPrimary
-                                        } else {
-                                            MaterialTheme.colorScheme.onSurfaceVariant
-                                        }
-                                    )
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                FilterChip(
-                                    selected = selectedLanguage == Language.EN,
-                                    onClick = { selectedLanguage = Language.EN },
-                                    label = { Text("EN") },
-                                    colors = FilterChipDefaults.filterChipColors(
-                                        containerColor = if (selectedLanguage == Language.EN) {
-                                            MaterialTheme.colorScheme.primary
-                                        } else {
-                                            MaterialTheme.colorScheme.surfaceVariant
-                                        },
-                                        labelColor = if (selectedLanguage == Language.EN) {
-                                            MaterialTheme.colorScheme.onPrimary
-                                        } else {
-                                            MaterialTheme.colorScheme.onSurfaceVariant
-                                        }
-                                    )
-                                )
-                            }
-                        }
-                        
                         // Feature descriptions
                         features.forEachIndexed { index, feature ->
                             FeatureDescription(
-                                title = if (selectedLanguage == Language.ID) feature.titleId else feature.titleEn,
-                                description = if (selectedLanguage == Language.ID) feature.descriptionId else feature.descriptionEn
+                                title = feature.titleEn,
+                                description = feature.descriptionEn
                             )
                             if (index < features.lastIndex) {
                                 HorizontalDivider(
