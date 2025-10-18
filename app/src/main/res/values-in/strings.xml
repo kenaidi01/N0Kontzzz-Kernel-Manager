@@ -104,8 +104,8 @@
     <string name="fps_format" translatable="false">%d FPS</string>
 
     <!-- Language strings -->
-    <string name="language_english">[translate:English]</string>
-    <string name="language_indonesian">[translate:Indonesian]</string>
+    <string name="language_english">Inggris</string>
+    <string name="language_indonesian">Indonesia</string>
     <string name="cpu_core_offline">Mati</string>
     <string name="system_stats_title">Statistik Sistem</string>
     <string name="cpu_load_label">Beban</string>
