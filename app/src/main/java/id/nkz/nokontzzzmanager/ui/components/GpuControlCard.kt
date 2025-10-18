@@ -11,7 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.VideogameAsset
@@ -573,12 +573,14 @@ private fun GpuFrequencySelectionDialog(
                     } else {
                         LazyColumn(
                             modifier = Modifier.heightIn(max = 350.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
-                            items(availableFrequencies.sorted()) { frequency ->
+                            val sortedFrequencies = availableFrequencies.sorted()
+                            itemsIndexed(sortedFrequencies) { index, frequency ->
                                 val isSelected = frequency == currentFrequency
                                 Card(
                                     modifier = Modifier.fillMaxWidth(),
+                                    shape = getDialogListItemShape(index, sortedFrequencies.size),
                                     colors = CardDefaults.cardColors(
                                         containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer
                                     ),
@@ -679,12 +681,14 @@ private fun GpuGovernorSelectionDialog(
                     } else {
                         LazyColumn(
                             modifier = Modifier.heightIn(max = 350.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
-                            items(availableGovernors.sorted()) { governor ->
+                            val sortedGovernors = availableGovernors.sorted()
+                            itemsIndexed(sortedGovernors) { index, governor ->
                                 val isSelected = governor == currentGovernor
                                 Card(
                                     modifier = Modifier.fillMaxWidth(),
+                                    shape = getDialogListItemShape(index, sortedGovernors.size),
                                     colors = CardDefaults.cardColors(
                                         containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer
                                     ),
@@ -788,5 +792,14 @@ private fun getRoundedCornerShape(index: Int, totalItems: Int): RoundedCornerSha
             }
         }
         else -> RoundedCornerShape(12.dp) // Default for other cases
+    }
+}
+
+private fun getDialogListItemShape(index: Int, totalItems: Int): RoundedCornerShape {
+    return when {
+        totalItems == 1 -> RoundedCornerShape(16.dp)
+        index == 0 -> RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomStart = 4.dp, bottomEnd = 4.dp)
+        index == totalItems - 1 -> RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomStart = 16.dp, bottomEnd = 16.dp)
+        else -> RoundedCornerShape(4.dp)
     }
 }

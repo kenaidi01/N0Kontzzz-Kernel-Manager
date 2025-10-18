@@ -24,7 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Memory
@@ -32,6 +32,8 @@ import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
@@ -45,6 +47,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -329,12 +333,14 @@ private fun GovernorSelectionDialog(
                     // Options List
                     LazyColumn(
                         modifier = Modifier.heightIn(max = 350.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
-                        items(availableGovernors.sorted()) { governor ->
+                        val sortedGovernors = availableGovernors.sorted()
+                        itemsIndexed(sortedGovernors) { index, governor ->
                             val isSelected = governor == currentSelectedGovernor
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
+                                shape = getDialogListItemShape(index, sortedGovernors.size),
                                 colors = CardDefaults.cardColors(
                                     containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer
                                 ),
@@ -442,12 +448,14 @@ private fun MinFrequencySelectionDialog(
                     } else {
                         LazyColumn(
                             modifier = Modifier.heightIn(max = 350.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
-                            items(allAvailableFrequencies.sorted()) { frequency ->
+                            val sortedFrequencies = allAvailableFrequencies.sorted()
+                            itemsIndexed(sortedFrequencies) { index, frequency ->
                                 val isSelected = frequency == currentMinFreq
                                 Card(
                                     modifier = Modifier.fillMaxWidth(),
+                                    shape = getDialogListItemShape(index, sortedFrequencies.size),
                                     colors = CardDefaults.cardColors(
                                         containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer
                                     ),
@@ -556,12 +564,14 @@ private fun MaxFrequencySelectionDialog(
                     } else {
                         LazyColumn(
                             modifier = Modifier.heightIn(max = 350.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
-                            items(allAvailableFrequencies.sorted()) { frequency ->
+                            val sortedFrequencies = allAvailableFrequencies.sorted()
+                            itemsIndexed(sortedFrequencies) { index, frequency ->
                                 val isSelected = frequency == currentMaxFreq
                                 Card(
                                     modifier = Modifier.fillMaxWidth(),
+                                    shape = getDialogListItemShape(index, sortedFrequencies.size),
                                     colors = CardDefaults.cardColors(
                                         containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer
                                     ),
@@ -607,6 +617,7 @@ private fun MaxFrequencySelectionDialog(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CoreStatusDialog(
     clusterName: String,
@@ -614,78 +625,118 @@ private fun CoreStatusDialog(
     onCoreToggled: (Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val GreenOnline = MaterialTheme.colorScheme.primary
-    val RedOffline = MaterialTheme.colorScheme.error
-
-    AlertDialog(
-        onDismissRequest = { /* Tidak melakukan apa-apa agar hanya bisa ditutup dengan tombol */ },
-        title = { Text("Core Status", style = MaterialTheme.typography.headlineSmall) },
-        text = {
-            Column {
-                Text(
-                    clusterName.replaceFirstChar { it.titlecase() },
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 12.dp, top = 4.dp)
-                )
-                coreStates.forEachIndexed { index, isOnline ->
+    BasicAlertDialog(
+        onDismissRequest = onDismiss,
+        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize().background(Color.Transparent),
+            contentAlignment = Alignment.Center
+        ) {
+            Card(
+                modifier = Modifier.fillMaxWidth(0.9f).heightIn(min = 300.dp, max = 600.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                shape = RoundedCornerShape(24.dp),
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    // Header
                     Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .clickable { onCoreToggled(index) }
-                            .padding(vertical = 8.dp, horizontal = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        // Custom Button with rounded shape instead of RadioButton
-                        Button(
-                            onClick = { onCoreToggled(index) },
-                            shape = RoundedCornerShape(50), // Fully rounded
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (isOnline) GreenOnline else RedOffline,
-                                contentColor = Color.White // Text color for the button
-                            ),
-                            modifier = Modifier
-                                .size(24.dp) // Maintain size
-                                .padding(0.dp), // Ensure no extra padding inside the button
+                        Box(
+                            modifier = Modifier.size(56.dp).clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.primaryContainer),
+                            contentAlignment = Alignment.Center
                         ) {
-                            // Empty content as the color itself indicates the state
-                            // Alternatively, you can put a small check icon or something similar
+                            Icon(
+                                imageVector = Icons.Default.Memory,
+                                contentDescription = "Core Status",
+                                modifier = Modifier.size(28.dp),
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
                         }
+                        Column {
+                            Text(
+                                text = "Core Status",
+                                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = clusterName.replaceFirstChar { it.titlecase() },
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
 
-                        Spacer(Modifier.width(16.dp))
-                        Text(
-                            text = "Core $index",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(Modifier.weight(1f))
-                        Text(
-                            text = if (isOnline) "Online" else "Offline",
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                color = if (isOnline) GreenOnline else RedOffline,
-                                fontWeight = FontWeight.SemiBold
-                            ),
-                        )
+                    // Options List
+                    LazyColumn(
+                        modifier = Modifier.heightIn(max = 350.dp),
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        itemsIndexed(coreStates) { index, isOnline ->
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = getDialogListItemShape(index, coreStates.size),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                ),
+                                onClick = { onCoreToggled(index) }
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = "Core $index",
+                                        style = MaterialTheme.typography.bodyLarge.copy(
+                                            fontWeight = FontWeight.Normal
+                                        ),
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Switch(
+                                        checked = isOnline,
+                                        onCheckedChange = { onCoreToggled(index) },
+                                        thumbContent = if (isOnline) {
+                                            {
+                                                Icon(
+                                                    imageVector = Icons.Default.Check,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                                                )
+                                            }
+                                        } else {
+                                            {
+                                                Icon(
+                                                    imageVector = Icons.Default.Close,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                                                )
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // Dismiss Button
+                    OutlinedButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text("Close")
                     }
                 }
             }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = onDismiss,
-                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.primary)
-            ) {
-                // Dismiss Button
-                OutlinedButton(
-                    onClick = onDismiss,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text("Close")
-                }
-            }
         }
-    )
+    }
 }
 
 private fun findClosestFrequency(target: Int, availableFrequencies: List<Int>): Int {
@@ -970,5 +1021,14 @@ private fun ControlSection(
                 )
             }
         }
+    }
+}
+
+private fun getDialogListItemShape(index: Int, totalItems: Int): RoundedCornerShape {
+    return when {
+        totalItems == 1 -> RoundedCornerShape(16.dp)
+        index == 0 -> RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomStart = 4.dp, bottomEnd = 4.dp)
+        index == totalItems - 1 -> RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomStart = 16.dp, bottomEnd = 16.dp)
+        else -> RoundedCornerShape(4.dp)
     }
 }

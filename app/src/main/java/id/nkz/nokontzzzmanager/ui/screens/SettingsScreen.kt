@@ -27,7 +27,10 @@ import id.nkz.nokontzzzmanager.ui.theme.ThemeMode
 import id.nkz.nokontzzzmanager.R
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.window.DialogProperties
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -196,56 +199,120 @@ fun SettingsScreen(
     }
 
     if (showThemeDialog) {
-        AlertDialog(
-            onDismissRequest = { showThemeDialog = false },
-            title = { 
-                Text(
-                    text = stringResource(R.string.select_theme),
-                    style = MaterialTheme.typography.headlineSmall
-                )
+        ThemeSelectionDialog(
+            currentThemeMode = currentThemeMode,
+            onThemeSelected = { themeMode ->
+                viewModel.setThemeMode(themeMode)
+                showThemeDialog = false
             },
-            confirmButton = { 
-                TextButton(onClick = { showThemeDialog = false }) {
-                    Text(stringResource(R.string.close))
-                }
-            },
-            text = {
+            onDismiss = { showThemeDialog = false }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ThemeSelectionDialog(
+    currentThemeMode: ThemeMode,
+    onThemeSelected: (ThemeMode) -> Unit,
+    onDismiss: () -> Unit
+) {
+    BasicAlertDialog(
+        onDismissRequest = onDismiss,
+        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize().background(Color.Transparent),
+            contentAlignment = Alignment.Center
+        ) {
+            Card(
+                modifier = Modifier.fillMaxWidth(0.9f).heightIn(min = 300.dp, max = 600.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                shape = RoundedCornerShape(24.dp),
+            ) {
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
-                    ThemeMode.entries.forEach { themeMode ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    viewModel.setThemeMode(themeMode)
-                                    showThemeDialog = false
-                                }
-                                .padding(vertical = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                    // Header
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier.size(56.dp).clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.primaryContainer),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = when (themeMode) {
-                                    ThemeMode.SYSTEM_DEFAULT -> stringResource(R.string.theme_system)
-                                    ThemeMode.LIGHT -> stringResource(R.string.theme_light)
-                                    ThemeMode.DARK -> stringResource(R.string.theme_dark)
-                                },
-                                style = MaterialTheme.typography.bodyLarge,
-                                modifier = Modifier.weight(1f)
-                            )
-                            RadioButton(
-                                selected = currentThemeMode == themeMode,
-                                onClick = {
-                                    viewModel.setThemeMode(themeMode)
-                                    showThemeDialog = false
-                                }
+                            Icon(
+                                imageVector = Icons.Default.Contrast,
+                                contentDescription = "Theme",
+                                modifier = Modifier.size(28.dp),
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
+                        Text(
+                            text = stringResource(R.string.select_theme),
+                            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    // Options List
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        val themeModes = ThemeMode.entries
+                        themeModes.forEachIndexed { index, themeMode ->
+                            val isSelected = themeMode == currentThemeMode
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = getDialogListItemShape(index, themeModes.size),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer
+                                ),
+                                onClick = { onThemeSelected(themeMode) }
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    RadioButton(
+                                        selected = isSelected,
+                                        onClick = null,
+                                        colors = RadioButtonDefaults.colors(
+                                            selectedColor = MaterialTheme.colorScheme.primary,
+                                            unselectedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                        )
+                                    )
+                                    Text(
+                                        text = when (themeMode) {
+                                            ThemeMode.SYSTEM_DEFAULT -> stringResource(R.string.theme_system)
+                                            ThemeMode.LIGHT -> stringResource(R.string.theme_light)
+                                            ThemeMode.DARK -> stringResource(R.string.theme_dark)
+                                        },
+                                        style = MaterialTheme.typography.bodyLarge.copy(
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                        ),
+                                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // Dismiss Button
+                    OutlinedButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text(stringResource(R.string.close))
                     }
                 }
             }
-        )
+        }
     }
 }
 
@@ -341,5 +408,14 @@ private fun getRoundedCornerShape(index: Int, totalItems: Int): RoundedCornerSha
                 else -> RoundedCornerShape(8.dp) // Middle cards: 4dp all sides
             }
         }
+    }
+}
+
+private fun getDialogListItemShape(index: Int, totalItems: Int): RoundedCornerShape {
+    return when {
+        totalItems == 1 -> RoundedCornerShape(16.dp)
+        index == 0 -> RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomStart = 4.dp, bottomEnd = 4.dp)
+        index == totalItems - 1 -> RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomStart = 16.dp, bottomEnd = 16.dp)
+        else -> RoundedCornerShape(4.dp)
     }
 }

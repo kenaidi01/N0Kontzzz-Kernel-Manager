@@ -301,7 +301,7 @@ fun TcpCongestionControlCard(
             availableAlgorithms = availableAlgorithms,
             onAlgorithmSelected = { algorithm ->
                 onAlgorithmChange(algorithm)
-                // Close the dialog after selection
+                showDialog = false
             },
             onDismiss = { showDialog = false }
         )
@@ -365,6 +365,7 @@ fun IoSchedulerCard(
             availableSchedulers = availableSchedulers,
             onSchedulerSelected = { scheduler ->
                 onSchedulerChange(scheduler)
+                showDialog = false
             },
             onDismiss = { showDialog = false }
         )
