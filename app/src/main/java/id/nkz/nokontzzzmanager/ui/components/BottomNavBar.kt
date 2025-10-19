@@ -25,21 +25,21 @@ fun BottomNavBar(navController: NavHostController, items: List<String>, isAmoled
         modifier = Modifier.fillMaxWidth(),
         containerColor = containerColor
     ) {
-        val bottomNavRoutes = items.map { it.lowercase() }
-        items.forEach { screen ->
-            val selected = currentRoute == screen.lowercase()
-            val (filledIcon, outlinedIcon) = getNavIcons(screen)
+        val routes = listOf("home", "tuning", "misc")
+        items.forEachIndexed { index, screen ->
+            val route = routes.getOrElse(index) { "" }
+            val selected = currentRoute == route
+            val (filledIcon, outlinedIcon) = getNavIcons(route)
             val iconToDisplay = if (selected) filledIcon else outlinedIcon
 
             NavigationBarItem(
                 selected = selected,
                 onClick = {
-                    val targetRoute = screen.lowercase()
-                    if (currentRoute != targetRoute) {
-                        if (currentRoute != null && currentRoute !in bottomNavRoutes) {
+                    if (currentRoute != route) {
+                        if (currentRoute != null && currentRoute !in routes) {
                             navController.popBackStack()
                         }
-                        navController.navigate(targetRoute) {
+                        navController.navigate(route) {
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
                             }
@@ -68,8 +68,8 @@ fun BottomNavBar(navController: NavHostController, items: List<String>, isAmoled
 }
 
 // Helper function to get filled and outlined icons for each screen.
-private fun getNavIcons(screen: String): Pair<ImageVector, ImageVector> { // Pair(Filled, Outlined)
-    return when (screen.lowercase()) {
+private fun getNavIcons(route: String): Pair<ImageVector, ImageVector> { // Pair(Filled, Outlined)
+    return when (route) {
         "home" -> Pair(Icons.Filled.Home, Icons.Outlined.Home)
         "tuning" -> Pair(Icons.Filled.Build, Icons.Outlined.Build) // Assuming Build has an Outlined version
         "misc" -> Pair(Icons.Filled.Tune, Icons.Outlined.Tune) // Changed icon
