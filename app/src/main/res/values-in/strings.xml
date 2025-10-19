@@ -192,10 +192,10 @@
     <string name="kgsl_warning">Fitur ini dapat menyebabkan gangguan UI atau artefak visual. Jika mengalaminya, nonaktifkan fitur ini.</string>
     <string name="change_algorithm">Ubah Algoritma</string>
     <string name="change_scheduler">Ubah Penjadwal</string>
-    <string name="bypass_charging">Lewati Pengisian</string>
+    <string name="bypass_charging">Bypass Charging</string>
     <string name="bypass_charging_desc">Mengisi daya perangkat tanpa mengisi baterai. Dapat menjaga kesehatan baterai. Pastikan kernel didukung.</string>
-    <string name="bypass_charging_activated">Lewati Pengisian Diaktifkan</string>
-    <string name="bypass_charging_active_desc">Lewati pengisian aktif. Baterai tidak diisi.</string>
+    <string name="bypass_charging_activated">Bypass Charging Diaktifkan</string>
+    <string name="bypass_charging_active_desc">Bypass Charging aktif. Baterai tidak diisi.</string>
 
     <!-- SettingsScreen -->
     <string name="coming_soon">Segera Hadir</string>
