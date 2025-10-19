@@ -304,7 +304,9 @@ class MainActivity : ComponentActivity() {
 
         val fusionXSupportedHosts = listOf(
             "Kenskuyy@Github",
-            "andriann@ServerHive"
+            "andriann@ServerHive",
+            "senx@ubuntu",
+            "sensei@ServerHive"
         )
 
         val n0KontzzzSupportedHosts = listOf(
