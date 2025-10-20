@@ -73,7 +73,7 @@ Feel free to fork, open issues, or contribute via pull requests.
 - Forked from **[Xtra Kernel Manager](https://github.com/Gustyx-Power/Xtra-Kernel-Manager)** — used as the foundation for this app.
 - **[Danda](https://github.com/Danda420)** — for contributions to app development and guidance in understanding Android internals.
 - **[RvKernel Manager](https://github.com/Rve27/RvKernel-Manager)** —  inspired feature concepts and code references in this project.
-- ** Poco F4 (Munch) community.
+- **Poco F4 (Munch) community** for support and enthusiasm.
 ---
 
 ## 📣 Disclaimer
