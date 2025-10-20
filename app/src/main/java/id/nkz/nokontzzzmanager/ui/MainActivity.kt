@@ -55,10 +55,16 @@ import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 
+import id.nkz.nokontzzzmanager.utils.LocaleHelper
+
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(LocaleHelper.applyLanguage(newBase))
+    }
 
     @Inject
     lateinit var rootRepo: RootRepository
@@ -106,6 +112,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             RvKernelManagerTheme(themeManager = themeManager) {
                 val navController = rememberNavController()
+
+                LaunchedEffect(Unit) {
+                    if (intent.getBooleanExtra("navigateToSettings", false)) {
+                        navController.navigate("settings")
+                    }
+                }
+
                 val items = listOf(stringResource(id = R.string.home), stringResource(id = R.string.tuning), stringResource(id = R.string.misc))
                 val topAppBarState = rememberTopAppBarState()
                 val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)

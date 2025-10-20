@@ -1,5 +1,7 @@
 package id.nkz.nokontzzzmanager.ui.screens
 
+import android.app.Activity
+import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
@@ -25,6 +27,7 @@ import androidx.navigation.NavController
 import id.nkz.nokontzzzmanager.ui.viewmodel.SettingsViewModel
 import id.nkz.nokontzzzmanager.ui.theme.ThemeMode
 import id.nkz.nokontzzzmanager.R
+import id.nkz.nokontzzzmanager.utils.LocaleHelper
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.ui.draw.clip
@@ -43,12 +46,10 @@ fun SettingsScreen(
     val currentThemeMode by viewModel.currentThemeMode.collectAsState()
     val context = LocalContext.current
     
-    // Tambahkan state untuk memicu rekomposisi saat tema berubah
     var themeRefreshKey by remember { mutableIntStateOf(0) }
     
-    // Perbarui key saat currentThemeMode berubah untuk memicu rekomposisi
     LaunchedEffect(currentThemeMode) {
-        themeRefreshKey++ // Ini akan memicu rekomposisi komponen
+        themeRefreshKey++
     }
 
     Column(
@@ -57,14 +58,12 @@ fun SettingsScreen(
             .background(MaterialTheme.colorScheme.surface)
             .verticalScroll(rememberScrollState())
     ) {
-        // Settings section
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            // Language Setting
             Text(
                 text = stringResource(id = R.string.language),
                 style = MaterialTheme.typography.titleSmall.copy(
@@ -76,25 +75,49 @@ fun SettingsScreen(
                     .padding(top = 8.dp, bottom = 4.dp)
             )
             
-            // Language Setting Item - Single item in its group
+            var showLanguageDialog by remember { mutableStateOf(false) }
+            val currentLocaleTag by remember(themeRefreshKey) { mutableStateOf(LocaleHelper.getCurrentLocaleTag(context)) }
+
             SettingItemCard(
                 headlineText = stringResource(R.string.language),
-                supportingText = stringResource(R.string.coming_soon),
+                supportingText = LocaleHelper.getLocaleDisplayName(context, currentLocaleTag),
                 icon = {
                     Icon(
                         imageVector = Icons.Default.Language,
                         contentDescription = null
                     )
                 },
-                shape = getRoundedCornerShape(0, 1), // First (and only) item in group of 1
-                onClick = {
-                    Toast.makeText(context, R.string.coming_soon, Toast.LENGTH_SHORT).show()
+                shape = getRoundedCornerShape(0, 1),
+                onClick = { 
+                    if (LocaleHelper.useSystemLanguageSettings) {
+                        LocaleHelper.launchSystemLanguageSettings(context)
+                    } else {
+                        showLanguageDialog = true 
+                    }
                 }
             )
+
+            if (showLanguageDialog) {
+                LanguageSelectionDialog(
+                    currentLocale = currentLocaleTag,
+                    onLocaleSelected = { localeTag ->
+                        LocaleHelper.setLocale(context, localeTag)
+                        showLanguageDialog = false
+                        val activity = context as? Activity
+                        activity?.apply {
+                            finish()
+                            val intent = Intent(this, this::class.java)
+                            intent.putExtra("navigateToSettings", true)
+                            startActivity(intent)
+                            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                        }
+                    },
+                    onDismiss = { showLanguageDialog = false }
+                )
+            }
             
-            Spacer(modifier = Modifier.height(16.dp)) // Add some spacing between groups
+            Spacer(modifier = Modifier.height(16.dp))
             
-            // Theme and Display Settings
             Text(
                 text = stringResource(id = R.string.theme_and_display),
                 style = MaterialTheme.typography.titleSmall.copy(
@@ -106,7 +129,6 @@ fun SettingsScreen(
                     .padding(top = 8.dp, bottom = 4.dp)
             )
             
-            // Theme Setting Item - First item (index 0) in group of 2
             SettingItemCard(
                 headlineText = stringResource(R.string.theme),
                 supportingText = when (currentThemeMode) {
@@ -120,7 +142,7 @@ fun SettingsScreen(
                         contentDescription = null
                     )
                 },
-                shape = getRoundedCornerShape(0, 2), // First item in group of 2
+                shape = getRoundedCornerShape(0, 2),
                 onClick = { showThemeDialog = true }
             )
 
@@ -131,7 +153,6 @@ fun SettingsScreen(
             }
             val isAmoledMode by viewModel.isAmoledMode.collectAsState()
 
-            // AMOLED Mode Setting Item - Last item (index 1) in group of 2
             SettingItemCard(
                 headlineText = stringResource(id = R.string.amoled_mode),
                 supportingText = stringResource(id = R.string.amoled_mode_desc),
@@ -165,7 +186,7 @@ fun SettingsScreen(
                         }
                     )
                 },
-                shape = getRoundedCornerShape(1, 2), // Second (last) item in group of 2
+                shape = getRoundedCornerShape(1, 2),
                 onClick = { 
                     if (isDarkTheme) {
                         viewModel.setAmoledMode(!isAmoledMode) 
@@ -174,7 +195,6 @@ fun SettingsScreen(
             )
         }
 
-        // Version Info
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -213,6 +233,109 @@ fun SettingsScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+private fun LanguageSelectionDialog(
+    currentLocale: String,
+    onLocaleSelected: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    val languageOptions = remember {
+        listOf("system", "en", "in")
+    }
+
+    BasicAlertDialog(
+        onDismissRequest = onDismiss,
+        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize().background(Color.Transparent),
+            contentAlignment = Alignment.Center
+        ) {
+            Card(
+                modifier = Modifier.fillMaxWidth(0.9f).heightIn(min = 300.dp, max = 600.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                shape = RoundedCornerShape(24.dp),
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier.size(56.dp).clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.primaryContainer),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Language,
+                                contentDescription = stringResource(id = R.string.language),
+                                modifier = Modifier.size(28.dp),
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                        Text(
+                            text = stringResource(R.string.select_language),
+                            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        languageOptions.forEachIndexed { index, localeTag ->
+                            val isSelected = localeTag == currentLocale
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = getDialogListItemShape(index, languageOptions.size),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer
+                                ),
+                                onClick = { onLocaleSelected(localeTag) }
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    RadioButton(
+                                        selected = isSelected,
+                                        onClick = null,
+                                        colors = RadioButtonDefaults.colors(
+                                            selectedColor = MaterialTheme.colorScheme.primary,
+                                            unselectedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                        )
+                                    )
+                                    Text(
+                                        text = LocaleHelper.getLocaleDisplayName(context, localeTag),
+                                        style = MaterialTheme.typography.bodyLarge.copy(
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                        ),
+                                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                    )
+                                 }
+                            }
+                        }
+                    }
+
+                    OutlinedButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text(stringResource(R.string.close))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 private fun ThemeSelectionDialog(
     currentThemeMode: ThemeMode,
     onThemeSelected: (ThemeMode) -> Unit,
@@ -236,7 +359,6 @@ private fun ThemeSelectionDialog(
                     modifier = Modifier.padding(24.dp),
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
-                    // Header
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -259,7 +381,6 @@ private fun ThemeSelectionDialog(
                         )
                     }
 
-                    // Options List
                     Column(
                         verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
@@ -303,7 +424,6 @@ private fun ThemeSelectionDialog(
                         }
                     }
 
-                    // Dismiss Button
                     OutlinedButton(
                         onClick = onDismiss,
                         modifier = Modifier.fillMaxWidth(),

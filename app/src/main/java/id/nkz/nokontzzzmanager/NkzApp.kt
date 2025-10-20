@@ -7,8 +7,15 @@ import com.topjohnwu.superuser.Shell
 import dagger.hilt.android.HiltAndroidApp
 import android.util.Log
 
+import id.nkz.nokontzzzmanager.utils.LocaleHelper
+import android.content.Context
+
 @HiltAndroidApp
 class NkzApp : Application(), Configuration.Provider {
+
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(LocaleHelper.applyLanguage(base))
+    }
 
     @Suppress("DEPRECATION")
     override fun onCreate() {
