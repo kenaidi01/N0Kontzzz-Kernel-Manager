@@ -13,9 +13,9 @@
     <string name="version">Versi</string>
     <string name="kernel_type">Jenis Kernel</string>
     <string name="sched">I/O Scheduler</string>
-    <string name="abi" translatable="false">ABI: %1$s</string>
+    <string name="abi" translatable="false">ABI</string>
     <string name="kernel_information">Informasi Kernel</string>
-    <string name="kernel_version">Versi Kernel: %1$s</string>
+    <string name="kernel_version">Versi Kernel</string>
     <string name="n0kz_kernel_manager">N0Kontzzz Kernel Manager</string>
     <string name="home">Beranda</string>
     <string name="tuning">Tuning</string>
