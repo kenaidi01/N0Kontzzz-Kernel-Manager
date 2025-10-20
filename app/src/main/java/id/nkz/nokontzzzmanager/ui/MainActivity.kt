@@ -24,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -41,8 +40,6 @@ import id.nkz.nokontzzzmanager.ui.theme.RvKernelManagerTheme
 import id.nkz.nokontzzzmanager.util.ThemeManager
 import id.nkz.nokontzzzmanager.util.BatteryOptimizationChecker
 import id.nkz.nokontzzzmanager.ui.components.UnifiedTopAppBar
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
