@@ -12,7 +12,7 @@
     <string name="kernel">Kernel</string>
     <string name="version">Versi</string>
     <string name="kernel_type">Jenis Kernel</string>
-    <string name="sched">Penjadwal I/O</string>
+    <string name="sched">I/O Scheduler</string>
     <string name="abi" translatable="false">ABI: %1$s</string>
     <string name="kernel_information">Informasi Kernel</string>
     <string name="kernel_version">Versi Kernel: %1$s</string>
@@ -179,7 +179,7 @@
     <string name="io_scheduler">Penjadwal I/O</string>
 
     <!-- TcpCongestionDialog -->
-    <string name="tcp_congestion_control">Kontrol Kemacetan TCP</string>
+    <string name="tcp_congestion_control">Kontrol TCP Congestion</string>
     <string name="tcp_congestion">Kemacetan TCP</string>
 
     <!-- MiscScreen -->
