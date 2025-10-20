@@ -4,8 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import id.nkz.nokontzzzmanager.ui.theme.ThemeMode
-import id.nkz.nokontzzzmanager.util.Language
-import id.nkz.nokontzzzmanager.util.LanguageManager
 import id.nkz.nokontzzzmanager.util.ThemeManager
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -15,16 +13,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val languageManager: LanguageManager,
     private val themeManager: ThemeManager
 ) : ViewModel() {
-
-    val currentLanguage: StateFlow<Language> = languageManager.currentLanguage
-        .stateIn(
-            viewModelScope,
-            SharingStarted.Eagerly,
-            Language.ENGLISH
-        )
 
     val currentThemeMode: StateFlow<ThemeMode> = themeManager.currentThemeMode
         .stateIn(
@@ -46,12 +36,6 @@ class SettingsViewModel @Inject constructor(
             SharingStarted.Eagerly,
             false
         )
-
-    fun setLanguage(language: Language) {
-        viewModelScope.launch {
-            languageManager.setLanguage(language)
-        }
-    }
 
     fun setThemeMode(themeMode: ThemeMode) {
         viewModelScope.launch {

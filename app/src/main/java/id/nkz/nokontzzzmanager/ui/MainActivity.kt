@@ -41,7 +41,6 @@ import id.nkz.nokontzzzmanager.ui.theme.RvKernelManagerTheme
 import id.nkz.nokontzzzmanager.util.ThemeManager
 import id.nkz.nokontzzzmanager.util.BatteryOptimizationChecker
 import id.nkz.nokontzzzmanager.ui.components.UnifiedTopAppBar
-import id.nkz.nokontzzzmanager.util.LanguageManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -72,9 +71,6 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var thermalRepository: ThermalRepository
-
-    @Inject
-    lateinit var languageManager: LanguageManager
 
     @Inject
     lateinit var themeManager: ThemeManager
@@ -108,11 +104,6 @@ class MainActivity : ComponentActivity() {
                 // Only check permissions if device is rooted and kernel is supported
                 checkAndHandlePermissions()
             }
-        }
-
-        // Observe language changes
-        lifecycleScope.launch {
-            languageManager.currentLanguage.collect()
         }
 
         setContent {

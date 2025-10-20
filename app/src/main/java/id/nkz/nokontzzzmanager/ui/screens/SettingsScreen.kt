@@ -38,7 +38,6 @@ fun SettingsScreen(
     navController: NavController,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val currentLanguage by viewModel.currentLanguage.collectAsState()
     
     var showThemeDialog by remember { mutableStateOf(false) }
     val currentThemeMode by viewModel.currentThemeMode.collectAsState()
@@ -80,7 +79,7 @@ fun SettingsScreen(
             // Language Setting Item - Single item in its group
             SettingItemCard(
                 headlineText = stringResource(R.string.language),
-                supportingText = currentLanguage.displayName,
+                supportingText = stringResource(R.string.coming_soon),
                 icon = {
                     Icon(
                         imageVector = Icons.Default.Language,
