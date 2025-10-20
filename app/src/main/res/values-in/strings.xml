@@ -176,7 +176,7 @@
     <string name="cores_online">%d/%d Aktif</string>
 
     <!-- IoSchedulerDialog -->
-    <string name="io_scheduler">Penjadwal I/O</string>
+    <string name="io_scheduler">I/O Scheduler</string>
 
     <!-- TcpCongestionDialog -->
     <string name="tcp_congestion_control">Kontrol TCP Congestion</string>
