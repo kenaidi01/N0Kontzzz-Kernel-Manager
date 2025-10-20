@@ -48,7 +48,7 @@ fun UnifiedTopAppBar(
         },
         navigationIcon = {
             if (!showSettingsIcon && navController?.previousBackStackEntry != null) {
-                IconButton(onClick = { navController.popBackStack() }) {
+                FilledTonalIconButton(onClick = { navController.popBackStack() }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = stringResource(R.string.back)
