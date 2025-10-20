@@ -54,6 +54,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.unit.dp
 
 import id.nkz.nokontzzzmanager.utils.LocaleHelper
 
@@ -174,6 +175,7 @@ class MainActivity : ComponentActivity() {
                                     ToggleFloatingActionButton(
                                         checked = fabMenuExpanded,
                                         onCheckedChange = { fabMenuExpanded = it },
+                                        containerSize = { 72.dp },
                                     ) {
                                         val imageVector by remember{
                                             derivedStateOf {
