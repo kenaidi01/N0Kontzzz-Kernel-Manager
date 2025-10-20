@@ -116,7 +116,7 @@ fun CpuGovernorCard(
                     Icon(
                         imageVector = Icons.Default.Memory,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.size(28.dp)
                     )
                     Text(

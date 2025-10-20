@@ -163,14 +163,14 @@ private fun CpuHeaderSection(
             modifier = Modifier
                 .size(56.dp) // Slightly smaller
                 .clip(RoundedCornerShape(16.dp)) // M3 friendly shape
-                .background(MaterialTheme.colorScheme.primaryContainer),
+                .background(MaterialTheme.colorScheme.secondaryContainer),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.Memory, // Memory icon is fine
                 contentDescription = "CPU Icon",
                 modifier = Modifier.size(28.dp),
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                tint = MaterialTheme.colorScheme.onSecondaryContainer
             )
         }
     }

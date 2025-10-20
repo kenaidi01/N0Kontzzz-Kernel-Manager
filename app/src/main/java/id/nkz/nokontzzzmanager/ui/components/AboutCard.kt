@@ -92,13 +92,13 @@ fun AboutCard(
                     modifier = Modifier
                         .size(56.dp)
                         .clip(RoundedCornerShape(16.dp))
-                        .background(MaterialTheme.colorScheme.primaryContainer),
+                        .background(MaterialTheme.colorScheme.secondaryContainer),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.nkm_logo),
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
                         modifier = Modifier.size(80.dp)
                     )
                 }

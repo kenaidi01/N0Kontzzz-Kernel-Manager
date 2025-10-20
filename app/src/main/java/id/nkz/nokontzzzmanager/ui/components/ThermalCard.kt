@@ -145,14 +145,14 @@ private fun ThermalHeaderSection(
                 modifier = Modifier
                     .size(56.dp)
                     .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.primaryContainer),
+                    .background(MaterialTheme.colorScheme.secondaryContainer),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Thermostat,
                     contentDescription = stringResource(id = R.string.thermal_control),
                     modifier = Modifier.size(28.dp),
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
 

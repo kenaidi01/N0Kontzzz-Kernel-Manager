@@ -218,14 +218,14 @@ private fun BatteryHeaderSection(
             modifier = Modifier
                 .size(56.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.primaryContainer),
+                .background(MaterialTheme.colorScheme.secondaryContainer),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = if (batteryInfo.isCharging) Icons.Default.BatteryChargingFull else Icons.Default.BatteryFull,
                 contentDescription = stringResource(id = R.string.battery_toggle),
                 modifier = Modifier.size(28.dp),
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                tint = MaterialTheme.colorScheme.onSecondaryContainer
             )
         }
     }
@@ -280,14 +280,14 @@ private fun MemoryHeaderSection(
             modifier = Modifier
                 .size(56.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.primaryContainer),
+                .background(MaterialTheme.colorScheme.secondaryContainer),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.memory_alt_24),
                 contentDescription = stringResource(id = R.string.memory_status),
                 modifier = Modifier.size(28.dp),
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                tint = MaterialTheme.colorScheme.onSecondaryContainer
             )
         }
     }
@@ -333,14 +333,14 @@ private fun StorageHeaderSection(
             modifier = Modifier
                 .size(56.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.primaryContainer),
+                .background(MaterialTheme.colorScheme.secondaryContainer),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.Storage,
                 contentDescription = stringResource(id = R.string.storage_status),
                 modifier = Modifier.size(28.dp),
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                tint = MaterialTheme.colorScheme.onSecondaryContainer
             )
         }
     }
@@ -878,14 +878,14 @@ private fun DeviceInfoCard(
                     modifier = Modifier
                         .size(56.dp)
                         .clip(RoundedCornerShape(16.dp))
-                        .background(MaterialTheme.colorScheme.primaryContainer),
+                        .background(MaterialTheme.colorScheme.secondaryContainer),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Smartphone,
                         contentDescription = stringResource(id = R.string.device),
                         modifier = Modifier.size(28.dp),
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                 }
             }

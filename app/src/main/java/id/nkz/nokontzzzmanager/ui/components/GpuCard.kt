@@ -115,14 +115,14 @@ private fun GpuHeaderSection(info: RealtimeGpuInfo) {
             modifier = Modifier
                 .size(56.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.primaryContainer),
+                .background(MaterialTheme.colorScheme.secondaryContainer),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.gpu_card),
                 contentDescription = stringResource(id = R.string.gpu_icon_desc),
                 modifier = Modifier.size(28.dp),
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                tint = MaterialTheme.colorScheme.onSecondaryContainer
             )
         }
     }

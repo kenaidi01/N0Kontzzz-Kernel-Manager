@@ -388,14 +388,14 @@ fun RamControlHeaderSection(
                 modifier = Modifier
                     .size(56.dp)
                     .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.primaryContainer),
+                    .background(MaterialTheme.colorScheme.secondaryContainer),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.memory_alt_24),
                     contentDescription = stringResource(id = R.string.memory_status),
                     modifier = Modifier.size(28.dp),
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
 

@@ -125,7 +125,7 @@ fun GpuControlCard(
                     Icon(
                         painter = painterResource(id = R.drawable.gpu_card),
                         contentDescription = stringResource(id = R.string.gpu_icon_desc),
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.size(24.dp)
                     )
 

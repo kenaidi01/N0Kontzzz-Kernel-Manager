@@ -277,7 +277,7 @@ fun PerformanceModeCard(
                 Icon(
                     imageVector = Icons.Default.Speed,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.secondary
                 )
                 Text(
                     text = stringResource(id = R.string.tuning_feature_performance_mode_title),
