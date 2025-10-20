@@ -6,11 +6,13 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
+import android.os.LocaleList
 import android.provider.Settings
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import java.util.Locale
+import androidx.core.content.edit
 
 object LocaleHelper {
 
@@ -23,11 +25,8 @@ object LocaleHelper {
 
     fun applyLanguage(context: Context): Context {
         if (useSystemLanguageSettings) {
-            // This block is now unused but kept for reference.
-            // On Android 13+, the system handles the locale persistence and resource configuration.
             return context
         }
-        // For older versions (and now all versions), we read from prefs and apply it to the context.
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val localeTag = prefs.getString(PREF_KEY_APP_LOCALE, "system") ?: "system"
         
@@ -41,7 +40,7 @@ object LocaleHelper {
 
     fun setLocale(context: Context, localeTag: String) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        prefs.edit().putString(PREF_KEY_APP_LOCALE, localeTag).apply()
+        prefs.edit { putString(PREF_KEY_APP_LOCALE, localeTag) }
 
         val localeList = if (localeTag == "system") {
             LocaleListCompat.getEmptyLocaleList()
@@ -53,7 +52,6 @@ object LocaleHelper {
         AppCompatDelegate.setApplicationLocales(localeList)
     }
 
-    // This function is now unused but kept for reference.
     fun launchSystemLanguageSettings(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             try {
@@ -85,9 +83,9 @@ object LocaleHelper {
         return try {
             if (tag.contains("_")) {
                 val parts = tag.split("_")
-                Locale(parts[0], parts.getOrNull(1) ?: "")
+                Locale.Builder().setLanguage(parts[0]).setRegion(parts.getOrNull(1) ?: "").build()
             } else {
-                Locale(tag)
+                Locale.Builder().setLanguage(tag).build()
             }
         } catch (e: Exception) {
             Locale.getDefault()
@@ -96,13 +94,10 @@ object LocaleHelper {
 
     private fun updateResources(context: Context, locale: Locale?): Context {
         val newConfig = Configuration(context.resources.configuration)
-        val targetLocale = locale ?: if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            context.resources.configuration.locales[0]
-        } else {
-            context.resources.configuration.locale
-        }
+        val targetLocale = locale ?: context.resources.configuration.locales[0]
         
-        newConfig.setLocale(targetLocale)
+        val localeList = LocaleList(targetLocale)
+        newConfig.setLocales(localeList)
         Locale.setDefault(targetLocale)
         
         return context.createConfigurationContext(newConfig)

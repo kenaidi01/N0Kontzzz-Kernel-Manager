@@ -1,6 +1,7 @@
 package id.nkz.nokontzzzmanager.ui.screens
 
 import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -28,7 +29,6 @@ import id.nkz.nokontzzzmanager.ui.viewmodel.SettingsViewModel
 import id.nkz.nokontzzzmanager.ui.theme.ThemeMode
 import id.nkz.nokontzzzmanager.R
 import id.nkz.nokontzzzmanager.utils.LocaleHelper
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -108,8 +108,8 @@ fun SettingsScreen(
                             finish()
                             val intent = Intent(this, this::class.java)
                             intent.putExtra("navigateToSettings", true)
-                            startActivity(intent)
-                            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                            val options = ActivityOptions.makeCustomAnimation(this, android.R.anim.fade_in, android.R.anim.fade_out)
+                            startActivity(intent, options.toBundle())
                         }
                     },
                     onDismiss = { showLanguageDialog = false }
