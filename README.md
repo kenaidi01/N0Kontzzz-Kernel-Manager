@@ -34,7 +34,7 @@
 
 ## 📱 Requirements
 
-- ✅ Poco F4 (munch) running N0Kontzzz kernel.
+- ✅ Poco F4 (munch) running N0Kontzzz or FusionX kernel.
 - ✅ Root access (Magisk / KernelSU supported).
 
 ---
