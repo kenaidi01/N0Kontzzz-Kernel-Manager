@@ -360,6 +360,15 @@ private fun ThermalProfileSelectionDialog(
                                     maxLines = 1
                                 )
                             },
+                            leadingIcon = if (isSelected) {
+                                {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                }
+                            } else null,
                             modifier = Modifier.fillMaxWidth(),
                             colors = FilterChipDefaults.filterChipColors(
                                 containerColor = if (isSelected) {
@@ -389,19 +398,13 @@ private fun ThermalProfileSelectionDialog(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Dialog Actions
-                Row(
+                // Dismiss Button
+                OutlinedButton(
+                    onClick = onDismiss,
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
+                    shape = RoundedCornerShape(16.dp)
                 ) {
-                    TextButton(
-                        onClick = onDismiss,
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.colorScheme.onSurface
-                        )
-                    ) {
-                        Text(stringResource(id = R.string.close))
-                    }
+                    Text(stringResource(id = R.string.close))
                 }
             }
         }
