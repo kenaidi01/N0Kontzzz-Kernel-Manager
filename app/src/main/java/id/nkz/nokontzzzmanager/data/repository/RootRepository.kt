@@ -11,6 +11,10 @@ class RootRepository @Inject constructor() {
     private var lastRootCheckTime = 0L
     private var cachedRootStatus = false
 
+    init {
+        Shell.enableVerboseLogging = false
+    }
+
     fun isRooted(): Boolean = Shell.getShell().isRoot
 
     /**

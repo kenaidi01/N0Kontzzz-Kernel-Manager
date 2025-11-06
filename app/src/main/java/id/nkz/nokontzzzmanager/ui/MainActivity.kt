@@ -4,12 +4,15 @@ package id.nkz.nokontzzzmanager.ui
 import id.nkz.nokontzzzmanager.ui.screens.TuningScreen
 import android.content.Context
 import android.os.Build
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -50,6 +53,8 @@ import androidx.compose.material.icons.filled.*
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import androidx.activity.compose.BackHandler
+import androidx.core.content.ContextCompat
+import android.Manifest
 
 import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -85,6 +90,7 @@ class MainActivity : ComponentActivity() {
     private var showKernelVerificationDialog by mutableStateOf(false)
     private var permissionDenialCount by mutableIntStateOf(0)
     private val MAX_PERMISSION_RETRIES = 2
+    private var notifPermissionLauncher: ActivityResultLauncher<String>? = null
 
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
     @RequiresApi(Build.VERSION_CODES.S)
@@ -95,6 +101,18 @@ class MainActivity : ComponentActivity() {
 
         // Initialize batteryOptChecker regardless of root status for consistency
         batteryOptChecker = BatteryOptimizationChecker(this)
+        
+        // Daftarkan launcher izin notifikasi (Android 13+), lalu minta sekali di awal bila perlu
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            notifPermissionLauncher = registerForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) {
+                // tandai sudah pernah prompt agar tidak berulang
+                getSharedPreferences("perm_prefs", MODE_PRIVATE)
+                    .edit().putBoolean("notif_prompted", true).apply()
+            }
+            maybeRequestNotificationPermissionOnce()
+        }
         
         // Check root status and update UI accordingly
         // This check will be re-evaluated in onResume when user grants root access
@@ -297,6 +315,19 @@ class MainActivity : ComponentActivity() {
         }
             // Only start service for Dynamic mode (10) which requires continuous monitoring
             // For other thermal modes, persistent scripts handle settings
+    }
+
+    private fun maybeRequestNotificationPermissionOnce() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        val alreadyPrompted = getSharedPreferences("perm_prefs", MODE_PRIVATE)
+            .getBoolean("notif_prompted", false)
+        val granted = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+        if (!alreadyPrompted && !granted) {
+            notifPermissionLauncher?.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
     }
 
     private fun isKernelSupported(): Boolean {

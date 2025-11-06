@@ -656,23 +656,21 @@ private fun BatteryStatsSection(
                 )
             }
 
-            // Battery Stats Row 6 - Current (if available)
-            if (batteryInfo.current != 0f) {
-                val currentMa = batteryInfo.current / 1000
-                val displayCurrent = currentMa
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    SystemStatItem(
-                        icon = if (batteryInfo.isCharging) Icons.Default.BatteryChargingFull else Icons.Default.BatteryAlert,
-                        label = stringResource(id = R.string.current),
-                        value = stringResource(id = R.string.ma, displayCurrent),
-                        modifier = Modifier.weight(1f)
-                    )
-                    // Empty placeholder to maintain layout balance
-                    Spacer(modifier = Modifier.weight(1f))
-                }
+            // Battery Stats Row 6 - Current (always visible)
+            val currentMa = batteryInfo.current / 1000f
+            val currentDisplay = stringResource(id = R.string.ma, currentMa.toDouble())
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                SystemStatItem(
+                    icon = if (batteryInfo.isCharging) Icons.Default.BatteryChargingFull else Icons.Default.BatteryAlert,
+                    label = stringResource(id = R.string.current),
+                    value = currentDisplay,
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.weight(1f))
             }
         }
     }

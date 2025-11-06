@@ -36,10 +36,6 @@ class BatteryRepository @Inject constructor(
                 val currentMa = if (current != Int.MIN_VALUE) current.toFloat() / 1000f else 0f
                 val chargingWattage = abs(voltage * current / 1000000f) // Convert to watts
 
-                // Log values for debugging
-                Log.d("BatteryRepository", "Battery Status: $status, Plugged: $plugged, Current: $currentMa mA")
-                Log.d("BatteryRepository", "Status Constants - CHARGING: ${BatteryManager.BATTERY_STATUS_CHARGING}, DISCHARGING: ${BatteryManager.BATTERY_STATUS_DISCHARGING}, FULL: ${BatteryManager.BATTERY_STATUS_FULL}, NOT_CHARGING: ${BatteryManager.BATTERY_STATUS_NOT_CHARGING}")
-
                 // Determine charging status using multiple indicators for accuracy
                 // Some devices may report inconsistent values, so we'll use a more robust approach
                 val isCharging = when {
@@ -60,8 +56,6 @@ class BatteryRepository @Inject constructor(
                     // Default fallback
                     else -> false
                 }
-
-                Log.d("BatteryRepository", "Calculated isCharging: $isCharging")
 
                 val batteryInfo = BatteryInfo(
                     level = (level * 100 / scale.toFloat()).toInt(),

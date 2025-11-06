@@ -2,7 +2,6 @@ package id.nkz.nokontzzzmanager.data.repository
 
 import android.app.ActivityManager
 import android.content.Context
-import android.util.Log
 import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -17,7 +16,6 @@ class TuningRepository @Inject constructor(
     private val context: Context
 ) {
 
-    private val TAG = "TuningRepository"
 
     // Thermal
     private val thermalSysfsNode = "/sys/class/thermal/thermal_message/sconfig"
@@ -62,42 +60,33 @@ class TuningRepository @Inject constructor(
        ---------------------------------------------------------- */
     private var isSuShellWorking = true
     private fun runTuningCommand(cmd: String): Boolean {
-        Log.d(TAG, "[Shell RW TUNING] Preparing to execute: '$cmd'")
         val originalSelinuxMode = getSelinuxModeInternal()
         val needsSelinuxChange = originalSelinuxMode.equals("Enforcing", ignoreCase = true)
 
         if (needsSelinuxChange) {
-            Log.i(TAG, "[Shell RW TUNING] Current SELinux mode: $originalSelinuxMode. Setting to Permissive.")
             if (!setSelinuxModeInternal(false)) {
-                Log.e(TAG, "[Shell RW TUNING] Failed to set SELinux to Permissive. Command will run in current mode.")
 
             }
         }
 
         val success = executeShellCommand(cmd)
         if (needsSelinuxChange) {
-            Log.i(TAG, "[Shell RW TUNING] Restoring SELinux mode to Enforcing.")
             if (!setSelinuxModeInternal(true)) { // Set kembali ke Enforcing (1)
-                Log.w(TAG, "[Shell RW TUNING] Failed to restore SELinux to Enforcing. System might remain in Permissive mode.")
             }
         }
         return success
     }
     private fun executeShellCommand(cmd: String): Boolean {
-        Log.d(TAG, "[Shell EXEC] Executing: '$cmd'")
         if (isSuShellWorking) {
             try {
                 val result = Shell.cmd(cmd).exec()
                 return if (result.isSuccess) {
-                    Log.i(TAG, "[Shell EXEC] Success (libsu, code ${result.code}): '$cmd'")
                     true
                 } else {
-                    Log.e(TAG, "[Shell EXEC] Failed (libsu, code ${result.code}): '$cmd'. Err: ${result.err.joinToString("\n")}")
                     isSuShellWorking = false
                     executeShellCommandFallback(cmd)
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "[Shell EXEC] Exception with libsu for cmd: '$cmd'. Trying fallback.", e)
                 isSuShellWorking = false
                 return executeShellCommandFallback(cmd)
             }
@@ -111,7 +100,6 @@ class TuningRepository @Inject constructor(
 
 
     private fun readShellCommand(cmd: String): String {
-        Log.d(TAG, "[Shell R] Executing: '$cmd'")
         if (isSuShellWorking) {
             try {
                 val result = Shell.cmd(cmd).exec()
@@ -120,7 +108,6 @@ class TuningRepository @Inject constructor(
                     readShellCommandFallback(cmd)
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "[Shell R] Exception with libsu for cmd: '$cmd'. Trying fallback.", e)
                 isSuShellWorking = false
                 return readShellCommandFallback(cmd)
             }
@@ -134,10 +121,8 @@ class TuningRepository @Inject constructor(
        ---------------------------------------------------------- */
     private fun setSelinuxModeInternal(enforcing: Boolean): Boolean {
         val mode = if (enforcing) "1" else "0"
-        Log.i(TAG, "[SELinux] Setting mode to: ${if (enforcing) "Enforcing" else "Permissive"} ($mode)")
         val success = executeShellCommand("setenforce $mode")
         if (!success) {
-            Log.e(TAG, "[SELinux] Failed to set SELinux mode to $mode")
         }
         return success
     }
@@ -145,7 +130,6 @@ class TuningRepository @Inject constructor(
     private fun getSelinuxModeInternal(): String {
         // Gunakan readShellCommand karena ini adalah operasi baca
         val result = readShellCommand("getenforce").trim()
-        Log.i(TAG, "[SELinux] Current mode: $result")
         return result // Akan mengembalikan "Enforcing", "Permissive"
     }
 
@@ -192,9 +176,7 @@ class TuningRepository @Inject constructor(
         var overallSuccess = true
 
         if (needsSelinuxChange) {
-            Log.i(TAG, "[ZRAM SELinux] Current SELinux mode: $originalSelinuxMode. Setting to Permissive for ZRAM ops.")
             if (!setSelinuxModeInternal(false)) {
-                Log.e(TAG, "[ZRAM SELinux] Failed to set SELinux to Permissive for ZRAM ops.")
             }
         }
 
@@ -205,9 +187,7 @@ class TuningRepository @Inject constructor(
         if (!executeShellCommand("swapon /dev/block/zram0 2>/dev/null || true")) overallSuccess = false
 
         if (needsSelinuxChange) {
-            Log.i(TAG, "[ZRAM SELinux] Restoring SELinux mode to Enforcing after ZRAM ops.")
             if (!setSelinuxModeInternal(true)) {
-                Log.w(TAG, "[ZRAM SELinux] Failed to restore SELinux to Enforcing after ZRAM ops.")
             }
         }
         return overallSuccess
@@ -251,7 +231,6 @@ class TuningRepository @Inject constructor(
     fun setCompressionAlgorithm(algo: String): Boolean {
         val currentSize = readShellCommand("cat $zramDisksizePath").toLongOrNull() ?: 0L
         if (readShellCommand("if [ -e $zramControlPath ]; then echo 1; else echo 0; fi").trim() != "1") {
-            Log.w(TAG, "ZRAM node $zramControlPath does not exist. Cannot set compression algorithm.")
             return false
         }
 
@@ -425,48 +404,34 @@ class TuningRepository @Inject constructor(
     }
 
     fun getGpuFreq(): Flow<Pair<Int, Int>> = flow {
-        Log.d("MyGpuDebug", "getGpuFreq: Memulai pembacaan frekuensi GPU.")
 
-        Log.d("MyGpuDebug", "getGpuFreq: Membaca min_freq dari path: $gpuMinFreqPath")
         val rawMinOutput = readShellCommand("cat $gpuMinFreqPath").trim()
-        Log.d("MyGpuDebug", "getGpuFreq: rawMinOutput dari readShellCommand: [$rawMinOutput]")
 
-        Log.d("MyGpuDebug", "getGpuFreq: Membaca max_freq dari path: $gpuMaxFreqPath")
         val rawMaxOutput = readShellCommand("cat $gpuMaxFreqPath").trim()
-        Log.d("MyGpuDebug", "getGpuFreq: rawMaxOutput dari readShellCommand: [$rawMaxOutput]")
 
         val minHz = rawMinOutput.toIntOrNull() ?: 0
-        Log.d("MyGpuDebug", "getGpuFreq: minHz setelah toIntOrNull (default 0): $minHz")
 
         val maxHz = rawMaxOutput.toIntOrNull() ?: 0
-        Log.d("MyGpuDebug", "getGpuFreq: maxHz setelah toIntOrNull (default 0): $maxHz")
 
         val minMhzResult = if (minHz == 0) 0 else minHz / 1000000
         val maxMhzResult = if (maxHz == 0) 0 else maxHz / 1000000
-        Log.d("MyGpuDebug", "getGpuFreq: Mengirimkan pasangan (minMhz, maxMhz): ($minMhzResult, $maxMhzResult)")
 
         emit(minMhzResult to maxMhzResult)
     }.flowOn(Dispatchers.IO)
 
 
     fun getCurrentGpuFreq(): Flow<Int> = flow {
-        Log.d("MyGpuDebug", "getCurrentGpuFreq: Membaca frekuensi GPU saat ini dari path: $gpuCurFreqPath")
         val rawOutput = readShellCommand("cat $gpuCurFreqPath").trim()
-        Log.d("MyGpuDebug", "getCurrentGpuFreq: rawOutput dari readShellCommand: [$rawOutput]")
 
         val freqHz = rawOutput.toIntOrNull() ?: 0
-        Log.d("MyGpuDebug", "getCurrentGpuFreq: freqHz setelah toIntOrNull (default 0): $freqHz")
 
         val freqMhzResult = if (freqHz == 0) 0 else freqHz / 1000000
-        Log.d("MyGpuDebug", "getCurrentGpuFreq: freqMhzResult setelah konversi ke MHz: $freqMhzResult")
 
         emit(freqMhzResult)
     }.flowOn(Dispatchers.IO)
 
     fun getGpuUsage(): Flow<Int> = flow {
-        Log.d("MyGpuDebug", "getGpuUsage: Membaca penggunaan GPU dari path: /sys/class/kgsl/kgsl-3d0/gpu_busy_percentage")
         val rawOutput = readShellCommand("cat /sys/class/kgsl/kgsl-3d0/gpu_busy_percentage").trim()
-        Log.d("MyGpuDebug", "getGpuUsage: rawOutput dari readShellCommand: [$rawOutput]")
 
         if (rawOutput.isEmpty()) {
             emit(0)
@@ -475,32 +440,25 @@ class TuningRepository @Inject constructor(
 
         val cleanedOutput = rawOutput.replace("%", "").trim()
         val usage = cleanedOutput.toIntOrNull() ?: 0
-        Log.d("MyGpuDebug", "getGpuUsage: usage setelah parsing: $usage")
 
         emit(usage.coerceIn(0, 100))
     }.flowOn(Dispatchers.IO)
 
 
     fun setGpuMinFreq(freqMHz: Int): Boolean {
-        Log.d(TAG, "setGpuMinFreq: Menyetel ke $freqMHz MHz (nilai Hz: ${freqMHz * 1000000})")
         val success = runTuningCommand("echo ${freqMHz * 1000000} > $gpuMinFreqPath")
         if (success) {
             val valueAfterSet = readShellCommand("cat $gpuMinFreqPath").trim()
-            Log.i(TAG, "setGpuMinFreq: VERIFIKASI - Nilai di $gpuMinFreqPath setelah set: [$valueAfterSet]")
         } else {
-            Log.e(TAG, "setGpuMinFreq: Gagal menjalankan runTuningCommand")
         }
         return success
     }
 
     fun setGpuMaxFreq(freqMHz: Int): Boolean {
-        Log.d(TAG, "setGpuMaxFreq: Menyetel ke $freqMHz MHz (nilai Hz: ${freqMHz * 1000000})")
         val success = runTuningCommand("echo ${freqMHz * 1000000} > $gpuMaxFreqPath")
         if (success) {
             val valueAfterSet = readShellCommand("cat $gpuMaxFreqPath").trim()
-            Log.i(TAG, "setGpuMaxFreq: VERIFIKASI - Nilai di $gpuMaxFreqPath setelah set: [$valueAfterSet]")
         } else {
-            Log.e(TAG, "setGpuMaxFreq: Gagal menjalankan runTuningCommand")
         }
         return success
     }
@@ -576,7 +534,6 @@ class TuningRepository @Inject constructor(
      * This is especially needed for Android 16 custom ROMs
      */
     private fun restartSurfaceFlinger(): Boolean {
-        Log.i(TAG, "Attempting to restart SurfaceFlinger for Vulkan initialization")
 
         return try {
             // Method 1: Stop and start SurfaceFlinger service
@@ -586,32 +543,25 @@ class TuningRepository @Inject constructor(
                 Thread.sleep(1000)
                 val startSuccess = executeShellCommand("start surfaceflinger")
                 if (startSuccess) {
-                    Log.i(TAG, "SurfaceFlinger restart via stop/start successful")
                     return true
                 }
             }
 
             // Method 2: Kill SurfaceFlinger process (it will auto-restart)
-            Log.w(TAG, "Stop/start method failed, trying process kill method")
             val killSuccess = executeShellCommand("pkill -f surfaceflinger || killall surfaceflinger")
             if (killSuccess) {
-                Log.i(TAG, "SurfaceFlinger restart via process kill successful")
                 return true
             }
 
             // Method 3: Use service command
-            Log.w(TAG, "Process kill method failed, trying service command")
             val serviceSuccess = executeShellCommand("service call SurfaceFlinger 1008")
             if (serviceSuccess) {
-                Log.i(TAG, "SurfaceFlinger restart via service call successful")
                 return true
             }
 
-            Log.e(TAG, "All SurfaceFlinger restart methods failed")
             false
 
         } catch (e: Exception) {
-            Log.e(TAG, "Exception during SurfaceFlinger restart", e)
             false
         }
     }
@@ -652,29 +602,23 @@ class TuningRepository @Inject constructor(
 
             // Log detailed information for debugging
             if (vulkanEnabled && !vulkanDisabled) {
-                Log.i(TAG, "Vulkan render engine confirmed as ACTIVE in SurfaceFlinger")
                 // Log which indicator was found
                 vulkanIndicators.forEach { indicator ->
                     if (dumpsysOutput.contains(indicator, ignoreCase = true)) {
-                        Log.d(TAG, "Found Vulkan indicator: $indicator")
                     }
                 }
             } else if (vulkanDisabled) {
-                Log.w(TAG, "Vulkan render engine confirmed as DISABLED in SurfaceFlinger")
                 // Log which negative indicator was found
                 negativeIndicators.forEach { indicator ->
                     if (dumpsysOutput.contains(indicator, ignoreCase = true)) {
-                        Log.d(TAG, "Found negative Vulkan indicator: $indicator")
                     }
                 }
             } else {
-                Log.w(TAG, "Vulkan render engine status is UNCLEAR from SurfaceFlinger output")
             }
 
             vulkanEnabled && !vulkanDisabled
 
         } catch (e: Exception) {
-            Log.e(TAG, "Exception while checking Vulkan render engine status", e)
             false
         }
     }
@@ -733,10 +677,8 @@ class TuningRepository @Inject constructor(
             // Check SELinux status as it can affect Vulkan
             statusMap["selinux_status"] = getSelinuxModeInternal()
 
-            Log.d(TAG, "Vulkan status check completed. Found ${statusMap.size} properties")
 
         } catch (e: Exception) {
-            Log.e(TAG, "Exception while getting Vulkan render engine status", e)
             statusMap["error"] = e.message ?: "unknown_error"
         }
 
@@ -746,7 +688,6 @@ class TuningRepository @Inject constructor(
        Fallback Shell using Runtime.exec
        ---------------------------------------------------------- */
     private fun executeShellCommandFallback(cmd: String): Boolean {
-        Log.d(TAG, "[Shell EXEC Fallback] Executing: '$cmd'")
         try {
             val process = Runtime.getRuntime().exec(arrayOf("su", "-c", cmd))
             process.inputStream.bufferedReader().use { it.readText() }
@@ -754,20 +695,16 @@ class TuningRepository @Inject constructor(
 
             val exitCode = process.waitFor()
             return if (exitCode == 0) {
-                Log.i(TAG, "[Shell EXEC Fallback] Success (code $exitCode): '$cmd'")
                 true
             } else {
-                Log.e(TAG, "[Shell EXEC Fallback] Failed (code $exitCode): '$cmd'. Err: $errorOutput")
                 false
             }
         } catch (e: Exception) {
-            Log.e(TAG, "[Shell EXEC Fallback] Exception for cmd: '$cmd'", e)
             return false
         }
     }
 
     private fun readShellCommandFallback(cmd: String): String {
-        Log.d(TAG, "[Shell R Fallback] Executing: '$cmd'")
         try {
             val process = Runtime.getRuntime().exec(arrayOf("su", "-c", cmd))
             val output = process.inputStream.bufferedReader().use { it.readText() }
@@ -777,11 +714,9 @@ class TuningRepository @Inject constructor(
             return if (exitCode == 0) {
                 output.trim()
             } else {
-                Log.e(TAG, "[Shell R Fallback] Failed (code $exitCode) for cmd: '$cmd'. Err: $errorOutput")
                 ""
             }
         } catch (e: Exception) {
-            Log.e(TAG, "[Shell R Fallback] Exception for cmd: '$cmd'", e)
             return ""
         }
     }

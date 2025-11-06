@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import id.nkz.nokontzzzmanager.data.repository.SystemRepository
 import id.nkz.nokontzzzmanager.utils.PreferenceManager
+import id.nkz.nokontzzzmanager.service.BatteryMonitorService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -43,6 +44,9 @@ class MiscViewModel @Inject constructor(
     private val _availableIoSchedulers = MutableStateFlow<List<String>>(emptyList())
     val availableIoSchedulers: StateFlow<List<String>> = _availableIoSchedulers.asStateFlow()
 
+    private val _batteryMonitorEnabled = MutableStateFlow(false)
+    val batteryMonitorEnabled: StateFlow<Boolean> = _batteryMonitorEnabled.asStateFlow()
+
     private val isDataLoaded = java.util.concurrent.atomic.AtomicBoolean(false)
 
     init {
@@ -67,6 +71,9 @@ class MiscViewModel @Inject constructor(
         
         // Load I/O scheduler
         loadIoScheduler()
+
+        // Load Battery Monitor preference
+        _batteryMonitorEnabled.value = preferenceManager.isBatteryMonitorEnabled()
     }
 
     fun toggleKgslSkipZeroing(enabled: Boolean) {
@@ -137,5 +144,23 @@ class MiscViewModel @Inject constructor(
                 _ioScheduler.value = systemRepository.getIoScheduler()
             }
         }
+    }
+
+    fun toggleBatteryMonitor(enabled: Boolean) {
+        viewModelScope.launch {
+            _batteryMonitorEnabled.value = enabled
+            preferenceManager.setBatteryMonitorEnabled(enabled)
+            val ctx = getApplication<Application>()
+            if (enabled) {
+                BatteryMonitorService.start(ctx)
+            } else {
+                BatteryMonitorService.stop(ctx)
+            }
+        }
+    }
+
+    fun resetBatteryMonitor() {
+        val ctx = getApplication<Application>()
+        BatteryMonitorService.reset(ctx)
     }
 }

@@ -197,6 +197,13 @@
     <string name="bypass_charging_activated">Bypass Charging Diaktifkan</string>
     <string name="bypass_charging_active_desc">Bypass Charging aktif. Baterai tidak diisi.</string>
 
+    <!-- Battery Monitor -->
+    <string name="battery_monitor">Monitor Baterai</string>
+    <string name="battery_monitor_desc">Tampilkan statistik baterai realtime sebagai notifikasi foreground</string>
+    <string name="reset_battery_stats">Reset</string>
+    <string name="battery_monitor_reset_title">Reset Monitor Baterai</string>
+    <string name="battery_monitor_reset_desc">Hapus akumulasi statistik tanpa mematikan layanan</string>
+
     <!-- SettingsScreen -->
     <string name="coming_soon">Segera Hadir</string>
     <string name="theme_and_display">Tema &amp; Tampilan</string>

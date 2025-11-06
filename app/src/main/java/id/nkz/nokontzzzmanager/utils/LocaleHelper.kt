@@ -3,10 +3,12 @@ package id.nkz.nokontzzzmanager.utils
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
 import android.os.LocaleList
+import android.os.UserManager
 import android.provider.Settings
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
@@ -27,8 +29,8 @@ object LocaleHelper {
         if (useSystemLanguageSettings) {
             return context
         }
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val localeTag = prefs.getString(PREF_KEY_APP_LOCALE, "system") ?: "system"
+        val prefs = getSafePrefs(context)
+        val localeTag = prefs?.getString(PREF_KEY_APP_LOCALE, "system") ?: "system"
         
         val locale = when (localeTag) {
             "system" -> null
@@ -39,8 +41,15 @@ object LocaleHelper {
     }
 
     fun setLocale(context: Context, localeTag: String) {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        prefs.edit { putString(PREF_KEY_APP_LOCALE, localeTag) }
+        val prefs = getSafePrefs(context)
+        prefs?.edit { putString(PREF_KEY_APP_LOCALE, localeTag) }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !context.isDeviceProtectedStorage) {
+            val deviceContext = context.createDeviceProtectedStorageContext()
+            deviceContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit {
+                putString(PREF_KEY_APP_LOCALE, localeTag)
+            }
+        }
 
         val localeList = if (localeTag == "system") {
             LocaleListCompat.getEmptyLocaleList()
@@ -66,8 +75,26 @@ object LocaleHelper {
     }
 
     fun getCurrentLocaleTag(context: Context): String {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getString(PREF_KEY_APP_LOCALE, "system") ?: "system"
+        val prefs = getSafePrefs(context)
+        return prefs?.getString(PREF_KEY_APP_LOCALE, "system") ?: "system"
+    }
+
+    private fun getSafePrefs(context: Context): SharedPreferences? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        }
+
+        if (context.isDeviceProtectedStorage) {
+            return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        }
+
+        val userManager = context.getSystemService(UserManager::class.java)
+        return if (userManager != null && !userManager.isUserUnlocked) {
+            val deviceContext = context.createDeviceProtectedStorageContext()
+            deviceContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        } else {
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        }
     }
 
     fun getLocaleDisplayName(context: Context, localeTag: String): String {

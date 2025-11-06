@@ -155,7 +155,6 @@ class PersistentSettingsManager @Inject constructor(
                 // Apply thermal mode last to ensure it doesn't override CPU settings
                 Shell.cmd("echo $thermalMode > /sys/class/thermal/thermal_message/sconfig").exec()
 
-                Log.d(TAG, "Applied settings - Thermal: $thermalMode, Governor: $governor, MaxFreq: $maxFreq")
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to apply last known settings", e)

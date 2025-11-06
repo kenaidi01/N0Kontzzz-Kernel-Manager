@@ -9,9 +9,15 @@ import android.util.Log
 
 import id.nkz.nokontzzzmanager.utils.LocaleHelper
 import android.content.Context
+import javax.inject.Inject
+import id.nkz.nokontzzzmanager.utils.PreferenceManager
+import id.nkz.nokontzzzmanager.service.BatteryMonitorService
 
 @HiltAndroidApp
 class NkzApp : Application(), Configuration.Provider {
+
+    @Inject
+    lateinit var preferenceManager: PreferenceManager
 
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(LocaleHelper.applyLanguage(base))
@@ -22,7 +28,7 @@ class NkzApp : Application(), Configuration.Provider {
         super.onCreate()
 
         // Initialize Superuser shell with proper flags
-        Shell.enableVerboseLogging = true  // Enable during development
+        Shell.enableVerboseLogging = false
         Shell.setDefaultBuilder(
             Shell.Builder.create()
                 .setFlags(Shell.FLAG_REDIRECT_STDERR)
@@ -40,6 +46,13 @@ class NkzApp : Application(), Configuration.Provider {
                 .build()
         )
         Log.d("NkzApp", "WorkManager initialized successfully")
+
+        // Auto-start Battery Monitor if enabled when app process starts
+        runCatching {
+            if (preferenceManager.isBatteryMonitorEnabled()) {
+                BatteryMonitorService.start(this)
+            }
+        }
     }
 
     override val workManagerConfiguration: Configuration
