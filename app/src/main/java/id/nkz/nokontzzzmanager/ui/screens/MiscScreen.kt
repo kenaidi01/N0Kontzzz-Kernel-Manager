@@ -1,5 +1,12 @@
 package id.nkz.nokontzzzmanager.ui.screens
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.PowerManager
+import android.provider.Settings
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,10 +27,15 @@ import androidx.compose.runtime.collectAsState
 import id.nkz.nokontzzzmanager.ui.dialog.IoSchedulerDialog
 
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import kotlinx.coroutines.launch
 
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import id.nkz.nokontzzzmanager.R
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,10 +65,24 @@ fun MiscScreen(
         }
     }
 
-    val kgslSkipZeroingEnabled by viewModel.kgslSkipZeroingEnabled.collectAsState()
-    val isKgslFeatureAvailable by viewModel.isKgslFeatureAvailable.collectAsState()
-    val bypassChargingEnabled by viewModel.bypassChargingEnabled.collectAsState()
-    val isBypassChargingAvailable by viewModel.isBypassChargingAvailable.collectAsState()
+    val kgslSkipZeroingEnabled by viewModel.kgslSkipZeroingEnabled.collectAsStateWithLifecycle()
+    val isKgslFeatureAvailable by viewModel.isKgslFeatureAvailable.collectAsStateWithLifecycle()
+    val bypassChargingEnabled by viewModel.bypassChargingEnabled.collectAsStateWithLifecycle()
+    val isBypassChargingAvailable by viewModel.isBypassChargingAvailable.collectAsStateWithLifecycle()
+    val batteryMonitorEnabled by viewModel.batteryMonitorEnabled.collectAsStateWithLifecycle()
+    val tcpCongestionAlgorithm by viewModel.tcpCongestionAlgorithm.collectAsStateWithLifecycle()
+    val availableTcpAlgorithms by viewModel.availableTcpCongestionAlgorithms.collectAsStateWithLifecycle()
+    val ioScheduler by viewModel.ioScheduler.collectAsStateWithLifecycle()
+    val availableIoSchedulers by viewModel.availableIoSchedulers.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            viewModel.toggleBatteryMonitor(true)
+        }
+    }
 
     LazyColumn(
         state = lazyListState,
@@ -92,6 +118,59 @@ fun MiscScreen(
             )
         }
 
+        // Battery Monitor toggle
+        item {
+            BatteryMonitorCard(
+                enabled = batteryMonitorEnabled,
+                onToggle = { enabled ->
+                    if (enabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        val granted = ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.POST_NOTIFICATIONS
+                        ) == PackageManager.PERMISSION_GRANTED
+                        if (!granted) {
+                            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        } else {
+                            // Prompt ignore battery optimizations jika belum di-whitelist
+                            val pm = context.getSystemService(PowerManager::class.java)
+                            if (pm != null && !pm.isIgnoringBatteryOptimizations(context.packageName)) {
+                                try {
+                                    val i = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                                        data = Uri.parse("package:" + context.packageName)
+                                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    }
+                                    context.startActivity(i)
+                                } catch (_: Exception) { }
+                            }
+                            viewModel.toggleBatteryMonitor(true)
+                        }
+                    } else {
+                        viewModel.toggleBatteryMonitor(enabled)
+                    }
+                }
+            )
+        }
+
+        // Battery Monitor manual reset
+        item {
+            BatteryMonitorResetCard(
+                onReset = {
+                    viewModel.resetBatteryMonitor()
+                },
+                onEnsurePermission = {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        val granted = ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.POST_NOTIFICATIONS
+                        ) == PackageManager.PERMISSION_GRANTED
+                        if (!granted) {
+                            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                    }
+                }
+            )
+        }
+
         // Spacer between groups
         item {
             Spacer(modifier = Modifier.height(16.dp))
@@ -106,8 +185,8 @@ fun MiscScreen(
         // TCP Congestion Control Algorithm feature
         item {
             TcpCongestionControlCard(
-                tcpCongestionAlgorithm = viewModel.tcpCongestionAlgorithm.collectAsState().value,
-                availableAlgorithms = viewModel.availableTcpCongestionAlgorithms.collectAsState().value,
+                tcpCongestionAlgorithm = tcpCongestionAlgorithm,
+                availableAlgorithms = availableTcpAlgorithms,
                 onAlgorithmChange = { algorithm ->
                     viewModel.updateTcpCongestionAlgorithm(algorithm)
                 }
@@ -117,8 +196,8 @@ fun MiscScreen(
         // I/O Scheduler feature
         item {
             IoSchedulerCard(
-                ioScheduler = viewModel.ioScheduler.collectAsState().value,
-                availableSchedulers = viewModel.availableIoSchedulers.collectAsState().value,
+                ioScheduler = ioScheduler,
+                availableSchedulers = availableIoSchedulers,
                 onSchedulerChange = { scheduler ->
                     viewModel.updateIoScheduler(scheduler)
                 }
@@ -242,6 +321,124 @@ fun KgslSkipZeroingCard(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BatteryMonitorResetCard(
+    onReset: () -> Unit,
+    onEnsurePermission: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp, bottomStart = 24.dp, bottomEnd = 24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        ),
+        onClick = { }
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(id = R.string.battery_monitor_reset_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = stringResource(id = R.string.battery_monitor_reset_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Button(
+                onClick = {
+                    onEnsurePermission()
+                    onReset()
+                },
+                colors = ButtonDefaults.filledTonalButtonColors()
+            ) {
+                Icon(imageVector = Icons.Default.Refresh, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text(text = stringResource(id = R.string.reset_battery_stats))
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BatteryMonitorCard(
+    enabled: Boolean,
+    onToggle: (Boolean) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp, bottomStart = 8.dp, bottomEnd = 8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        ),
+        onClick = { onToggle(!enabled) }
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(id = R.string.battery_monitor),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = stringResource(id = R.string.battery_monitor_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Switch(
+                    checked = enabled,
+                    onCheckedChange = null,
+                    thumbContent = if (enabled) {
+                        {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(SwitchDefaults.IconSize),
+                            )
+                        }
+                    } else {
+                        {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.inverseOnSurface,
+                                modifier = Modifier.size(SwitchDefaults.IconSize),
+                            )
+                        }
+                    }
+                )
             }
         }
     }
@@ -387,7 +584,7 @@ fun BypassChargingCard(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp, bottomStart = 24.dp, bottomEnd = 24.dp),
+        shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp, bottomStart = 8.dp, bottomEnd = 8.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),

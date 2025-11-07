@@ -49,7 +49,6 @@ class ThermalRepository @Inject constructor(
     private var monitoringJob: Job? = null
 
     private fun executeRootCommand(cmd: String, logTag: String = TAG): Shell.Result {
-        Log.d(logTag, "Executing Root Command: '$cmd'")
         if (!rootRepository.isRootStillAvailable()) {
             Log.e(logTag, "Root access not available for command: $cmd")
             return Shell.cmd("false").exec()
@@ -69,7 +68,6 @@ class ThermalRepository @Inject constructor(
     }
 
     private fun readRootCommand(cmd: String, logTag: String = TAG): String? {
-        Log.d(logTag, "Reading Root Command: '$cmd'")
         if (!rootRepository.isRootStillAvailable()) {
             Log.e(logTag, "Root access not available for command: $cmd")
             return null
@@ -176,7 +174,6 @@ class ThermalRepository @Inject constructor(
             Log.e(TAG, "removeThermalScript: Root access is not available.")
             return@withContext false
         }
-        Log.d(TAG, "removeThermalScript: Attempting to remove $thermalScriptPath")
         val rmResult = executeRootCommand("rm -f '$thermalScriptPath'")
         if (rmResult.isSuccess) {
             Log.i(TAG, "removeThermalScript: Successfully removed $thermalScriptPath")
@@ -191,12 +188,9 @@ class ThermalRepository @Inject constructor(
         try {
             val lastMode = context.thermalDataStore.data.first()[LAST_THERMAL_MODE] ?: 0
             if (lastMode != 0) {
-                Log.d(TAG, "Restoring last thermal mode: $lastMode")
                 setThermalModeIndex(lastMode).collect { success ->
                     if (success) {
-                        Log.d(TAG, "Successfully restored thermal mode: $lastMode")
                     } else {
-                        Log.e(TAG, "Failed to restore thermal mode: $lastMode")
                     }
                 }
             }
@@ -210,7 +204,6 @@ class ThermalRepository @Inject constructor(
             context.thermalDataStore.edit { preferences ->
                 preferences[LAST_THERMAL_MODE] = modeIndex
             }
-            Log.d(TAG, "Saved last thermal mode: $modeIndex")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to save last thermal mode", e)
         }
@@ -219,7 +212,6 @@ class ThermalRepository @Inject constructor(
     fun getCurrentThermalModeIndex(): Flow<Int> = flow {
         val output = readRootCommand("cat '$thermalSysfsNode'")
         val value = output?.toIntOrNull() ?: -1
-        Log.d(TAG, "getCurrentThermalModeIndex: Read value $value from $thermalSysfsNode")
         emit(value)
     }.flowOn(Dispatchers.IO)
 
@@ -235,8 +227,6 @@ class ThermalRepository @Inject constructor(
             emit(false)
             return@flow
         }
-
-        Log.d(TAG, "setThermalModeIndex: Attempting to set thermal mode to index $modeIndex")
 
         monitoringJob?.cancel()
         monitoringJob = null

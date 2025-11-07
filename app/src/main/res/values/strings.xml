@@ -198,6 +198,13 @@
     <string name="bypass_charging_activated">Bypass Charging Activated</string>
     <string name="bypass_charging_active_desc">Bypass charging is active. The battery is not charging.</string>
 
+    <!-- Battery Monitor -->
+    <string name="battery_monitor">Battery Monitor</string>
+    <string name="battery_monitor_desc">Show realtime battery stats as a foreground notification</string>
+    <string name="reset_battery_stats">Reset</string>
+    <string name="battery_monitor_reset_title">Reset Battery Monitor</string>
+    <string name="battery_monitor_reset_desc">Clear accumulated stats without turning off the service</string>
+
     <!-- SettingsScreen -->
     <string name="coming_soon">Coming Soon</string>
     <string name="theme_and_display">Theme &amp; Display</string>

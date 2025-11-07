@@ -4,15 +4,15 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "id.xms.xtrakernelmanager",
+  "applicationId": "id.nkz.nokontzzzmanager",
   "variantName": "release",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 1,
-      "versionName": "1.4.-Release",
+      "versionCode": 31,
+      "versionName": "1.0.8",
       "outputFile": "app-release.apk"
     }
   ],
@@ -33,5 +33,5 @@
       ]
     }
   ],
-  "minSdkVersionForDexing": 29
+  "minSdkVersionForDexing": 26
 }
