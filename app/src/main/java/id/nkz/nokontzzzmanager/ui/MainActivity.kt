@@ -339,12 +339,14 @@ class MainActivity : ComponentActivity() {
         val fusionXSupportedHosts = listOf(
             "Kenskuyy@Github",
             "andriann@ServerHive",
+            "build-user@build-host",
             "senx@ubuntu",
             "sensei@ServerHive"
         )
 
         val n0KontzzzSupportedHosts = listOf(
-            "bimoalfarrabi@github.com"
+            "bimoalfarrabi@github.com",
+            "build-user@build-host"
         )
 
         try {
