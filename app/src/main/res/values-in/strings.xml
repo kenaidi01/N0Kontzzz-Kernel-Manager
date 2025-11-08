@@ -203,6 +203,7 @@
     <string name="reset_battery_stats">Reset</string>
     <string name="battery_monitor_reset_title">Reset Monitor Baterai</string>
     <string name="battery_monitor_reset_desc">Hapus akumulasi statistik tanpa mematikan layanan</string>
+    <string name="battery_stats_reset_toast">Statistik baterai direset</string>
 
     <!-- SettingsScreen -->
     <string name="coming_soon">Segera Hadir</string>

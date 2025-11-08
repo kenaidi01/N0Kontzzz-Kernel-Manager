@@ -1,11 +1,11 @@
 package id.nkz.nokontzzzmanager.ui.screens
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.PowerManager
 import android.provider.Settings
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,7 +23,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import id.nkz.nokontzzzmanager.ui.dialog.TcpCongestionDialog
 import id.nkz.nokontzzzmanager.viewmodel.MiscViewModel
-import androidx.compose.runtime.collectAsState
 import id.nkz.nokontzzzmanager.ui.dialog.IoSchedulerDialog
 
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -36,12 +35,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import id.nkz.nokontzzzmanager.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import android.widget.Toast
+import androidx.core.net.toUri
 
+@SuppressLint("BatteryLife")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MiscScreen(
     navController: NavController? = null,
-    viewModel: MiscViewModel = hiltViewModel()
+    viewModel: MiscViewModel = hiltViewModel(),
 ) {
     val lazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -136,7 +138,7 @@ fun MiscScreen(
                             if (pm != null && !pm.isIgnoringBatteryOptimizations(context.packageName)) {
                                 try {
                                     val i = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-                                        data = Uri.parse("package:" + context.packageName)
+                                        data = ("package:" + context.packageName).toUri()
                                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                     }
                                     context.startActivity(i)
@@ -213,7 +215,7 @@ fun MiscScreen(
 fun KgslSkipZeroingCard(
     kgslSkipZeroingEnabled: Boolean,
     isKgslFeatureAvailable: Boolean?,
-    onToggleKgslSkipZeroing: (Boolean) -> Unit
+    onToggleKgslSkipZeroing: (Boolean) -> Unit,
 ) {
     // Treat null as false for UI purposes, preventing flicker during initial load
     val featureAvailable = isKgslFeatureAvailable == true
@@ -330,15 +332,20 @@ fun KgslSkipZeroingCard(
 @Composable
 fun BatteryMonitorResetCard(
     onReset: () -> Unit,
-    onEnsurePermission: () -> Unit
+    onEnsurePermission: () -> Unit,
 ) {
+    val context = LocalContext.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp, bottomStart = 24.dp, bottomEnd = 24.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),
-        onClick = { }
+        onClick = {
+            onEnsurePermission()
+            onReset()
+            Toast.makeText(context, context.getString(R.string.battery_stats_reset_toast), Toast.LENGTH_SHORT).show()
+        }
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -363,18 +370,6 @@ fun BatteryMonitorResetCard(
                     )
                 }
             }
-
-            Button(
-                onClick = {
-                    onEnsurePermission()
-                    onReset()
-                },
-                colors = ButtonDefaults.filledTonalButtonColors()
-            ) {
-                Icon(imageVector = Icons.Default.Refresh, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text(text = stringResource(id = R.string.reset_battery_stats))
-            }
         }
     }
 }
@@ -383,7 +378,7 @@ fun BatteryMonitorResetCard(
 @Composable
 fun BatteryMonitorCard(
     enabled: Boolean,
-    onToggle: (Boolean) -> Unit
+    onToggle: (Boolean) -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -448,7 +443,7 @@ fun BatteryMonitorCard(
 fun TcpCongestionControlCard(
     tcpCongestionAlgorithm: String?,
     availableAlgorithms: List<String>,
-    onAlgorithmChange: (String) -> Unit
+    onAlgorithmChange: (String) -> Unit,
 ) {
     var showDialog by remember { mutableStateOf(false) }
     
@@ -512,7 +507,7 @@ fun TcpCongestionControlCard(
 fun IoSchedulerCard(
     ioScheduler: String?,
     availableSchedulers: List<String>,
-    onSchedulerChange: (String) -> Unit
+    onSchedulerChange: (String) -> Unit,
 ) {
     var showDialog by remember { mutableStateOf(false) }
     
@@ -577,7 +572,7 @@ fun IoSchedulerCard(
 fun BypassChargingCard(
     bypassChargingEnabled: Boolean,
     isBypassChargingAvailable: Boolean?,
-    onToggleBypassCharging: (Boolean) -> Unit
+    onToggleBypassCharging: (Boolean) -> Unit,
 ) {
     // Treat null as false for UI purposes, preventing flicker during initial load
     val featureAvailable = isBypassChargingAvailable == true

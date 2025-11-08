@@ -204,6 +204,7 @@
     <string name="reset_battery_stats">Reset</string>
     <string name="battery_monitor_reset_title">Reset Battery Monitor</string>
     <string name="battery_monitor_reset_desc">Clear accumulated stats without turning off the service</string>
+    <string name="battery_stats_reset_toast">Battery stats reset</string>
 
     <!-- SettingsScreen -->
     <string name="coming_soon">Coming Soon</string>
